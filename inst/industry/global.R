@@ -157,7 +157,8 @@ libs <- c("AlgDesign",
           "vegan",
           "wordcloud",
           "XLConnect",
-          "xtable"
+          "xtable",
+          "websockets"
           )
 
 libs.dev <- c("stan", "rMaps", "screening")
@@ -167,6 +168,7 @@ if (length(libs.dev) > 0)
     library(devtools)
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
     install_github("rCharts", username = "ramnathv")
+    install_github("R-Websockets", username = "rstudio")
     install_github("shinyExt", username = "marcionicolau")
     install_github("shinysky", username = "AnalytixWare")
     suppressWarnings(sapply(libs.dev, install_github, username = "bowerth"))
