@@ -146,7 +146,7 @@ libs <- c("AlgDesign",
           "rMaps", # github (own)
           "RColorBrewer",
           "reshape2",
-          "screening", # github (own)
+          ## "screening", # github (own)
           "shiny",
           "shinyAce",
           "shinysky", # github
@@ -161,8 +161,11 @@ libs <- c("AlgDesign",
           "websockets"
           )
 
-libs.dev <- c("stan", "rMaps", "screening")
-if (length(libs.dev) > 0)
+libs.dev <- c("stan", "rMaps")
+available.dev <- suppressWarnings(sapply(libs.dev, require, character.only=TRUE))
+inst.libs.dev <- libs.dev[available.dev == FALSE]
+if(length(inst.libs.dev) != 0)
+## if (length(libs.dev) > 0)
   {
     ## libs <- libs[!libs%in%libs.dev]
     library(devtools)
