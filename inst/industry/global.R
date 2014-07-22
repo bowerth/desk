@@ -142,7 +142,7 @@ libs <- c("AlgDesign",
           "MASS",
           "plyr",
           "psych",
-          "rCharts", # stanIndic
+          ## "rCharts", # stanIndic
           "rMaps", # icioFddva
           "RColorBrewer", # icioFddva, stanRnd
           "reshape2",
@@ -167,6 +167,7 @@ if (length(libs.dev) > 0)
     ## libs <- libs[!libs%in%libs.dev]
     library(devtools)
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
+    install_github("rCharts", username = "ramnathv")
     suppressWarnings(sapply(libs.dev, install_github, username = "bowerth", dependencies = FALSE))
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
     detach("package:devtools", unload = TRUE)
