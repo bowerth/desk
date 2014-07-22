@@ -20,8 +20,8 @@ shinyServer(function(input, output, session) {
         source("tools/indic/icioFddva.R", local = TRUE)
         ## source("tools/indic/stanIndic.R", local = TRUE)
         ## source("tools/indic/stanRnd.R", local = TRUE)
-        source("tools/indic/stani3Estimate.R", local = TRUE)
-        source("tools/indic/lfsShare.R", local = TRUE)
+        ## source("tools/indic/stani3Estimate.R", local = TRUE)
+        ## source("tools/indic/lfsShare.R", local = TRUE)
 
         R.utils::sourceDirectory('tools/disclaimer', recursive = TRUE)
 	R.utils::sourceDirectory('tools/app', recursive = TRUE)
