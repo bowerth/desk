@@ -159,7 +159,7 @@ ui.icioFddva.cou <- list(
 ui.icioFddva.year <- c(1995, 2000, 2005, 2008, 2009)
 ##
 ui.icioFddva.coef <- rbind.data.frame(
-  c("eB", "Employment"),
+  ## c("eB", "Employment"),
   c("vB", "Value added")
   )
 names(ui.icioFddva.coef) <- c("coef", "label")
