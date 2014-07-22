@@ -1,0 +1,6 @@
+### STI/EAS Indicators
+
+Version 0.1 (23/04/2014)
+
+By: <a href="http://www.oecd.org/sti/" target="_blank">OECD STI</a> (stan.contact[at]oecd.org)
+Built using <a href="http://www.rstudio.com/shiny/" target="_blank">Shiny</a> by <a href="http://www.rstudio.com/" target="_blank">Rstudio</a>

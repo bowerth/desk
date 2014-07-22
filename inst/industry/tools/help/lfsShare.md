@@ -1,0 +1,174 @@
+Data has been integrated from national and harmonized sources
+- industry dimension converted to ISIC Rev. 4 from national sources
+- variable corresponds to persons engaged (EMPN) / employed (EMPE) / self-employed (SELF)
+
+#### Functionality
+
+Choose the dimension to compare as x-Axis variable. This dimension is mapped to
+- columns in data table
+- x-axis in data plot
+
+Plot colours represent occupation categories
+- LFSEU and LFSILO use ISCO 2008
+- LFSNSO uses national classifications
+
+Tick "Show occupation labels" to replace occupation codes with corresponding labels
+
+Un-tick box "Calculate share in total" to compare absolute values
+
+#### Occupation Codes
+
+##### EULFS, ILOSTAT (ISCO 2008)
+
+|Code  |Label                                               |
+|:-----|:---------------------------------------------------|
+|OC1   |Managers                                            |
+|OC2   |Professionals                                       |
+|OC3   |Technicians and associate professionals             |
+|OC4   |Clerical support workers                            |
+|OC5   |Service and sales workers                           |
+|OC6   |Skilled agricultural, forestry and fishery workers  |
+|OC7   |Craft and related trades workers                    |
+|OC8   |Plant and machine operators, and assemblers         |
+|OC9   |Elementary occupations                              |
+|OC0   |Armed forces occupations                            |
+
+##### Australia
+
+|Code     |Label                                   |
+|:--------|:---------------------------------------|
+|ANZSCO1  |Managers                                |
+|ANZSCO2  |Professionals                           |
+|ANZSCO3  |Technicians and Trades Workers          |
+|ANZSCO4  |Community and Personal Service Workers  |
+|ANZSCO5  |Clerical and Administrative Workers     |
+|ANZSCO6  |Sales Workers                           |
+|ANZSCO7  |Machinery Operators and Drivers         |
+|ANZSCO8  |Labourers                               |
+
+##### Canada
+
+|Code      |Label                                                                      |
+|:---------|:--------------------------------------------------------------------------|
+|NOCSCANA  |Management Occupations                                                     |
+|NOCSCANB  |Business, Finance and Administrative Occupations                           |
+|NOCSCANC  |Natural and Applied Sciences and Related Occupations                       |
+|NOCSCAND  |Health Occupations                                                         |
+|NOCSCANE  |Occupations in Social Science, Education, Government Service and Religion  |
+|NOCSCANF  |Occupations in Art, Culture, Recreation and Sport                          |
+|NOCSCANG  |Sales and Service Occupations                                              |
+|NOCSCANH  |Trades, Transport and Equipment Operators and Related Occupations          |
+|NOCSCANI  |Occupations Unique to Primary Industry                                     |
+|NOCSCANJ  |Occupations Unique to Processing, Manufacturing and Utilities              |
+
+##### United States
+
+|Code      |Label                                              |
+|:---------|:--------------------------------------------------|
+|SOCUSA01  |Management, business, and financial occupations    |
+|SOCUSA02  |Professional and related occupations               |
+|SOCUSA03  |Service occupations                                |
+|SOCUSA04  |Sales and related occupations                      |
+|SOCUSA05  |Office and administrative support occupations      |
+|SOCUSA06  |Farming, fishing, and forestry occupations         |
+|SOCUSA07  |Construction and extraction occupations            |
+|SOCUSA08  |Installation, maintenance, and repair occupations  |
+|SOCUSA09  |Production occupations                             |
+|SOCUSA10  |Transportation and material moving occupations     |
+
+#### STAN ISIC Rev. 4
+
+|Code  |Label                                                                                                    |
+|:-----|:--------------------------------------------------------------------------------------------------------|
+|D01   |Crop and animal production, hunting and related service activities                                       |
+|D02   |Forestry and logging                                                                                     |
+|D03   |Fishing and aquaculture                                                                                  |
+|D05   |Mining of coal and lignite                                                                               |
+|D06   |Extraction of crude petroleum and natural gas                                                            |
+|D07   |Mining of metal ores                                                                                     |
+|D08   |Other mining and quarrying                                                                               |
+|D09   |Mining support service activities                                                                        |
+|D10   |Food products                                                                                            |
+|D11   |Beverages                                                                                                |
+|D12   |Tobacco products                                                                                         |
+|D13   |Textiles                                                                                                 |
+|D14   |Wearing apparel                                                                                          |
+|D15   |Leather and related products                                                                             |
+|D16   |Wood and products of wood and cork, except furniture; articles of straw and plaiting materials           |
+|D17   |Paper and paper products                                                                                 |
+|D18   |Printing and reproduction of recorded media                                                              |
+|D19   |Coke and refined petroleum products                                                                      |
+|D20   |Chemicals and chemical products                                                                          |
+|D21   |Basic pharmaceutical products and pharmaceutical preparations                                            |
+|D22   |Rubber and plastics products                                                                             |
+|D23   |Other non-metallic mineral products                                                                      |
+|D24   |Basic metals                                                                                             |
+|D25   |Fabricated metal products, except machinery and equipment                                                |
+|D26   |Computer, electronic and optical products                                                                |
+|D27   |Electrical equipment                                                                                     |
+|D28   |Machinery and equipment n.e.c.                                                                           |
+|D29   |Motor vehicles, trailers and semi-trailers                                                               |
+|D30   |Other transport equipment                                                                                |
+|D31   |Furniture                                                                                                |
+|D32   |Other manufacturing                                                                                      |
+|D33   |Repair and installation of machinery and equipment                                                       |
+|D35   |Electricity, gas, steam and air conditioning supply                                                      |
+|D36   |Water collection, treatment and supply                                                                   |
+|D37   |Sewerage                                                                                                 |
+|D38   |Waste collection, treatment and disposal activities; materials recovery                                  |
+|D39   |Remediation activities and other waste management services                                               |
+|D41   |Construction of buildings                                                                                |
+|D42   |Civil engineering                                                                                        |
+|D43   |Specialized construction activities                                                                      |
+|D45   |Wholesale and retail trade and repair of motor vehicles and motorcycles                                  |
+|D46   |Wholesale trade, except of motor vehicles and motorcycles                                                |
+|D47   |Retail trade, except of motor vehicles and motorcycles                                                   |
+|D49   |Land transport and transport via pipelines                                                               |
+|D50   |Water transport                                                                                          |
+|D51   |Air transport                                                                                            |
+|D52   |Warehousing and support activities for transportation                                                    |
+|D53   |Postal and courier activities                                                                            |
+|D55   |Accommodation                                                                                            |
+|D56   |Food and beverage service activities                                                                     |
+|D58   |Publishing activities                                                                                    |
+|D59   |Motion picture, video and television programme production, sound recording and music publishing acti...  |
+|D60   |Programming and broadcasting activities                                                                  |
+|D61   |Telecommunications                                                                                       |
+|D62   |Computer programming, consultancy and related activities                                                 |
+|D63   |Information service activities                                                                           |
+|D64   |Financial service activities, except insurance and pension funding                                       |
+|D65   |Insurance, reinsurance and pension funding, except compulsory social security                            |
+|D66   |Activities auxiliary to financial service and insurance activities                                       |
+|D68   |Real estate activities                                                                                   |
+|D69   |Legal and accounting activities                                                                          |
+|D70   |Activities of head offices; management consultancy activities                                            |
+|D71   |Architectural and engineering activities; technical testing and analysis                                 |
+|D72   |Scientific research and development                                                                      |
+|D73   |Advertising and market research                                                                          |
+|D74   |Other professional, scientific and technical activities                                                  |
+|D75   |Veterinary activities                                                                                    |
+|D77   |Rental and leasing activities                                                                            |
+|D78   |Employment activities                                                                                    |
+|D79   |Travel agency, tour operator, reservation service and related activities                                 |
+|D80   |Security and investigation activities                                                                    |
+|D81   |Services to buildings and landscape activities                                                           |
+|D82   |Office administrative, office support and other business support activities                              |
+|D84   |Public administration and defence; compulsory social security                                            |
+|D85   |Education                                                                                                |
+|D86   |Human health activities                                                                                  |
+|D87   |Residential care activities                                                                              |
+|D88   |Social work activities without accommodation                                                             |
+|D90   |Creative, arts and entertainment activities                                                              |
+|D91   |Libraries, archives, museums and other cultural activities                                               |
+|D92   |Gambling and betting activities                                                                          |
+|D93   |Sports activities and amusement and recreation activities                                                |
+|D94   |Activities of membership organizations                                                                   |
+|D95   |Repair of computers and personal and household goods                                                     |
+|D96   |Other personal service activities                                                                        |
+|D97   |Activities of households as employers of domestic personnel                                              |
+|D98   |Undifferentiated goods- and services-producing activities of private households for own use              |
+|D99   |Activities of extraterritorial organizations and bodies                                                  |
+
+---
+
+&copy; OECD (2014)

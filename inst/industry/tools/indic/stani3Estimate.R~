@@ -1,0 +1,878 @@
+#######################################
+## Shiny interface for data functions
+#######################################
+## data ui and tabs
+## output$ui_stani3estimatei4 <- renderUI({
+
+names.VIS.SOU <- c("sou", "label", "col", "type", "lty", "pch", "in.ui", "estim", "unit", "isic")
+VIS.SOU <- rbind.data.frame(
+    c("",              "",                  "#4F81BD", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#C0504D", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#9BBB59", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#8064A2", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#4BACC6", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#F79646", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#95B3D7", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#DA9694", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#C4D79B", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#FABF8F", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#B1A0C7", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("",              "",                  "#92CDDC", "l", 5, NA,  FALSE, FALSE, 6, 3),
+    c("STANandBTD",    "STAN\nand\nBTD",    "#C0504D", "l", 1, NA,  TRUE,  FALSE, 6, 3), # red
+    c("STANandBTDi4",  "STAN\nand\nBTDi4",  "#C0504D", "l", 5, NA,  TRUE,  FALSE, 6, 4), # red, dashed
+    c("BTDIXE",        "BTD\nIXE",          "#C0504D", "l", 1, NA,  FALSE, FALSE, 6, 3), # red
+    c("OECDSUT112013", "OECD\nSUT\n112013", "#4F81BD", "l", 5, NA,  TRUE,  FALSE, 6, 3), # blue, dashed
+    c("WIOT042012",    "WIOT\n042012",      "#9BBB59", "l", 1, NA,  TRUE,  FALSE, 0, 3), # green
+    c("WIOT112013",    "WIOT\n112013",      "#9BBB59", "l", 1, NA,  TRUE,  FALSE, 0, 3), # green
+    c("INDSTAT32",     "IND\nSTAT\n32",     "#8064A2", "l", 1, NA,  TRUE,  FALSE, 0, 3), # magenta
+    c("UNSDSNA2013",   "UNSD\nSNA\n2013",   "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    c("UNDATA203CON",  "UNDATA\n203\nCON",  "#F79646", "l", 5, NA,  TRUE,  FALSE, 6, 3), # orange, dashed
+    c("UNDATA203100",  "UNDATA\n203\n100",  "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    ## c("UNDATA203150",  "UNDATA\n203\n150",  "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    c("UNDATA203200",  "UNDATA\n203\n200",  "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    c("UNDATA203300",  "UNDATA\n203\n300",  "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    c("UNDATA203400",  "UNDATA\n203\n400",  "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    c("UNDATA203500",  "UNDATA\n203\n500",  "#F79646", "l", 1, NA,  TRUE,  FALSE, 6, 3), # orange
+    c("NSONAPATCH",    "NSO\nNAPATCH",      "#C0504D", "l", 1, NA,  TRUE,  FALSE, 6, 3), # red
+    c("EUNAIOR1",      "EU\nNAIO\nR1",      "black",   "l", 5, NA,  TRUE,  FALSE, 6, 3), # black, dashed
+    c("ICIO052013",    "ICIO\n052013",      "black",   "p", 0, 19, TRUE,  FALSE, 0, 3), # black, dots
+    c("PATCHEXT",      "PATCH\nEXT",        "#4F81BD", "b", 5, 0,  TRUE,  TRUE,  6, 3), # blue, dashed
+    c("PATCHDET",      "PATCH\nDET",        "#4F81BD", "b", 5, 0,  TRUE,  TRUE,  6, 3) # blue, dashed
+    )
+names(VIS.SOU) <- names.VIS.SOU
+VIS.SOU$col <- as.character(VIS.SOU$col)
+VIS.SOU$type <- as.character(VIS.SOU$type)
+VIS.SOU$lty <- as.numeric(as.character(VIS.SOU$lty))
+VIS.SOU$pch <- as.numeric(as.character(VIS.SOU$pch))
+##
+ui.sou <- as.character(VIS.SOU$sou[VIS.SOU$in.ui==TRUE])
+ui.sou.estim <- as.character(VIS.SOU$sou[VIS.SOU$estim==TRUE])
+ui.sou.isic4 <- as.character(VIS.SOU$sou[VIS.SOU$isic==4])
+
+ui.sou.ext <- c("", ui.sou)
+ui.sou.det <- c("", ui.sou)
+
+
+
+data(stanDim)
+
+dat <- isolate(values[["STANNAi3"]])
+class(dat)
+
+## sou <- names(dat)[1]
+for (sou in names(dat))
+  {
+    eval(parse(text = paste0(sou, ' <- dat$', sou)))
+  }
+
+DATA.STANandBTD <- rbind(DATA.STAN, DATA.BTD)
+
+    ## data(STANNAi4)
+dat <- isolate(values[["STANNAi4"]])
+for (sou in names(dat))
+  {
+    eval(parse(text = paste0(sou, ' <- dat$', sou)))
+  }
+
+    DATA.STAN <- DATA.STAN[DATA.STAN$var%in%DATA.STANandBTD$var,]
+    DATA.BTD <- DATA.BTD[DATA.BTD$var%in%DATA.STANandBTD$var,]
+
+    ## load(paste0(PATH.SASi4,'DATA_in\\SNA\\SNA_PPEX.rda'))
+    DATA.STAN <- merge(DATA.STAN, DATA.XRATES[DATA.XRATES$var=="EXCH",], by = c("cou", "year"))
+    names(DATA.STAN) <-  sub("var.x", "var", names(DATA.STAN))
+    names(DATA.STAN) <-  sub("value.x", "value", names(DATA.STAN))
+    DATA.STAN$value[DATA.STAN$var%in%STAN.VARMON] <- DATA.STAN$value[DATA.STAN$var%in%STAN.VARMON] / DATA.STAN$value.y[DATA.STAN$var%in%STAN.VARMON]
+    DATA.STAN <- subset(DATA.STAN, select = c("cou", "var", "ind", "year", "value"))
+    DATA.STANandBTDi4 <- rbind(DATA.STAN, DATA.BTD)
+
+    ## file <- paste0(PATH.SASi4, "Lists\\MDL_STAN_i4_i3_A64.txt")
+    ## line.remove <- c("/* aggregate */")
+    ## formula.ind <- SASformula(file=file, line.remove=line.remove)
+    ## cat(paste0('c("', formula.ind$ind, '","', formula.ind$formula, '"),\n'))
+
+    ## STANi3.HIERARCHY
+    formula.indi4i3 <- rbind.data.frame(
+        c("CTOTAL","DTOTAL"),
+        c("C01T05","D01T03"),
+        c("C10T14","D05T09"),
+        c("C15T16","D10T12"),
+        c("C17T19","D13T15"),
+        c("C20","D16"),
+        c("C21T22","D17+D18+D58"),
+        c("C23","D19"),
+        c("C24","D20T21"),
+        c("C25","D22"),
+        c("C26","D23"),
+        c("C27","D24"),
+        c("C28","D25"),
+        c("C29","D28"),
+        c("C30T33X","D26"),
+        c("C31","D27"),
+        c("C34","D29"),
+        c("C35","D30"),
+        c("C36T37","D31T33"),
+        c("C40T41","D35+D36"),
+        c("C45","D41T43"),
+        c("C50T52","D45T47+D95"),
+        c("C55","D55T56"),
+        c("C60T63","D49+D50+D51+D52+D79"),
+        c("C64","D53+D61"),
+        c("C65T67","D64T66"),
+        c("C70","D68"),
+        c("C71","D77"),
+        c("C72","D62T63"),
+        c("C73","D72"),
+        c("C74","D69T71+D73T75+D78+D80T82"),
+        c("C75T99","D84+D85+D86T88+D37T39+D59T60+D90T93+D94+D96+D97T98"),
+        c("C75","D84"),
+        c("C80","D85"),
+        c("C85","D86T88"),
+        c("C90T93","D37T39+D59T60+D90T93+D94+D96"),
+        c("C95","D97T98")
+        ## c("C75T99","C75+C80+C85+C90T93+C95")
+        )
+    names(formula.indi4i3) <- c("ind", "formula")
+
+    ## sou <- ui.sou.isic4[1]
+    for (sou in ui.sou.isic4)
+    {
+        eval(parse(text = paste0('data <- DATA.', sou)))
+        data <- dcast(data, cou + var + year ~ ind, value.var = "value")
+        id.vars <- c("cou", "var", "year")
+        data <- calcFormula(data=data, formula=formula.indi4i3, id.vars=id.vars)
+        data <- melt(data, id.vars = id.vars, variable.name = "ind", na.rm = TRUE)
+        data <- subset(data, select = c("cou", "var", "ind", "year", "value"))
+        ## data <- data[!is.na(data$ind),]
+        eval(parse(text = paste0('DATA.', sou, ' <- data')))
+    }
+
+    ##
+    for (sou in ui.sou[!ui.sou%in%ui.sou.estim])
+    {
+        ## add source name
+        eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
+        ## modify value unit
+        eval(parse(text = paste0('DATA.', sou, '$value <- DATA.', sou, '$value * 10^(-', VIS.SOU$unit[VIS.SOU$sou==sou], ')')))
+        ## ## order by factor levels -> not required, taking place in data table
+        ## eval(parse(text = paste0('DATA.', sou, ' <- DATA.', sou, '[order(DATA.', sou, '$cou, DATA.', sou, '$var, DATA.', sou, '$ind, DATA.', sou, '$year),]')))
+        ## pivot to add aggregates
+        eval(parse(text = paste0('DATA.', sou, ' <- dcast(DATA.', sou, ', cou + sou + var + year ~ ind, value.var = "value")')))
+        ## add aggregates
+        eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3)')))
+        ## pivot back to long format
+        eval(parse(text = paste0('DATA.', sou, ' <- melt(DATA.', sou, ', id.vars = c("cou", "sou", "var", "year"), variable.name = "ind", na.rm = TRUE)')))
+        ## ## remove missing values
+        ## eval(parse(text = paste0('DATA.', sou, ' <- DATA.', sou, '[!is.na(DATA.', sou, '$value),]')))
+    }
+    ## for (sou in ui.sou[!ui.sou%in%ui.sou.estim]) eval(parse(text = paste0('print("', sou, '");print(n(DATA.', sou, '))')))
+    ## combine all data sources
+    command.data.all <- NULL
+    for (sou in c(ui.sou[!ui.sou%in%ui.sou.estim]))
+    {
+        command.data.all <- paste0(command.data.all, paste0('DATA.', sou, ','))
+    }
+    ## remove trailing comma from last data set
+    command.data.all <- toString(paste0('data.all <- rbind(', substr(command.data.all, 1, nchar(command.data.all)-1), ')'))
+    eval(parse(text = command.data.all))
+
+
+
+## ########################
+## stani3Estimate ui script
+## ########################
+
+## ui.stani3Estimate.rchartlib <- c("highcharts", "polycharts", "nvd3", "morris")
+## ui.stani3Estimate.charttype <- c("Bar", "Scatter", "Bubble", "Line")
+
+output$uiSi_charttype <- renderUI({
+    if (input$tabs_stani3Estimate=="PolyCharts")
+        {
+            ui.stani3Estimate.charttype <- c("Bar", "Scatter")
+            ui.stani3Estimate.charttype.selected <- "Bar"
+        }
+    if (input$tabs_stani3Estimate=="HighCharts")
+        {
+            ui.stani3Estimate.charttype <- c("Bar", "Scatter", "Bubble")
+            ui.stani3Estimate.charttype.selected <- "Bubble"
+        }
+    if (input$tabs_stani3Estimate=="NVD3Charts")
+        {
+            ui.stani3Estimate.charttype <- c("Bar", "Scatter")
+            ui.stani3Estimate.charttype.selected <- "Bar"
+        }
+    if (input$tabs_stani3Estimate=="MorrisCharts")
+        {
+            ui.stani3Estimate.charttype <- c("Bar", "Line", "Area")
+            ui.stani3Estimate.charttype.selected <- "Line"
+        }
+
+    ## selectInput("stani3estimate_charttype", "Select chart type:", state_init_list("stani3estimate_charttype", "Bar", ui.stani3Estimate.charttype))
+    selectInput("stani3estimate_charttype", "Select chart type:",
+                choices = ui.stani3Estimate.charttype,
+                selected = ui.stani3Estimate.charttype.selected)
+
+})
+
+
+output$uiSi_nameyear <- renderUI({
+    if (input$tabs_stani3Estimate%in%c("PolyCharts", "HighCharts", "NVD3Charts", "MorrisCharts"))
+    {
+        if (input$stani3estimate_charttype%in%c("Bar", "Scatter", "Bubble"))
+        {
+            selectInput("stani3estimate_nameyear", "Year:", as.list(c(2012:1970)), selected = 2011, multiple = FALSE)
+        } else
+        {
+            sliderInput("stani3estimate_nameyear",
+                        "Years:",
+                        value = c(1970,2012),
+                        min = 1970,
+                        max = 2012,
+                        step = 1,
+                        format="#")
+        }
+    } else
+    {
+        sliderInput("stani3estimate_nameyear",
+                    "Years:",
+                    value = c(1970,2012),
+                    min = 1970,
+                    max = 2012,
+                    step = 1,
+                    format="#")
+    }
+})
+
+
+output$ui_stani3Estimate <- renderUI({
+
+  doLogin()
+  if (loginData$LoggedIn) {
+
+      list(
+        conditionalPanel(condition="input.tabs_stani3Estimate=='PolyCharts' | input.tabs_stani3Estimate=='HighCharts' | input.tabs_stani3Estimate=='NVD3Charts' | input.tabs_stani3Estimate=='MorrisCharts'",
+                         uiOutput("uiSi_charttype")
+                         ),
+          selectInput("stani3estimate_indic", "Indicator:", ui.stani3Estimate.indic),
+          conditionalPanel(condition="input.stani3estimate_charttype=='Scatter' | input.stani3estimate_charttype=='Bubble'",
+                           selectInput("stani3estimate_indic2", "Indicator 2 (y-axis):", ui.stani3Estimate.indic, selected = "ESHT"),
+                           conditionalPanel(condition="input.stani3estimate_charttype=='Bubble'",
+                                            selectInput("stani3estimate_indic3", "Indicator 3 (size):", ui.stani3Estimate.indic, selected = "LBNT")
+                                            ),
+                           selectInput("stani3estimate_group", "Group by:", ui.stani3Estimate.group, selected = "cou")
+                           )
+          ,
+          conditionalPanel(condition="input.tabs_stani3Estimate=='Tables'",
+                           ## checkboxInput("cover", "Show data coverage", FALSE),
+                           checkboxInput("stani3estimate_showIndic", "Show indicator values", TRUE),
+                           checkboxInput("stani3estimate_showData", "Show source data values", FALSE),
+                           selectInput("stani3estimate_pivotRow", "ID variables and order of sorting",
+                                       as.list(c("var", "cou", "ind", "year")),
+                                       selected = c("var", "cou", "ind"), multiple = TRUE)
+                           ),
+          ## conditionalPanel(condition="input.tabs_stani3Estimate=='download'",
+          ##                  checkboxInput("stani3estimate_pivotDataDownload", "Show variables in columns", FALSE)
+          ##                  ),
+          actionButton("stani3estimate_recalcButton", "Recalculate with selection"),
+          selectInput("stani3estimate_namecou", "Country:", as.list(STAN.COU), selected = sample(STAN.COU, 15), multiple = TRUE),
+          selectInput("stani3estimate_nameind", "Industries:", c(list("A10"), as.list(STANi4.INDALL)), selected = "D10T33", multiple = TRUE),
+
+          uiOutput("uiSi_nameyear"),
+          ## conditionalPanel(condition="input.tabs_stani3Estimate=='Tables' | input.tabs_stani3Estimate=='MorrisCharts' | input.stani3estimate_charttype=='Line'",
+        ##                    sliderInput("stani3estimate_nameyear",
+        ##                                "Years:",
+        ##                                value = c(1970,2012),
+        ##                                min = 1970,
+        ##                                max = 2012,
+        ##                                step = 1,
+        ##                                format="#")
+        ##                    ),
+        ## conditionalPanel(condition="input.tabs_stani3Estimate=='PolyCharts' | input.tabs_stani3Estimate=='HighCharts' | input.tabs_stani3Estimate=='NVD3Charts'",
+        ##                  conditionalPanel(condition="input.stani3estimate_charttype=='Bar' | input.stani3estimate_charttype=='Scatter' | input.stani3estimate_charttype=='Bubble'",
+        ##                                   selectInput("stani3estimate_year", "Year:", as.list(c(2012:1970)), selected = 2011, multiple = FALSE)
+        ##                                   )
+        ##                  )
+        ## ,
+
+          selectInput("stani3estimate_cur", "Currency:",
+                      list(
+                          "Purchasing Power Parities" = "PPPS",
+                          "Exchange Rate" = "EXCH",
+                          "National Currency Units" = "NCU"
+                          )
+                      ),
+          numericInput("stani3estimate_rounddec", "Round to number of decimals:", 4),
+          conditionalPanel(condition="input.tabs_stani3Estimate=='table' | input.tabs_stani3Estimate=='download'",
+                           helpText("Download comma-separated values:"),
+                           downloadButton('stani3estimate_downloadData', label= '')
+                           ),
+          helpAndReport("STAN Indicators","stani3Estimate",inclMD("tools/help/stani3Estimate.md"))
+          ) # list(...
+
+  } else
+    {
+      h3("Please log in")
+    }
+
+})
+output$stani3Estimate <- renderUI({
+  ## for input-output
+  statTabPanel(menu_name = "STAN", # menu_name: for side bar - coincide with navbarMenu
+               fun_name = "STAN Indicators",   # fun_name
+               rfun_label = ".stani3Estimate", # rfun_label
+               fun_label = "stani3Estimate" # fun_label
+               ## ,rChart_lib = input$stani3estimate_rchartlib
+               ,fun_tabs = c("Tables", "PolyCharts", "HighCharts", "NVD3Charts")
+               )
+})
+
+
+## ######################
+## Input test
+## ######################
+
+## input <- list(
+##     stani3estimate_indic = "VSHT",
+##     stani3estimate_indic2 = "ESHT",
+##     stani3estimate_indic3 = "LBNT",
+##     stani3estimate_group = "cou",
+##     stani3estimate_showIndic = TRUE,
+##     stani3estimate_showData = FALSE,
+##     stani3estimate_pivotRow = c("var", "cou", "ind"),
+##     ## stani3estimate_pivotDataDownload = stani3estimate_pivotDataDownload
+##     stani3estimate_recalcButton = 0,
+##     stani3estimate_namecou = c("AUT", "DEU", "FRA", "CHL", "JPN"),
+##     stani3estimate_nameind = c("D01T03", "D10T33"),
+##     ## stani3estimate_nameyear = c(1970, 2012),
+##     stani3estimate_nameyear = 2006,
+##     stani3estimate_charttype = "Scatter",
+##     stani3estimate_cur = "PPPS",
+##     stani3estimate_rounddec = 4,
+##     stani3estimate_downloadData = 0,
+##     tabs_stani3Estimate = "PolyCharts",
+##     viz_plot_height = 650,
+##     viz_plot_width = 650
+## )
+## stani3estimate_indic = input$stani3estimate_indic
+## stani3estimate_indic2 = input$stani3estimate_indic2
+## stani3estimate_indic3 = input$stani3estimate_indic3
+## stani3estimate_group = input$stani3estimate_group
+## stani3estimate_showIndic = input$stani3estimate_showIndic
+## stani3estimate_showData = input$stani3estimate_showData
+## stani3estimate_pivotRow = input$stani3estimate_pivotRow
+## ## stani3estimate_pivotDataDownload = input$stani3estimate_pivotDataDownload
+## stani3estimate_recalcButton = input$stani3estimate_recalcButton
+## stani3estimate_namecou = input$stani3estimate_namecou
+## stani3estimate_nameind = input$stani3estimate_nameind
+## stani3estimate_nameyear = input$stani3estimate_nameyear
+## ## stani3estimate_year = input$stani3estimate_year
+## stani3estimate_charttype = input$stani3estimate_charttype
+## stani3estimate_cur = input$stani3estimate_cur
+## stani3estimate_rounddec = input$stani3estimate_rounddec
+## stani3estimate_downloadData = input$stani3estimate_downloadData
+## stani3estimate_tabs_stani3Estimate = input$tabs_stani3Estimate
+## viz_plot_height = input$viz_plot_height
+## viz_plot_width = input$viz_plot_width
+
+
+.stani3Estimate <- reactive({
+    ## reactive that calls the function for main analysis
+    ## . used to indicate this is an 'internal' function
+    ##
+    ## if (length(input$stani3estimate_dimS) == 0) return ()
+    ##
+    stani3Estimate(
+        ## stani3estimate_rchartlib = input$stani3estimate_rchartlib,
+        stani3estimate_indic = input$stani3estimate_indic,
+        stani3estimate_indic2 = input$stani3estimate_indic2,
+        stani3estimate_indic3 = input$stani3estimate_indic3,
+        stani3estimate_group = input$stani3estimate_group,
+        stani3estimate_showIndic = input$stani3estimate_showIndic,
+        stani3estimate_showData = input$stani3estimate_showData,
+        stani3estimate_pivotRow = input$stani3estimate_pivotRow,
+        ## stani3estimate_pivotDataDownload = input$stani3estimate_pivotDataDownload,
+        stani3estimate_recalcButton = input$stani3estimate_recalcButton,
+        stani3estimate_namecou = input$stani3estimate_namecou,
+        stani3estimate_nameind = input$stani3estimate_nameind,
+        stani3estimate_nameyear = input$stani3estimate_nameyear,
+        ## stani3estimate_year = input$stani3estimate_year,
+        stani3estimate_cur = input$stani3estimate_cur,
+        stani3estimate_rounddec = input$stani3estimate_rounddec,
+        stani3estimate_downloadData = input$stani3estimate_downloadData,
+        stani3estimate_charttype = input$stani3estimate_charttype,
+        stani3estimate_tabs_stani3Estimate = input$tabs_stani3Estimate,
+        viz_plot_height = input$viz_plot_height,
+        viz_plot_width = input$viz_plot_width
+        )
+})
+## isolate(.stani3Estimate())
+##
+## observe({
+##   if(is.null(input$stani3EstimateReport) || input$stani3EstimateReport == 0) return()
+##   isolate({
+##     inp <- list(
+##       input$datasets,
+##
+##       input$stani3estimate_indic,
+##       ui.stani3Estimate.year[as.numeric(input$stani3estimate_time)],
+##       input$stani3estimate_demand,
+##       ui.stani3Estimate.namesec.agg[as.numeric(input$stani3estimate_indX)],
+##       ## indS = ui.stani3Estimate.namesec.agg[as.numeric(input$indS)],
+##       names(ui.stani3Estimate.namereg.agg)[as.numeric(input$stani3estimate_couS)],
+##       names(ui.stani3Estimate.namereg.agg)[as.numeric(input$stani3estimate_couX)],
+##       names(ui.stani3Estimate.namereg.agg)[as.numeric(input$stani3estimate_couD)]
+##       )
+##
+##     updateReport(inp,"stani3Estimate")
+##   })
+## })
+
+stani3Estimate <- function(
+    ## stani3estimate_rchartlib = stani3estimate_rchartlib,
+    stani3estimate_indic = stani3estimate_indic,
+    stani3estimate_indic2 = stani3estimate_indic2,
+    stani3estimate_indic3 = stani3estimate_indic3,
+    stani3estimate_group = stani3estimate_group,
+    stani3estimate_showIndic = stani3estimate_showIndic,
+    stani3estimate_showData = stani3estimate_showData,
+    stani3estimate_pivotRow = stani3estimate_pivotRow,
+    ## stani3estimate_pivotDataDownload = stani3estimate_pivotDataDownload,
+    stani3estimate_recalcButton = stani3estimate_recalcButton,
+    stani3estimate_namecou = stani3estimate_namecou,
+    stani3estimate_nameind = stani3estimate_nameind,
+    stani3estimate_nameyear = stani3estimate_nameyear,
+    ## stani3estimate_year = stani3estimate_year,
+    stani3estimate_cur = stani3estimate_cur,
+    stani3estimate_rounddec = stani3estimate_rounddec,
+    stani3estimate_downloadData = stani3estimate_downloadData,
+    stani3estimate_charttype = stani3estimate_charttype,
+    viz_plot_height = viz_plot_height,
+    viz_plot_width = viz_plot_width,
+    stani3estimate_tabs_stani3Estimate = stani3estimate_tabs_stani3Estimate
+    )
+{
+
+  formula.indic <- ui.stani3Estimate.formula.indic.init
+  ##
+  if(is.null(stani3estimate_recalcButton) || stani3estimate_recalcButton == 0)
+    {
+        ## return(
+        isolate({
+            namecou <- stani3estimate_namecou
+        })
+        ## )
+    } else {
+      ## return(
+        isolate({
+            namecou <- stani3estimate_namecou
+        })
+        ## )
+    }
+  ## namecou
+  nameindic <- stani3estimate_indic
+  if (stani3estimate_tabs_stani3Estimate%in%c("PolyCharts", "HighCharts", "NVD3Charts"))
+    {
+      if (stani3estimate_charttype%in%c("Scatter", "Bubble")) nameindic <- union(nameindic, stani3estimate_indic2)
+      if (stani3estimate_charttype%in%c("Bubble")) nameindic <- union(nameindic, stani3estimate_indic3)
+    }
+  ## nameindic
+  namedim <- NULL
+  ## indic <- nameindic[1]
+  for (indic in nameindic)
+    {
+      dim.indic <- gsub(pattern = "[^a-zA-Z0-9]", replacement = " ", formula.indic$formula[formula.indic$indic==indic])
+      dim.indic <- gsub(pattern = "[ ]+", replacement = " ", dim.indic)
+      dim.indic <- unlist(strsplit(dim.indic, split = " "))
+      namedim <- union(namedim, dim.indic)
+    }
+  ## namedim
+  string.formula <- NULL
+  for (indic in nameindic)
+    {
+      formula <- formula.indic$formula[formula.indic$indic==indic]
+      string.formula <- toString(paste(string.formula, formula))
+    }
+  ## string.formula
+  if(is.null(stani3estimate_recalcButton) || stani3estimate_recalcButton == 0)
+    {
+      ## return(
+        isolate({
+            nameind <- stani3estimate_nameind
+        })
+        ## )
+    } else {
+      ## return(
+        isolate({
+            nameind <- stani3estimate_nameind
+            if ("A10"%in%nameind) nameind <- union(nameind[!nameind%in%"A10"], STANi4.INDA10)
+        })
+        ## )
+    } ## nameind
+  namevar <- namedim[namedim%in%STAN.VARALL]
+  ## namevar
+  if (length(stani3estimate_nameyear) > 1)
+  {
+      nameyear <- c(stani3estimate_nameyear[1]:stani3estimate_nameyear[2])
+  } else nameyear <- stani3estimate_nameyear
+  ## ## if (stani3estimate_tabs_stani3Estimate%in%c("PolyCharts", "HighCharts", "NVD3Charts"))
+  ## if (stani3estimate_tabs_stani3Estimate%in%c("PolyCharts", "HighCharts", "NVD3Charts")) # , "MorrisCharts"
+  ## {
+  ##   if (stani3estimate_charttype%in%c("Bubble", "Bar", "Scatter")) # can only display one year
+  ##     {
+  ##       nameyear <- stani3estimate_year
+  ##     } # else nameyear <- c(stani3estimate_nameyear[1]:stani3estimate_nameyear[2])
+  ## } else nameyear <- c(stani3estimate_nameyear[1]:stani3estimate_nameyear[2])
+  ## ## nameyear
+  denom.year <- suppressWarnings(as.numeric(namedim)[!is.na(as.numeric(namedim[nchar(namedim)==4]))])
+  ## denom.year
+  denom.ind <- namedim[namedim%in%STANi4.INDALL]
+  ## denom.ind
+  ##
+## namesqltable <- reactive({
+##   namesqltable <- stani3estimate_sqltable
+##   namesqltable
+## })
+  ##
+  ## if (namesqltable=="STANPUBi4_PRE")
+  ##   {
+  ##     data.sql <- queryData(
+  ##       connection=SQL.STAN,
+  ##       table=namesqltable,
+  ##       namecou=namecou,
+  ##       namevar=namevar,
+  ##       ## nameeuc=nameeuc,
+  ##       dim.ind="ind",
+  ##       nameind=union(nameind, denom.ind),
+  ##       nameyear=union(nameyear, denom.year),
+  ##       isic=4,
+  ##       add.where=NULL,
+  ##       topn=character())
+  ##   } else if (namesqltable=="STANRDA")
+  ##     {
+  ## dat <- values[["STANNAi4"]]
+  ## dat <- isolate(values[["STANNAi4"]])
+  data.sql <- NULL
+  for (dataset in c("stan", "btd", "anberd"))
+  {
+    eval(parse(text = paste0(
+                 'if (length(intersect(namevar, namevar.', dataset, ')) > 0) {',
+                 'data.temp <- dat$DATA.', toupper(dataset), '[dat$DATA.', toupper(dataset), '$cou%in%namecou & dat$DATA.', toupper(dataset), '$var%in%namevar & dat$DATA.', toupper(dataset), '$ind%in%union(nameind, denom.ind) & dat$DATA.', toupper(dataset), '$year%in%union(nameyear, denom.year),];',
+                 'data.sql <- rbind(data.sql, data.temp)',
+                 '}'
+                 )))
+  }
+  ## data.sql
+  ## apply exchange USD rates
+  if (stani3estimate_cur!="NCU")
+    {
+      data.sql.mon <- data.sql[data.sql$var%in%STAN.VARMON,]
+      data.sql.mon <- merge(data.sql.mon, xrates[xrates$cur==stani3estimate_cur,], by = c("cou", "year"))
+      data.sql.mon$value <- data.sql.mon$value.x / data.sql.mon$value.y
+      data.sql.mon <- subset(data.sql.mon, select = c("cou", "var", "ind", "year", "value"))
+      data.sql <- rbind(data.sql[!data.sql$var%in%STAN.VARMON,], data.sql.mon)
+    }
+  ## data.sql
+  denom <- list(denom.ind, denom.year)
+  names(denom) <- c("ind", "year")
+  ## dim <- "year"
+  ## dim <- "ind"
+  data.denom.all <- NULL
+  for (dim in names(denom))
+    {
+      if (length(denom[[dim]]) > 0)
+        {
+          denom.member <- denom[[dim]]
+          eval(parse(text = paste0('nom.member <- name', dim)))
+          data.denom <- data.sql[data.sql[,dim]%in%denom.member,]
+          data.denom$var <- paste0(data.denom$var, "_", denom.member)
+          data.denom <- merge(data.denom, nom.member, all = TRUE)
+          data.denom[,dim] <- data.denom$y
+          data.denom <- data.denom[,!colnames(data.denom)=="y"]
+          if (length(denom.member) > 0) data.denom.all <- rbind(data.denom.all, data.denom)
+        }
+    }
+  if (length(data.denom.all) > 0) data.sql <- rbind(data.sql, data.denom.all)
+  ## merge(data.sql, data.sql[data.sql$year==formula.year,], by =  names(data.sql)[!names(data.sql) %in% c(dim.merge, "value")])
+  ## eval(parse(text = paste0('merge(data.sql, data.sql[data.sql$', dim.merge, '==formula.', dim.merge, ',], by =  names(data.sql)[!names(data.sql) %in% c(dim.merge, "value")])')))
+  data.calc <- dcast(data.sql, cou + ind + year ~ var, value.var = "value")
+  attach(data.calc)
+  for (indic in nameindic)
+    {
+      eval(parse(text = paste0('data.calc$', indic, ' <- ', formula.indic$formula[formula.indic$indic==indic])))
+    }
+  detach(data.calc)
+  data.calc <- data.calc[,!sapply(strsplit(colnames(data.calc), "_"), "[[", 1)%in%namevar] # remove variables from data frame
+  data.calc$ind <- factor(data.calc$ind, levels = STANi4.INDALL)
+  ## for (indic in nameindic)
+  ## {
+  ##     eval(parse(text = paste0('data.calc <- data.calc[!is.na(data.calc[,"', indic, '"]),]')))
+  ## }
+  data.calc <- melt(data.calc, id.vars = c("cou", "ind", "year"), variable.name = "indic", na.rm = TRUE)
+  data.calc <- transform(data.calc, value = round(value, stani3estimate_rounddec))
+  ## data.calc
+  ## sort values for plotting
+  data.calc.indic <- dcast(data.calc, cou + ind + year ~ indic, value.var = "value")
+  ## sort data according to largest industry in selection
+  ind.top <- data.calc.indic$ind[order(-data.calc.indic[,stani3estimate_indic])][1]
+  data.calc.indic.ind.top <- data.calc.indic[data.calc.indic$ind==ind.top,]
+  data.calc.indic$cou <- factor(data.calc.indic$cou, levels = unique(data.calc.indic.ind.top$cou[order(-data.calc.indic.ind.top[,stani3estimate_indic])])) # added: 'unique' if more than one year
+  data.calc.indic <- data.calc.indic[order(data.calc.indic$cou),]
+  ## data.calc.indic
+##
+## output$downloadData <- downloadHandler(
+##   filename = function() { paste0(gsub(", ", "_", toString(stani3estimate_indic)), '.csv')},
+##   content = function(file) {
+##     data.table <- data.table()
+##     data.out <- data.table
+##     write.csv(data.out, file, row.names = FALSE, na = "")
+##     ## if (stani3estimate_tabs_stani3Estimate=="table")
+##     ##   {
+##     ##     data.table.pivot <- data.table.pivot()
+##     ##     data.out <- data.table.pivot
+##     ##     write.csv(data.out, file, row.names = FALSE, na = "")
+##     ##   }
+##     ## if (stani3estimate_tabs_stani3Estimate=="download")
+##     ##   {
+##     ##     data.sql <- data.sql()
+##     ##     data.out <- data.sql
+##     ##     if (stani3estimate_pivotDataDownload==TRUE) data.out <- dcast(data.out, cou + ind + year ~ var, value.var = "value")
+##     ##     write.csv(data.out, file, row.names = FALSE, na = "")
+##     ##   }
+##   }
+##   )
+##
+
+  return(list(namecou = namecou,
+              nameindic = nameindic,
+              namedim = namedim,
+              string.formula = string.formula,
+              nameind = nameind,
+              namevar = namevar,
+              nameyear = nameyear,
+              denom.year = denom.year,
+              denom.ind = denom.ind,
+              ## namesqltable = namesqltable,
+              data.sql = data.sql,
+              data.calc = data.calc,
+              data.calc.indic = data.calc.indic,
+              stani3estimate_charttype = stani3estimate_charttype,
+              ## stani3estimate_rchartlib = stani3estimate_rchartlib,
+              stani3estimate_indic = stani3estimate_indic,
+              stani3estimate_indic2 = stani3estimate_indic2,
+              stani3estimate_indic3 = stani3estimate_indic3,
+              stani3estimate_rounddec = stani3estimate_rounddec,
+              stani3estimate_group = stani3estimate_group,
+              stani3estimate_showData = stani3estimate_showData,
+              stani3estimate_showIndic = stani3estimate_showIndic,
+              stani3estimate_pivotRow = stani3estimate_pivotRow,
+              viz_plot_height = viz_plot_height,
+              viz_plot_width = viz_plot_width
+              )
+         )
+}
+
+summary_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  string.formula <-  result$string.formula
+  string.formula
+
+}}
+
+tables_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  data.calc <- result$data.calc
+  data.sql <- result$data.sql
+  stani3estimate_showData <- result$stani3estimate_showData
+  stani3estimate_showIndic <- result$stani3estimate_showIndic
+  stani3estimate_pivotRow <- result$stani3estimate_pivotRow
+
+  ## ## coverage table
+  ## data.min <- aggregate(data.calc$year, by = list(data.calc$indic, data.calc$cou, data.calc$ind), FUN = "min")
+  ## data.max <- aggregate(data.calc$year, by = list(data.calc$indic, data.calc$cou, data.calc$ind), FUN = "max")
+  ## names <- c("indic", "cou", "ind", "period")
+  ## names(data.min) <- names
+  ## names(data.max) <- names
+  ## data.cover <- merge(data.min, data.max, by = c("indic", "cou", "ind"))
+  ## data.cover$period <- paste0(data.cover$period.x, "-", data.cover$period.y)
+  ## data.cover$ind <- factor(data.cover$ind, levels = STANi4.INDALL)
+  ## ## data.cover
+
+  ## standard table
+  names(data.calc) <- sub("indic", "var", names(data.calc))
+  data.calc <- subset(data.calc, select = names(data.sql))
+
+  data.table <- NULL
+  if (stani3estimate_showData==TRUE) data.table <- rbind(data.table, data.sql)
+  if (stani3estimate_showIndic==TRUE) data.table <- rbind(data.table, data.calc)
+
+  pivot.row <- stani3estimate_pivotRow
+  ## pivot.row <- c("cou", "var", "ind", "year")
+  ## pivot.row <- c("cou", "var", "ind")
+  ## pivot.row <- c("cou", "var")
+  string.pivot.row <- gsub(",", " +", toString(pivot.row))
+  pivot.col <- setdiff(names(data.table), c(pivot.row, "value"))
+  string.pivot.col <- gsub(",", " +", toString(pivot.col))
+
+  if (length(pivot.col) > 0)
+    {
+      eval(parse(text = paste0('data.table <- dcast(data.table, ', string.pivot.row, ' ~ ', string.pivot.col, ', value.var = "value")')))
+      eval(parse(text = paste0('data.table <- data.table[order(', toString(paste0('data.table$', pivot.row)), '),]')))
+    }
+
+  data.table
+
+}}
+
+plots_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  plot(c(1,2,3))
+
+}}
+
+polycharts_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  data.calc.indic <- result$data.calc.indic
+  string.formula <-  result$string.formula
+  namecou <- result$namecou
+  stani3estimate_charttype <- result$stani3estimate_charttype
+  stani3estimate_indic <- result$stani3estimate_indic
+  stani3estimate_indic2 <- result$stani3estimate_indic2
+  stani3estimate_indic3 <- result$stani3estimate_indic3
+  stani3estimate_rounddec <- result$stani3estimate_rounddec
+  stani3estimate_group <- result$stani3estimate_group
+
+## data.calc.indic <- data.calc.indic[!is.na(data.calc.indic$ESHT),]
+
+  if (stani3estimate_charttype == "Bar")
+  {
+      p1 <- rPlot(x = list(var = "cou", sort = stani3estimate_indic),
+                  y = stani3estimate_indic,
+                  color = 'ind',
+                    data = data.calc.indic,
+                  type = 'bar')
+      p1$guides(x = list(title = "", ticks = levels(data.calc.indic$cou)))
+  } else if (stani3estimate_charttype == "Scatter")
+  {
+      color <- setdiff(c("ind", "cou"), stani3estimate_group)
+      p1 <- rPlot(VSHT ~ ESHT, data = data.calc.indic, color = color, type = "point")
+      p1$facet(var = stani3estimate_group, type = "wrap", cols = 2)
+  }
+  p1$addParams(height = 500,
+               dom = "polycharts_stani3Estimate", # capial "Indic", see radiant.R
+               title = string.formula)
+  return(p1)
+
+}}
+## polycharts_stani3Estimate(result = isolate(.stani3Estimate()))
+
+highcharts_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  data.calc.indic <- result$data.calc.indic
+  string.formula <-  result$string.formula
+  namecou <- result$namecou
+  stani3estimate_charttype <- result$stani3estimate_charttype
+  stani3estimate_indic <- result$stani3estimate_indic
+  stani3estimate_indic2 <- result$stani3estimate_indic2
+  stani3estimate_indic3 <- result$stani3estimate_indic3
+  stani3estimate_rounddec <- result$stani3estimate_rounddec
+  stani3estimate_group <- result$stani3estimate_group
+
+  ## Pie
+  if (stani3estimate_charttype == "Bar")
+  {
+      eval(parse(text = paste0('h1 <- hPlot(', stani3estimate_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "column", title = string.formula)')))
+      h1$xAxis(categories = levels(data.calc.indic$cou), title = list(text = ""))
+  } else if (stani3estimate_charttype == "Scatter")
+  {
+      eval(parse(text = paste0('h1 <- hPlot(', stani3estimate_indic2, ' ~ ', stani3estimate_indic, ', group = "', stani3estimate_group,'", data = data.calc.indic, type = "scatter")')))
+  } else if (stani3estimate_charttype == "Bubble")
+  {
+      eval(parse(text = paste0('h1 <- hPlot(', stani3estimate_indic2, ' ~ ', stani3estimate_indic, ', group = "', stani3estimate_group,'", size = "', stani3estimate_indic3, '", data = data.calc.indic, type = "bubble")')))
+  }
+  h1$addParams(height = 500,
+               dom = "highcharts_stani3Estimate") # capital "Indic"
+  return(h1)
+
+}}
+## highcharts_stani3Estimate(result = isolate(.stani3Estimate()))
+
+nvd3charts_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  data.calc.indic <- result$data.calc.indic
+  string.formula <-  result$string.formula
+  namecou <- result$namecou
+  stani3estimate_charttype <- result$stani3estimate_charttype
+  stani3estimate_indic <- result$stani3estimate_indic
+  stani3estimate_indic2 <- result$stani3estimate_indic2
+  stani3estimate_indic3 <- result$stani3estimate_indic3
+  stani3estimate_rounddec <- result$stani3estimate_rounddec
+  stani3estimate_group <- result$stani3estimate_group
+
+  if (stani3estimate_charttype == "Bar")
+  {
+      eval(parse(text = paste0('n1 <- nPlot(', stani3estimate_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "multiBarChart")')))
+      n1$chart(reduceXTicks = FALSE)
+      n1$xAxis(ticks = levels(data.calc.indic$cou))
+      eval(parse(text = paste0('n1$yAxis(tickFormat = "#!function(x) { return (x).toFixed(', as.numeric(stani3estimate_rounddec),') }!#")')))
+
+  } else if (stani3estimate_charttype == "Scatter")
+  {
+      eval(parse(text = paste0('n1 <- nPlot(', stani3estimate_indic2, ' ~ ', stani3estimate_indic, ', group = "cou", data = data.calc.indic, type = "scatterChart")')))
+      n1$xAxis(axisLabel = stani3estimate_indic)
+      n1$yAxis(axisLabel = stani3estimate_indic2)
+  }
+  n1$addParams(height = 500,
+               dom = "nvd3charts_stani3Estimate") # capital "Indic"
+  return(n1)
+
+}}
+## nvd3charts_stani3Estimate(result = isolate(.stani3Estimate()))
+
+morrischarts_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  data.calc.indic <- result$data.calc.indic
+  string.formula <-  result$string.formula
+  namecou <- result$namecou
+  stani3estimate_charttype <- result$stani3estimate_charttype
+  stani3estimate_indic <- result$stani3estimate_indic
+  stani3estimate_indic2 <- result$stani3estimate_indic2
+  stani3estimate_indic3 <- result$stani3estimate_indic3
+  stani3estimate_rounddec <- result$stani3estimate_rounddec
+  stani3estimate_group <- result$stani3estimate_group
+
+
+  if (stani3estimate_charttype == "Bar")
+  {
+      eval(parse(text = paste0('m1 <- mPlot(', stani3estimate_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "Bar")'))) # , labels = unique(data.calc.indic$ind))')))
+  } else if (stani3estimate_charttype%in%c("Line", "Area"))
+  {
+      eval(parse(text = paste0('data.calc.morris <- transform(data.calc.indic, year = as.character(year), ', stani3estimate_indic, ' = round(', stani3estimate_indic, ', stani3estimate_rounddec))')))
+      data.calc.morris.d <- dcast(data.calc.morris, year ~ cou + ind, value.var = stani3estimate_indic)
+      m1 <- mPlot(x = "year", y = names(data.calc.morris.d)[names(data.calc.morris.d)!="year"], type = "Line", data = data.calc.morris.d)
+      m1$set(pointSize = 0, lineWidth = 1
+             ## ,xLabelFormat = "#! function (x) { return x.toString(); } !#"
+             )
+      if (stani3estimate_charttype=="Area")
+      {
+          m1$set(type = 'Area')
+      }
+  }
+  m1$addParams(height = 500,
+               dom = "morrischarts_stani3Estimate")
+  return(m1)
+
+}}
+## morrischarts_stani3Estimate(result = isolate(.stani3Estimate()))
+
+maps_stani3Estimate <- function(result = .stani3Estimate())
+{ if (length(result) > 0) {
+
+  return()
+
+}}
