@@ -27,15 +27,15 @@ shinyUI(
         ##            )
         ## ,
 
-        navbarMenu("STANi3",
-                   tabPanel("STAN ISIC3 Estimate", uiOutput("stani3Estimate"))
-                   )
-        ,
+        ## navbarMenu("STANi3",
+        ##            tabPanel("STAN ISIC3 Estimate", uiOutput("stani3Estimate"))
+        ##            )
+        ## ,
 
-        navbarMenu("SKILL",
-                   tabPanel("LFS Share", uiOutput("lfsShare"))
-                   )
-        ,
+        ## navbarMenu("SKILL",
+        ##            tabPanel("LFS Share", uiOutput("lfsShare"))
+        ##            )
+        ## ,
 
         ## navbarMenu("R",
         ##            tabPanel("Report", uiOutput("report")), # app/report.R l.36

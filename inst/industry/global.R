@@ -64,60 +64,60 @@ setInitValues <- function()
         values[["ICIO5837APP_descr"]] <- attr(df,"description")
         values$datasetlist <- c("ICIO5837APP")
 
-        ## STAN ISIC 3
-        ## stani3Estimate
-        env <- new.env()
-        data("STANNAi3", package = "stanData", envir = env)
-        df <- mget(ls(envir = env), envir = env)
-        values[["STANNAi3"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
-        values[["STANNAi3_descr"]] <- attr(df,"description")
-        values$datasetlist <- c("STANNAi3")
-        ## stanIndic, stanRnd
-        env <- new.env()
-        data("STANNAi4", package = "stanData", envir = env)
-        df <- mget(ls(envir = env), envir = env)
-        ##
-        ## check for duplicates in type: MA and PF
-        ## row <- df$DATA.ANBERD[1,]
-        ## row$type <- "PF"; row$value <- 10
-        ## df$DATA.ANBERD <- rbind(row, df$DATA.ANBERD)
-        ## test <- df$DATA.ANBERD[duplicated(df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("value", "type")]),]
-        df$DATA.ANBERD <- df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("type")]
-        df$DATA.BTD$ind <- sub("D31T32", "D31T33", df$DATA.BTD$ind)
-        require(reshape2)
-        require(stan)
-        df$DATA.BTD <- dcast(df$DATA.BTD, cou + var + year ~ ind, value.var = "value")
-        df$DATA.BTD <- indAggregate(df$DATA.BTD, isic = 4)
-        df$DATA.BTD <- melt(df$DATA.BTD, id.vars = c("cou", "var", "year"), variable.name = "ind")
-        ##
-        values[["STANNAi4"]] <- df
-        values[["STANNAi4_descr"]] <- attr(df,"description")
-        values$datasetlist <- c("STANNAi4")
+        ## ## STAN ISIC 3
+        ## ## stani3Estimate
+        ## env <- new.env()
+        ## data("STANNAi3", package = "stanData", envir = env)
+        ## df <- mget(ls(envir = env), envir = env)
+        ## values[["STANNAi3"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
+        ## values[["STANNAi3_descr"]] <- attr(df,"description")
+        ## values$datasetlist <- c("STANNAi3")
+        ## ## stanIndic, stanRnd
+        ## env <- new.env()
+        ## data("STANNAi4", package = "stanData", envir = env)
+        ## df <- mget(ls(envir = env), envir = env)
+        ## ##
+        ## ## check for duplicates in type: MA and PF
+        ## ## row <- df$DATA.ANBERD[1,]
+        ## ## row$type <- "PF"; row$value <- 10
+        ## ## df$DATA.ANBERD <- rbind(row, df$DATA.ANBERD)
+        ## ## test <- df$DATA.ANBERD[duplicated(df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("value", "type")]),]
+        ## df$DATA.ANBERD <- df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("type")]
+        ## df$DATA.BTD$ind <- sub("D31T32", "D31T33", df$DATA.BTD$ind)
+        ## require(reshape2)
+        ## require(stan)
+        ## df$DATA.BTD <- dcast(df$DATA.BTD, cou + var + year ~ ind, value.var = "value")
+        ## df$DATA.BTD <- indAggregate(df$DATA.BTD, isic = 4)
+        ## df$DATA.BTD <- melt(df$DATA.BTD, id.vars = c("cou", "var", "year"), variable.name = "ind")
+        ## ##
+        ## values[["STANNAi4"]] <- df
+        ## values[["STANNAi4_descr"]] <- attr(df,"description")
+        ## values$datasetlist <- c("STANNAi4")
 
-        ## LFS
-        ## lfsShare
-        env <- new.env()
-        data("LFSi4", package = "skillData", envir = env)
-        ##
-        ## load(file.path(PATH.REPO, "skillData", "data", "LFSi4.rda"), envir = env)
-        ##
-        df <- mget(ls(envir = env), envir = env)
-        df.rbind <- NULL
-        ## unique(df.rbind$ocu)
-        ## sou <- "LFSUSA"
-        ## namesou <- setdiff(names(df), paste0('DATA.', sou))
-        ## for (sou in sub("DATA.", "", namesou))
-        for (lfssou in sub("DATA.", "", names(df)))
-        {
-            if (!lfssou%in%c("LFSEU", "LFSILO")) sou <- "LFSNSO" else sou <- lfssou
-            eval(parse(text = paste0('DATA.', sou, ' <- df$DATA.', lfssou)))
-            eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
-            eval(parse(text = paste0('DATA.', sou, ' <- subset(DATA.', sou, ', select = c("sou", "cou", "var", "ind", "ocu", "year", "value"))')))
-            eval(parse(text = paste0('df.rbind <- rbind(df.rbind, DATA.', sou, ')')))
-        }
-        values[["LFSi4"]] <- df.rbind
-        values[["LFSi4_descr"]] <- attr(df,"description")
-        values$datasetlist <- c("LFSi4")
+        ## ## LFS
+        ## ## lfsShare
+        ## env <- new.env()
+        ## data("LFSi4", package = "skillData", envir = env)
+        ## ##
+        ## ## load(file.path(PATH.REPO, "skillData", "data", "LFSi4.rda"), envir = env)
+        ## ##
+        ## df <- mget(ls(envir = env), envir = env)
+        ## df.rbind <- NULL
+        ## ## unique(df.rbind$ocu)
+        ## ## sou <- "LFSUSA"
+        ## ## namesou <- setdiff(names(df), paste0('DATA.', sou))
+        ## ## for (sou in sub("DATA.", "", namesou))
+        ## for (lfssou in sub("DATA.", "", names(df)))
+        ## {
+        ##     if (!lfssou%in%c("LFSEU", "LFSILO")) sou <- "LFSNSO" else sou <- lfssou
+        ##     eval(parse(text = paste0('DATA.', sou, ' <- df$DATA.', lfssou)))
+        ##     eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
+        ##     eval(parse(text = paste0('DATA.', sou, ' <- subset(DATA.', sou, ', select = c("sou", "cou", "var", "ind", "ocu", "year", "value"))')))
+        ##     eval(parse(text = paste0('df.rbind <- rbind(df.rbind, DATA.', sou, ')')))
+        ## }
+        ## values[["LFSi4"]] <- df.rbind
+        ## values[["LFSi4_descr"]] <- attr(df,"description")
+        ## values$datasetlist <- c("LFSi4")
 
       }
   }
