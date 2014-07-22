@@ -161,15 +161,16 @@ libs <- c("AlgDesign",
           "xtable"
           )
 
-## libs.dev <- c("rMaps")
-## if (length(libs.dev) > 0)
-##   {
-##     libs <- libs[!libs%in%libs.dev]
-##     library(devtools)
-##     suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
-##     ## install(pkg = file.path(dbpath, "GitHub", libs.dev))
-##     detach("package:devtools", unload = TRUE)
-##   }
+libs.dev <- c("stan", "rMaps")
+if (length(libs.dev) > 0)
+  {
+    ## libs <- libs[!libs%in%libs.dev]
+    library(devtools)
+    ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
+    suppressWarnings(sapply(libs.dev, install_github, username = "bowerth"))
+    ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
+    detach("package:devtools", unload = TRUE)
+  }
 
 ## would prefer to use importFrom but ...
 ## detach("package:R.utils", unload=TRUE)
