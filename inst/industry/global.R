@@ -142,6 +142,7 @@ libs <- c("AlgDesign",
           "MASS",
           "plyr",
           "psych",
+          "R.utils",
           "rCharts", # github
           "rMaps", # github (own)
           "RColorBrewer",
