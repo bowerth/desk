@@ -142,33 +142,34 @@ libs <- c("AlgDesign",
           "MASS",
           "plyr",
           "psych",
-          ## "rCharts", # stanIndic
-          "rMaps", # icioFddva
-          "RColorBrewer", # icioFddva, stanRnd
+          "rCharts", # github
+          "rMaps", # github (own)
+          "RColorBrewer",
           "reshape2",
-          ## "RODBC",
-          "screening", # own package, for stanRnd
+          "screening", # github (own)
           "shiny",
           "shinyAce",
-          "shinyExt", # login.R
-          "shinysky", # login.R
-          "skillData", # lfsShare
-          "stan", # own package, industry aggregation
-          "stanData", # own package, stanIndic
+          "shinysky", # github
+          "shinyExt", # github
+          ## "skillData", # dropbox
+          "stan", # github (own)
+          "stanData", # dropbox
           "vegan",
           "wordcloud",
           "XLConnect",
           "xtable"
           )
 
-libs.dev <- c("stan", "rMaps")
+libs.dev <- c("stan", "rMaps", "screening")
 if (length(libs.dev) > 0)
   {
     ## libs <- libs[!libs%in%libs.dev]
     library(devtools)
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
     install_github("rCharts", username = "ramnathv")
-    suppressWarnings(sapply(libs.dev, install_github, username = "bowerth", dependencies = FALSE))
+    install_github("shinyExt", username = "marcionicolau")
+    install_github("shinysky", username = "AnalytixWare")
+    suppressWarnings(sapply(libs.dev, install_github, username = "bowerth"))
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
     detach("package:devtools", unload = TRUE)
   }
@@ -187,7 +188,8 @@ inst.libs <- libs[available == FALSE]
 if(length(inst.libs) != 0)
   {
     install.packages(inst.libs, dependencies = TRUE)
-    suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
+    ## suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
+    sapply(inst.libs, require, character.only=TRUE)
   }
 
 ## binding for a text input that updates when the return key is pressed
