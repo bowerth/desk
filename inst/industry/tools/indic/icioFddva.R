@@ -437,10 +437,8 @@ output$ui_icioFddva <- renderUI({
                        ),
       wellPanel(
         selectInput("fddva_coef", "Coefficients:",
-                    list(
-                      "eB: Employment" = "eB",
-                      "vB: Value-added" = "vB"
-                      )
+                    ui.icioFddva.coef$coef
+                    ## list("eB: Employment" = "eB", "vB: Value-added" = "vB")
                     ),
         selectInput("fddva_time", "Year:",
                     list(
