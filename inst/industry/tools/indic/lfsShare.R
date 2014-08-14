@@ -191,8 +191,8 @@ output$uiLs_nameyear <- renderUI({
 
 output$ui_lfsShare <- renderUI({
 
-    doLogin()
-    if (loginData$LoggedIn) {
+    ## doLogin()
+    ## if (loginData$LoggedIn) {
 
         list(
             conditionalPanel(condition = "input.tabs_lfsShare=='NVD3Charts'",
@@ -228,10 +228,10 @@ output$ui_lfsShare <- renderUI({
             helpAndReport("LFS Share","lfsShare",inclMD("tools/help/lfsShare.md"))
             ) # list(...
 
-    } else
-    {
-        h3("Please log in")
-    }
+    ## } else
+    ## {
+    ##     h3("Please log in")
+    ## }
 
 })
 output$lfsShare <- renderUI({

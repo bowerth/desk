@@ -1,9 +1,12 @@
 data(stanDim)
+##
+ui.stanRnd.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
 
-ui.couoecd <- STAN.COU
-ui.counonoecd <- c("CHN")
+ui.stanRnd.couoecd <- STAN.COU[["OECD"]]
+ui.stanRnd.counonoecd <- c("CHN")
+##
 
-ind.rnd <- c("D10T12",
+ui.stanRnd.ind <- c("D10T12",
             "D10T11",
             "D12",
             "D13T15",
@@ -32,60 +35,25 @@ ind.rnd <- c("D10T12",
             "D31",
             "D32",
             "D33")
-STANi4.INDLABEL$label[STANi4.INDLABEL$ind%in%ind.rnd]
-ui.ind <- as.list(ind.rnd)
-names(ui.ind) <- STANi4.INDLABEL$label[STANi4.INDLABEL$ind%in%ind.rnd]
-## ui.ind <- list(
-##   "D10T12 Food products, beverages and tobacco" = "D10T12",
-##   "D10T11 Food products and beverages" = "D10T11",
-##   ## "D10 Food products" = "D10",
-##   ## "D11 Beverages" = "D11",
-##   "D12 Tobacco products" = "D12",
-##   "D13T15 Textiles, wearing apparel and leather" = "D13T15",
-##   ## "D13T14 Textiles and wearing apparel" = "D13T14",
-##   "D13 Textiles" = "D13",
-##   "D14 Wearing apparel" = "D14",
-##   "D15 Leather and related products" = "D15",
-##   "D16T18 Wood, paper products and printing" = "D16T18",
-##   "D16 Wood and products of wood and cork" = "D16",
-##   "D17 Paper and paper products" = "D17",
-##   "D18 Printing and reproduction of recorded media" = "D18",
-##   "D19 Coke and refined petroleum products" = "D19",
-##   "D20 Chemicals and chemical products" = "D20",
-##   "D21 Basic pharmaceutical products" = "D21",
-##   ## "D22T23 Rubber and plastics products" = "D22T23",
-##   "D22 Rubber and plastics products" = "D22",
-##   "D23 Other non-metallic mineral products" = "D23",
-##   "D24T25 Basic metals and fabricated metal products" = "D24T25",
-##   "D24 Basic metals" = "D24",
-##   "D25 Fabricated metal products" = "D25",
-##   "D26 Computer, electronic and optical products" = "D26",
-##   "D27 Electrical equipment" = "D27",
-##   "D28 Machinery and equipment n.e.c." = "D28",
-##   "D29 Motor vehicles, trailers and semi-trailers" = "D29",
-##   "D30 Other transport equipment" = "D30",
-##   "D301 Building of ships and boats" = "D301",
-##   "D303 Air and spacecraft and related machinery" = "D303",
-##   ## "D302A9 Railroad equipment and transport equipment n.e.c." = "D302A9",
-##   ## "D31T32 Furniture, other manufacturing" = "D31T32",
-##   "D31 Furniture" = "D31",
-##   "D32 Other manufacturing" = "D32",
-##   "D33 Repair and installation of machinery and equipment" = "D33"
-##   )
-## ##
+## STANi4.INDLABEL$label[STANi4.INDLABEL$ind%in%ui.stanRnd.ind]
+## ui.stanRnd.ind.label <- STANi4.INDLABEL$label[STANi4.INDLABEL$ind%in%ui.stanRnd.ind]
+ui.stanRnd.ind.label <- paste(ui.stanRnd.ind, STANi4.INDLABEL$label[STANi4.INDLABEL$ind%in%ui.stanRnd.ind])
+ui.stanRnd.ind <- as.list(ui.stanRnd.ind)
+names(ui.stanRnd.ind) <- ui.stanRnd.ind.label
 
-nameind <- STANi4.INDALL
 ##
-namegroup <- rbind.data.frame(
+ui.stanRnd.nameind <- STANi4.INDALL
+##
+ui.stanRnd.namegroup <- rbind.data.frame(
   c(1, "high-tech"),
   c(2, "medium high-tech"),
   c(3, "medium low-tech"),
   c(4, "low-tech")
   )
-names(namegroup) <- c("group.no", "group.label")
-namegroup$group.label <- factor(namegroup$group.label, levels = namegroup$group.label[order(namegroup$group.no)])
+names(ui.stanRnd.namegroup) <- c("group.no", "group.label")
+ui.stanRnd.namegroup$group.label <- factor(ui.stanRnd.namegroup$group.label, levels = ui.stanRnd.namegroup$group.label[order(ui.stanRnd.namegroup$group.no)])
 ##
-ind.groupno <- rbind.data.frame(c("D21", 1),
+ui.stanRnd.ind.groupno <- rbind.data.frame(c("D21", 1),
                                 c("D26", 1),
                                 c("D303", 1),
                                 ##
@@ -123,44 +91,143 @@ ind.groupno <- rbind.data.frame(c("D21", 1),
                                 c( "D31T32", 4),
                                 c( "D31", 4),
                                 c( "D32", 4))
-names(ind.groupno) <- c("ind", "group.no")
+names(ui.stanRnd.ind.groupno) <- c("ind", "group.no")
 ##
-group.ind <- merge(ind.groupno, namegroup)
-nameind <- nameind[nameind%in%group.ind$ind]
-group.ind$ind <- factor(group.ind$ind, levels = nameind)
+ui.stanRnd.group.ind <- merge(ui.stanRnd.ind.groupno, ui.stanRnd.namegroup)
+ui.stanRnd.nameind <- ui.stanRnd.nameind[ui.stanRnd.nameind%in%ui.stanRnd.group.ind$ind]
+ui.stanRnd.group.ind$ind <- factor(ui.stanRnd.group.ind$ind, levels = ui.stanRnd.nameind)
 
-dat <- isolate(values[["STANNAi4"]])
-
-xrates <- dat$DATA.XRATES
-names(xrates) <- sub("var", "cur", names(xrates))
-
-
-## anberd <- dat$DATA.ANBERD[,!colnames(dat$DATA.ANBERD)%in%c("var")]
-anberd <- dat$DATA.ANBERD
-## names(anberd) <- sub("var", "type", names(anberd))
-## anberd$var <- "RDNC"
-anberd <- merge(anberd, xrates, by = c("cou", "year"))
-anberd$value <- anberd$value.x / anberd$value.y
-head(anberd)
-## anberd <- subset(anberd, select = c("cou", "var", "ind", "year", "value", "type", "cur"))
-anberd <- subset(anberd, select = c("cou", "var", "ind", "year", "value", "cur"))
 ##
-stan <- dat$DATA.STAN[dat$DATA.STAN$var%in%c("VALU", "PROD"),]
-stan <- merge(stan, xrates, by = c("cou", "year"))
-stan$value <- stan$value.x / stan$value.y
-stan <- subset(stan, select = c("cou", "var", "ind", "year", "value", "cur"))
+## move part to global.R script
 ##
-stderr <- function(x){sqrt(var(x,na.rm=TRUE)/length(na.omit(x)))}
-lowsd <- function(x){return(mean(x)-stderr(x))}
-highsd <- function(x){return(mean(x)+stderr(x))}
+## dat <- isolate(values[["STANNAi4"]])
+## ##
+## ui.stanRnd.xrates <- dat$DATA.XRATES
+## names(ui.stanRnd.xrates) <- sub("var", "cur", names(ui.stanRnd.xrates))
+## ## apply exchange rates
+## ui.stanRnd.anberd <- dat$DATA.ANBERD
+## ui.stanRnd.anberd <- merge(ui.stanRnd.anberd, ui.stanRnd.xrates, by = c("cou", "year"))
+## ui.stanRnd.anberd$value <- ui.stanRnd.anberd$value.x / ui.stanRnd.anberd$value.y
+## ui.stanRnd.anberd <- subset(ui.stanRnd.anberd, select = c("cou", "var", "ind", "year", "value", "cur"))
+## ##
+## ui.stanRnd.stan <- dat$DATA.STAN[dat$DATA.STAN$var%in%c("VALU", "PROD"),]
+## ui.stanRnd.stan <- merge(ui.stanRnd.stan, ui.stanRnd.xrates, by = c("cou", "year"))
+## ui.stanRnd.stan$value <- ui.stanRnd.stan$value.x / ui.stanRnd.stan$value.y
+## ui.stanRnd.stan <- subset(ui.stanRnd.stan, select = c("cou", "var", "ind", "year", "value", "cur"))
+##
+##
+##
+ui.stanRnd.stderr <- function(x){sqrt(var(x,na.rm=TRUE)/length(na.omit(x)))}
+ui.stanRnd.lowsd <- function(x){return(mean(x)-ui.stanRnd.stderr(x))}
+ui.stanRnd.highsd <- function(x){return(mean(x)+ui.stanRnd.stderr(x))}
 
+stanRnd_plot_points <- function(data.calc,
+                                stanrnd_var,
+                                ui.stanRnd.group.ind,
+                                stanrnd_error,
+                                stanrnd_centr,
+                                ui.stanRnd.lowsd,
+                                ui.stanRnd.highsd,
+                                stanrnd_coulabel,
+                                stanrnd_coulabel.size,
+                                nameyear
+                                )
+    {
+        ## aggregate over time period using mean
+        data.agg <- aggregate(data.calc[colnames(data.calc)%in%c(stanrnd_var, "RDNC")], by = list(data.calc$cou, data.calc$ind), "mean")
+        names(data.agg)[1:2] <- c("cou", "ind")
+        data.agg$ratio <- data.agg[, "RDNC"] / data.agg[, stanrnd_var]
+        data.agg <- merge(ui.stanRnd.group.ind, data.agg) # ui.stanRnd.group.ind first to use order of factor levels
+        p <- ggplot(data.agg, aes(x = ind, y = ratio, label = cou, order = ind)) +
+            geom_point() +
+                facet_grid(. ~ group.label, scales = "free", space = "free") +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        xlab(NULL) +
+                            ylab(paste('RDNC per', stanrnd_var)) +
+                                ggtitle(paste0('Central tendency and standard error (red) by ISIC Rev. 4 industry, grouped by corresponding ISIC Rev. 3 intensity definition, ',
+                                               min(nameyear), '-', max(nameyear)))
+        if (stanrnd_error=="minmax")
+            {
+                p <- p + stat_summary(fun.y = stanrnd_centr, fun.ymin = min, fun.ymax = max, colour='red')
+            }
+        if (stanrnd_error=="sderr")
+            {
+                p <- p + stat_summary(fun.y = stanrnd_centr, fun.ymin = ui.stanRnd.lowsd, fun.ymax = ui.stanRnd.highsd, colour='red')
+            }
+        if (stanrnd_coulabel==TRUE)
+            {
+                p <- p + geom_text(size = stanrnd_coulabel.size)
+            }
+        return(p)
+    }
+
+stanRnd_plot_line <- function(data.calc,
+                              stanrnd_ind,
+                              stanrnd_var,
+                              ui.stanRnd.group.ind,
+                              stanrnd_scalelogs,
+                              stanrnd_scalefree,
+                              stanrnd_coulabel,
+                              stanrnd_coulabel.size,
+                              stanrnd_showvalues,
+                              nameyear
+                              )
+    {
+        data.plot <- data.calc[data.calc$ind%in%stanrnd_ind,]
+        data.plot$ratio<- data.plot[, "RDNC"] / data.plot[, stanrnd_var]
+        data.plot <- merge(ui.stanRnd.group.ind, data.plot)
+        ## data.plot.m <- melt(data.plot, id.vars=c("ind", "cou", "cur", "year", "type", "group.no", "group.label"), variable.name="var")
+        data.plot.m <- melt(data.plot, id.vars=c("ind", "cou", "cur", "year", "group.no", "group.label"), variable.name="var")
+        ##
+        ncol <- length(unique(data.plot.m$cou))
+        color.fill <- colorRampPalette(ui.sdmxBrowser.col)(ncol)
+        ## Ratio plot
+        p.ratio <- ggplot(data.plot.m[data.plot.m$var%in%c("ratio"),], aes(x = year, y = value, label = cou)) +
+            geom_line(aes(colour = cou)) +
+                geom_smooth(method = "loess") +
+                    scale_colour_manual(values = color.fill) +
+                        theme_bw() +
+                            xlab(NULL) +
+                                ylab(NULL) +
+                                    ggtitle(paste0('Ratio: RDNC per ', stanrnd_var, ', ', min(nameyear), '-', max(nameyear)))
+        if (stanrnd_coulabel==TRUE) {
+            p.ratio <- p.ratio + geom_text(size = stanrnd_coulabel.size)
+        }
+        if (stanrnd_showvalues==TRUE) {
+            ## Values plots
+            p.values <- ggplot(data = data.plot.m[data.plot.m$var%in%c("RDNC", stanrnd_var),], aes(x = year, y = value, group = cou, label = cou)) +
+                geom_line(aes(colour = cou)) +
+                    scale_colour_manual(values = color.fill) +
+                        theme_bw() +
+                            guides(colour = FALSE) +
+                                xlab(NULL) +
+                                    ggtitle(paste("Values"))
+            if (stanrnd_scalelogs==TRUE) {
+                p.values <- p.values + scale_y_log10(name = "USD, in logs")
+            } else {
+                p.values <- p.values + ylab("USD")
+            }
+            if (stanrnd_scalefree==TRUE) {
+                p.values <- p.values + facet_grid(var ~ ., space = "fixed", scales = "free")
+            } else {
+                p.values <- p.values + facet_grid(var ~ ., space = "fixed", scales = "fixed")
+            }
+            if (stanrnd_coulabel==TRUE) {
+                p.values <- p.values + geom_text(size = stanrnd_coulabel.size)
+            }
+            p <- arrangeGrob(p.values, p.ratio, ncol = 2)
+        } else {
+            p <- p.ratio
+        }
+        return(p)
+    }
 
 ui.stanRnd.plotchoices <- c("Points", "Lines")
 
 output$ui_stanRnd <- renderUI({
 
-  doLogin()
-  if (loginData$LoggedIn) {
+  ## doLogin()
+  ## if (loginData$LoggedIn) {
 
     list(
 
@@ -175,9 +242,9 @@ output$ui_stanRnd <- renderUI({
                        wellPanel(
                          checkboxInput("viz_plot_controls", "Plot options", FALSE),
                          conditionalPanel(condition = "input.viz_plot_controls == true",
-                                          sliderInput(inputId = "viz_plot_width", label = "Width:", min = 400, max = 1600, value = 800, step = 50),
+                                          sliderInput(inputId = "stanRnd_viz_plot_width", label = "Width:", min = 400, max = 1600, value = 850, step = 50),
                                           conditionalPanel(condition = "input.tabs_stanRnd == 'Plots'",
-                                                           sliderInput(inputId = "viz_plot_height", label = "Height:", min = 300, max = 1200, value = 600, step = 50)
+                                                           sliderInput(inputId = "stanRnd_viz_plot_height", label = "Height:", min = 300, max = 1200, value = 500, step = 50)
                                                            )
                                           ## ,
                                           ## conditionalPanel(condition = "input.tabs_stanRnd == 'Maps'",
@@ -196,8 +263,10 @@ output$ui_stanRnd <- renderUI({
                        "Gross Output" = "PROD")
                   ),
       selectInput("stanrnd_cur", "Currency:",
-                  list("Purchasing Power Parities" = "PPPS",
-                       "Exchange Rate" = "EXCH")
+                  list(
+                       "Exchange Rate" = "EXCH"
+                       ## ,"Purchasing Power Parities" = "PPPS" # add to DATA.XRATES
+                       )
                   ),
       conditionalPanel(condition="input.tabs_stanRnd!=2",
                        selectInput("stanrnd_centr", "Measure of Central Tendency:",
@@ -206,7 +275,7 @@ output$ui_stanRnd <- renderUI({
                                    )
                        ),
       conditionalPanel(condition="input.stanrnd_plot=='Lines'",
-                       selectInput("stanrnd_ind", "Industry:", as.list(ui.ind), selected = "D10T12", multiple = FALSE)
+                       selectInput("stanrnd_ind", "Industry:", as.list(ui.stanRnd.ind), selected = "D10T12", multiple = FALSE)
                        ),
       conditionalPanel(
         condition="input.tabs_stanRnd==1",
@@ -225,32 +294,41 @@ output$ui_stanRnd <- renderUI({
       conditionalPanel(condition="input.stanrnd_plot=='Lines'",
                        checkboxInput("stanrnd_showvalues", "Show values separately", TRUE),
                        conditionalPanel(condition="input.stanrnd_showvalues==true",
-                                        checkboxInput("stanrnd_scalelogs", "Value scale in logs", TRUE)
+                                        checkboxInput("stanrnd_scalelogs", "Value scale in logs", TRUE),
+                                        checkboxInput("stanrnd_scalefree", "Free Value scale", TRUE)
                                         )
                        ),
       checkboxInput("stanrnd_coulabel", "Add country labels", FALSE),
       conditionalPanel(condition="input.stanrnd_coulabel==true",
                        numericInput("stanrnd_coulabel.size", "Size of country labels:", 3)
                        ),
-      selectInput("stanrnd_couoecd", "OECD countries", as.list(ui.couoecd), selected = ui.couoecd, multiple = TRUE),
-      selectInput("stanrnd_counonoecd", "Non-OECD countries", as.list(ui.counonoecd), selected = ui.counonoecd, multiple = TRUE),
+      selectInput("stanrnd_couoecd", "OECD countries", as.list(ui.stanRnd.couoecd), selected = ui.stanRnd.couoecd, multiple = TRUE),
+      selectInput("stanrnd_counonoecd", "Non-OECD countries", as.list(ui.stanRnd.counonoecd), selected = ui.stanRnd.counonoecd, multiple = TRUE),
       conditionalPanel(condition="input.input.stanrnd_plot=='Points' | input.stanrnd_plot=='Lines'",
                        wellPanel(h5("Export"),
                                  numericInput("stanrnd_downloadplotwidth", "Width", 18),
                                  numericInput("stanrnd_downloadplotheight", "Height", 10),
                                  selectInput("stanrnd_downloadplotformat", "Format", as.list(c("PDF", "PNG")), selected = "PDF", multiple = FALSE),
-                                 downloadButton("stanrnd_downloadPlot", "Download Plot")
+                                 downloadButton("download_stanRnd", "Download Plot")
                                  )
                        )
-      
+
       ) # list(...
 
-  } else
-    {
-      h3("Please log in")
-    }
+  ## } else
+  ##   {
+  ##     h3("Please log in")
+  ##   }
 
 })
+
+stanRnd_widthSize <- reactive({
+    ifelse(is.null(input$stanRnd_viz_plot_width), return(values$plotWidth), return(input$stanRnd_viz_plot_width))
+})
+stanRnd_heightSize <- reactive({
+    ifelse(is.null(input$stanRnd_viz_plot_height), return(values$plotHeight), return(input$stanRnd_viz_plot_height))
+})
+
 output$stanRnd <- renderUI({
   ## for input-output
   statTabPanel(menu_name = "STAN", # menu_name: for side bar - coincide with navbarMenu
@@ -259,6 +337,8 @@ output$stanRnd <- renderUI({
                fun_label = "stanRnd" # fun_label
                ## ,rChart_lib = input$stanindic_rchartlib
                ,fun_tabs = c("Plots", "Tables")
+               ,widthFun = "stanRnd_widthSize"
+               ,heightFun = "stanRnd_heightSize"
                )
 })
 
@@ -278,6 +358,7 @@ output$stanRnd <- renderUI({
     stanrnd_time = input$stanrnd_time,
     stanrnd_showvalues = input$stanrnd_showvalues,
     stanrnd_scalelogs = input$stanrnd_scalelogs,
+    stanrnd_scalefree = input$stanrnd_scalefree,
     stanrnd_coulabel = input$stanrnd_coulabel,
     stanrnd_coulabel.size = input$stanrnd_coulabel.size,
     stanrnd_couoecd = input$stanrnd_couoecd,
@@ -285,7 +366,7 @@ output$stanRnd <- renderUI({
     stanrnd_downloadplotwidth = input$stanrnd_downloadplotwidth,
     stanrnd_downloadplotheight = input$stanrnd_downloadplotheight,
     stanrnd_downloadplotformat = input$stanrnd_downloadplotformat,
-    stanrnd_downloadPlot = input$stanrnd_downloadPlot,
+    ## stanrnd_downloadPlot = input$stanrnd_downloadPlot,
     viz_plot_height = input$viz_plot_height,
     viz_plot_width = input$viz_plot_width)
 })
@@ -311,6 +392,15 @@ output$stanRnd <- renderUI({
 ##   })
 ## })
 
+## ## input <- list(
+##     stanrnd_couoecd = c("AUT", "BEL")
+##     stanrnd_counonoecd = c("CHN")
+##     stanrnd_time = c(2000, 2010)
+##     stanrnd_cur = "EXCH"
+##     stanrnd_var = "VALU"
+##     ## )
+
+
 stanRnd <- function(
   stanrnd_plot = stanrnd_plot,
   stanrnd_var = stanrnd_var,
@@ -321,6 +411,7 @@ stanRnd <- function(
   stanrnd_time = stanrnd_time,
   stanrnd_showvalues = stanrnd_showvalues,
   stanrnd_scalelogs = stanrnd_scalelogs,
+  stanrnd_scalefree = stanrnd_scalefree,
   stanrnd_coulabel = stanrnd_coulabel,
   stanrnd_coulabel.size = stanrnd_coulabel.size,
   stanrnd_couoecd = stanrnd_couoecd,
@@ -328,65 +419,121 @@ stanRnd <- function(
   stanrnd_downloadplotwidth = stanrnd_downloadplotwidth,
   stanrnd_downloadplotheight = stanrnd_downloadplotheight,
   stanrnd_downloadplotformat = stanrnd_downloadplotformat,
-  stanrnd_downloadPlot = stanrnd_downloadPlot,
+  ## stanrnd_downloadPlot = stanrnd_downloadPlot,
   viz_plot_height = viz_plot_height,
   viz_plot_width = viz_plot_width)
 {
 
-  namecou <- NULL
-  namecou <- c(namecou, stanrnd_couoecd)
-  namecou <- c(namecou, stanrnd_counonoecd)
-  namecou
+    namecou <- NULL
+    namecou <- c(namecou, stanrnd_couoecd)
+    namecou <- c(namecou, stanrnd_counonoecd)
 
-  nameyear <- c(stanrnd_time[1]:stanrnd_time[2])
+    nameyear <- c(stanrnd_time[1]:stanrnd_time[2])
 
-    ## create data
-        data.anberd <- anberd[# anberd$type==stanrnd_type &
-                              anberd$cur==stanrnd_cur &
-                              anberd$cou%in%namecou &
-                              anberd$ind%in%nameind &
-                              anberd$year%in%nameyear,]
-        ## data.anberd.d <- dcast(data.anberd, cou + ind + cur + year + type ~ var, value.var = "value")
-        data.anberd.d <- dcast(data.anberd, cou + ind + cur + year ~ var, value.var = "value")
+    ## dat <- isolate(values[["STANNAi4"]])
+    dat <- values[["STANNAi4"]]
 
-        data.stan <- stan[stan$var==stanrnd_var &
-                          stan$cur==stanrnd_cur &
-                          stan$cou%in%namecou &
-                          stan$ind%in%nameind &
-                          stan$year%in%nameyear,]
-        data.stan.d <- dcast(data.stan, cou + ind + cur + year ~ var, value.var = "value")
+    names(dat$DATA.XRATES) <- sub("var", "cur", names(dat$DATA.XRATES))
 
-        data.calc <- merge(data.anberd.d, data.stan.d, by = c("cou", "cur", "ind", "year"))
-        data.calc <- data.calc[!is.na(data.calc[, "RDNC"]) & !is.na(data.calc[, stanrnd_var]), ]
+    data.xrates <- dat$DATA.XRATES[dat$DATA.XRATES$cur==stanrnd_cur &
+                                   dat$DATA.XRATES$cou%in%namecou &
+                                   dat$DATA.XRATES$year%in%nameyear,]
 
+    data.anberd <- dat$DATA.ANBERD[## dat$DATA.ANBERD$cur==stanrnd_cur &
+                                   dat$DATA.ANBERD$cou%in%namecou &
+                                   dat$DATA.ANBERD$ind%in%ui.stanRnd.nameind &
+                                   dat$DATA.ANBERD$year%in%nameyear,]
 
-  
-  return(list(
-    stanrnd_plot = stanrnd_plot,
-    stanrnd_var = stanrnd_var,
-    stanrnd_cur = stanrnd_cur,
-    stanrnd_centr = stanrnd_centr,
-    stanrnd_ind = stanrnd_ind,
-    stanrnd_error = stanrnd_error,
-    stanrnd_time = stanrnd_time,
-    stanrnd_showvalues = stanrnd_showvalues,
-    stanrnd_scalelogs = stanrnd_scalelogs,
-    stanrnd_coulabel = stanrnd_coulabel,
-    stanrnd_coulabel.size = stanrnd_coulabel.size,
-    stanrnd_couoecd = stanrnd_couoecd,
-    stanrnd_counonoecd = stanrnd_counonoecd,
-    stanrnd_downloadplotwidth = stanrnd_downloadplotwidth,
-    stanrnd_downloadplotheight = stanrnd_downloadplotheight,
-    stanrnd_downloadplotformat = stanrnd_downloadplotformat,
-    stanrnd_downloadPlot = stanrnd_downloadPlot,
-    viz_plot_width = viz_plot_height,
-    viz_plot_width = viz_plot_width,
-    data.calc = data.calc)
-         )
+    data.stan <- dat$DATA.STAN[dat$DATA.STAN$var==stanrnd_var &
+                               ## dat$DATA.STAN$cur==stanrnd_cur &
+                               dat$DATA.STAN$cou%in%namecou &
+                               dat$DATA.STAN$ind%in%ui.stanRnd.nameind &
+                               dat$DATA.STAN$year%in%nameyear,]
+
+    data.anberd <- merge(data.anberd, data.xrates, by = c("cou", "year"))
+    data.anberd$value <- data.anberd$value.x / data.anberd$value.y
+    data.anberd <- subset(data.anberd, select = c("cou", "var", "ind", "year", "value", "cur"))
+
+    ## ui.stanRnd.stan <- dat$DATA.STAN[dat$DATA.STAN$var%in%c("VALU", "PROD"),]
+    data.stan <- merge(data.stan, data.xrates, by = c("cou", "year"))
+    data.stan$value <- data.stan$value.x / data.stan$value.y
+    data.stan <- subset(data.stan, select = c("cou", "var", "ind", "year", "value", "cur"))
+
+    ## ## create data
+    ## data.anberd <- ui.stanRnd.anberd[# anberd$type==stanrnd_type &
+    ##                                  ui.stanRnd.anberd$cur==stanrnd_cur &
+    ##                                  ui.stanRnd.anberd$cou%in%namecou &
+    ##                                  ui.stanRnd.anberd$ind%in%ui.stanRnd.nameind &
+    ##                                  ui.stanRnd.anberd$year%in%nameyear,]
+    ## ## data.anberd.d <- dcast(data.anberd, cou + ind + cur + year + type ~ var, value.var = "value")
+    data.anberd.d <- dcast(data.anberd, cou + ind + cur + year ~ var, value.var = "value")
+
+    ## data.stan <- ui.stanRnd.stan[ui.stanRnd.stan$var==stanrnd_var &
+    ##                              ui.stanRnd.stan$cur==stanrnd_cur &
+    ##                              ui.stanRnd.stan$cou%in%namecou &
+    ##                              ui.stanRnd.stan$ind%in%ui.stanRnd.nameind &
+    ##                              ui.stanRnd.stan$year%in%nameyear,]
+    data.stan.d <- dcast(data.stan, cou + ind + cur + year ~ var, value.var = "value")
+
+    data.calc <- merge(data.anberd.d, data.stan.d, by = c("cou", "cur", "ind", "year"))
+    data.calc <- data.calc[!is.na(data.calc[, "RDNC"]) & !is.na(data.calc[, stanrnd_var]), ]
+
+    return(list(
+        stanrnd_plot = stanrnd_plot,
+        stanrnd_var = stanrnd_var,
+        stanrnd_cur = stanrnd_cur,
+        stanrnd_centr = stanrnd_centr,
+        stanrnd_ind = stanrnd_ind,
+        stanrnd_error = stanrnd_error,
+        stanrnd_time = stanrnd_time,
+        stanrnd_showvalues = stanrnd_showvalues,
+        stanrnd_scalelogs = stanrnd_scalelogs,
+        stanrnd_scalefree = stanrnd_scalefree,
+        stanrnd_coulabel = stanrnd_coulabel,
+        stanrnd_coulabel.size = stanrnd_coulabel.size,
+        stanrnd_couoecd = stanrnd_couoecd,
+        stanrnd_counonoecd = stanrnd_counonoecd,
+        stanrnd_downloadplotwidth = stanrnd_downloadplotwidth,
+        stanrnd_downloadplotheight = stanrnd_downloadplotheight,
+        stanrnd_downloadplotformat = stanrnd_downloadplotformat,
+        ## stanrnd_downloadPlot = stanrnd_downloadPlot,
+        viz_plot_width = viz_plot_height,
+        viz_plot_width = viz_plot_width,
+        data.calc = data.calc,
+        nameyear = nameyear)
+           )
 }
 
 summary_stanRnd <- function(result = .stanRnd())
 { if (length(result) > 0) {
+
+    data.calc <- result$data.calc
+    stanrnd_plot <- result$stanrnd_plot
+    stanrnd_ind <- result$stanrnd_ind
+    nameyear = result$nameyear
+
+    time_range<- paste(min(nameyear), max(nameyear), sep = '-')
+    stat_sum<- summary(data.calc)
+    list.print <- list(Time_Range = time_range,
+                       Summary_Statistics = stat_sum)
+
+    if (stanrnd_plot=="Points") {
+        stanrnd_couoecd <- result$stanrnd_couoecd
+        stanrnd_counonoecd <- result$stanrnd_counonoecd
+        coulabel.oecd <- STAN.COUEN$countryUNen[STAN.COUEN$cou%in%stanrnd_couoecd]
+        coulabel.nonoecd <- STAN.COUEN$countryUNen[STAN.COUEN$cou%in%stanrnd_counonoecd]
+        list.print <- c(list(OECD_Countries = toString(coulabel.oecd),
+                             Non_OECD_Countries = toString(coulabel.nonoecd)
+                             ),
+                        list.print)
+    }
+    if (stanrnd_plot=="Lines") {
+        indlabel <- names(ui.stanRnd.ind[ui.stanRnd.ind==stanrnd_ind])
+        list.print <- c(list(ISIC4_Industry = indlabel),
+                        list.print)
+    }
+
+    return(list.print)
 
 }}
 
@@ -411,138 +558,97 @@ plots_stanRnd <- function(result = .stanRnd())
   stanrnd_centr <-result$stanrnd_centr
   stanrnd_coulabel.size <- result$stanrnd_coulabel.size
   stanrnd_scalelogs <- result$stanrnd_scalelogs
+  stanrnd_scalefree <- result$stanrnd_scalefree
   stanrnd_showvalues <- result$stanrnd_showvalues
+  nameyear <- result$nameyear
 
-  if (stanrnd_plot == "Points")
-    {
-      ## aggregate over time period using mean
-      data.agg <- aggregate(data.calc[colnames(data.calc)%in%c(stanrnd_var, "RDNC")], by = list(data.calc$cou, data.calc$ind), "mean")
-      names(data.agg)[1:2] <- c("cou", "ind")
-      data.agg$ratio <- data.agg[, "RDNC"] / data.agg[, stanrnd_var]
-      data.agg <- merge(group.ind, data.agg) # group.ind first to use order of factor levels
-      p <- ggplot(data.agg, aes(x = ind, y = ratio, label = cou, order = ind)) +
-        geom_point() +
-          facet_grid(. ~ group.label, scales = "free", space = "free")
-      if (stanrnd_error=="minmax")
-        {
-          p <- p + stat_summary(fun.y = stanrnd_centr, fun.ymin = min, fun.ymax = max, colour='red')
-        }
-      if (stanrnd_error=="sderr")
-        {
-          p <- p + stat_summary(fun.y = stanrnd_centr, fun.ymin = lowsd, fun.ymax = highsd, colour='red')
-        }
-      if (stanrnd_coulabel==TRUE)
-        {
-          p <- p + geom_text(size = stanrnd_coulabel.size)
-        }
+  if (stanrnd_plot == "Points") {
+      p <- stanRnd_plot_points(data.calc = data.calc,
+                               stanrnd_var = stanrnd_var,
+                               ui.stanRnd.group.ind = ui.stanRnd.group.ind,
+                               stanrnd_error = stanrnd_error,
+                               stanrnd_centr = stanrnd_centr,
+                               ui.stanRnd.lowsd = ui.stanRnd.lowsd,
+                               ui.stanRnd.highsd = ui.stanRnd.highsd,
+                               stanrnd_coulabel = stanrnd_coulabel,
+                               stanrnd_coulabel.size = stanrnd_coulabel.size,
+                               nameyear = nameyear)
 
-    } else if (stanrnd_plot == "Lines")
-      {
-        data.plot <- data.calc[data.calc$ind%in%stanrnd_ind,]
-        data.plot$ratio<- data.plot[, "RDNC"] / data.plot[, stanrnd_var]
-        data.plot <- merge(group.ind, data.plot)
-        ## data.plot.m <- melt(data.plot, id.vars=c("ind", "cou", "cur", "year", "type", "group.no", "group.label"), variable.name="var")
-        data.plot.m <- melt(data.plot, id.vars=c("ind", "cou", "cur", "year", "group.no", "group.label"), variable.name="var")
-        p1 <- ggplot(data.plot.m[data.plot.m$var%in%c("RDNC", stanrnd_var),], aes(x = year, y = value, group = cou, label = cou)) +
-          geom_line(aes(colour = cou)) +
-            guides(colour = FALSE) +
-              xlab(NULL) +
-                ggtitle(paste("Values"))
-        if (stanrnd_scalelogs==TRUE)
-          {
-            p1 <- p1 + scale_y_log10(name = "Value in logs, free scales") +
-              facet_grid(var ~ ., space = "free", scales = "free")
-          } else {
-            p1 <- p1 + ylab(NULL) +
-              facet_grid(var ~ ., space = "fixed", scales = "fixed")
-          }
-        ##
-        p2 <- ggplot(data.plot.m[data.plot.m$var%in%c("ratio"),], aes(x = year, y = value, label = cou)) +
-          geom_line(aes(colour = cou)) +
-            geom_smooth(method = "loess") +
-              xlab(NULL) +
-                ylab(NULL) +
-                  ggtitle(paste("Ratio: RDNC per", stanrnd_var))
-        if (stanrnd_coulabel==TRUE)
-          {
-            p1 <- p1 + geom_text(size = stanrnd_coulabel.size)
-            p2 <- p2 + geom_text(size = stanrnd_coulabel.size)
-          }
-        if (stanrnd_showvalues==TRUE)
-          {
-            p <- arrangeGrob(p1, p2, ncol = 2)
-          } else {
-            p <- p2
-          }
-        
-      }
-  
+  } else if (stanrnd_plot == "Lines") {
+      p <-  stanRnd_plot_line(data.calc = data.calc,
+                              stanrnd_ind = stanrnd_ind,
+                              stanrnd_var = stanrnd_var,
+                              ui.stanRnd.group.ind = ui.stanRnd.group.ind,
+                              stanrnd_scalelogs = stanrnd_scalelogs,
+                              stanrnd_scalefree = stanrnd_scalefree,
+                              stanrnd_coulabel = stanrnd_coulabel,
+                              stanrnd_coulabel.size = stanrnd_coulabel.size,
+                              stanrnd_showvalues = stanrnd_showvalues,
+                              nameyear = nameyear)
+  }
+
   print(p)
-  
 }}
 
-    ## ## Tab: Table: Data (display underlying data in table)
-    ## output$table_data <- renderTable({
-    ##     data.calc <- data.calc()
-    ##     data.calc
-    ## })
+download_stanRnd <- function(result = .stanRnd(), zipfile = fname) {
+    if (length(result) > 0) {
 
-    ## ## ## Tab: Plot: Line
-    ## plot_line <- reactive({
-    ##     data.calc <- data.calc()
+        data.calc <- result$data.calc
+        stanrnd_plot <- result$stanrnd_plot
+        stanrnd_var <- result$stanrnd_var
+        stanrnd_ind <- result$stanrnd_ind
+        stanrnd_error <- result$stanrnd_error
+        stanrnd_coulabel <- result$stanrnd_coulabel
+        stanrnd_centr <-result$stanrnd_centr
+        stanrnd_coulabel.size <- result$stanrnd_coulabel.size
+        stanrnd_scalelogs <- result$stanrnd_scalelogs
+        stanrnd_scalefree <- result$stanrnd_scalefree
+        stanrnd_showvalues <- result$stanrnd_showvalues
+        nameyear <- result$nameyear
 
-    ##     data.plot <- data.calc[data.calc$ind%in%stanrnd_ind,]
-    ##     data.plot$ratio<- data.plot[, "RDNC"] / data.plot[, stanrnd_var]
-    ##     data.plot <- merge(group.ind, data.plot)
-    ##     data.plot.m <- melt(data.plot, id.vars=c("ind", "cou", "cur", "year", "type", "group.no", "group.label"), variable.name="var")
-    ##     p1 <- ggplot(data.plot.m[data.plot.m$var%in%c("RDNC", stanrnd_var),], aes(x = year, y = value, group = cou, label = cou)) +
-    ##         geom_line(aes(colour = cou)) +
-    ##             guides(colour = FALSE) +
-    ##                 xlab(NULL) +
-    ##                 ggtitle(paste("Values"))
-    ##     if (stanrnd_scalelogs==TRUE)
-    ##     {
-    ##         p1 <- p1 + scale_y_log10(name = "Value in logs, free scales") +
-    ##             facet_grid(var ~ ., space = "free", scales = "free")
-    ##     } else {
-    ##         p1 <- p1 + ylab(NULL) +
-    ##             facet_grid(var ~ ., space = "fixed", scales = "fixed")
-    ##     }
-    ##     ##
-    ##     p2 <- ggplot(data.plot.m[data.plot.m$var%in%c("ratio"),], aes(x = year, y = value, label = cou)) +
-    ##         geom_line(aes(colour = cou)) +
-    ##             geom_smooth(method = "loess") +
-    ##                 xlab(NULL) +
-    ##                     ylab(NULL) +
-    ##                         ggtitle(paste("Ratio: RDNC per", stanrnd_var))
-    ##     if (stanrnd_coulabel==TRUE)
-    ##     {
-    ##         p1 <- p1 + geom_text(size = stanrnd_coulabel.size)
-    ##         p2 <- p2 + geom_text(size = stanrnd_coulabel.size)
-    ##     }
-    ##     if (stanrnd_showvalues==TRUE)
-    ##     {
-    ##         p <- arrangeGrob(p1, p2, ncol = 2)
-    ##     } else {
-    ##         p <- p2
-    ##     }
-    ##     p
-    ## })
+        stanrnd_downloadplotwidth <- result$stanrnd_downloadplotwidth
+        stanrnd_downloadplotheight <- result$stanrnd_downloadplotheight
+        stanrnd_downloadplotformat <- result$stanrnd_downloadplotformat
 
-    ## output$plot_line <- renderPlot({
-    ##     p <- plot_line()
+        tempdir = tempdir()
+        unlink(paste0(tempdir, list.files(tempdir)))
+        file.remove(file.path(tempdir, list.files(tempdir)))
 
-    ##     print(p)
+        file <- file.path(tempdir, paste0('chart', '.', stanrnd_downloadplotformat))
 
-    ## })
+        if (stanrnd_downloadplotformat=="PDF") pdf(file=file, width=stanrnd_downloadplotwidth, height=stanrnd_downloadplotheight)
+        if (stanrnd_downloadplotformat=="PNG") png(file=file, width=stanrnd_downloadplotwidth, height=stanrnd_downloadplotheight, units = "in", res = 300)
 
-    ## output$downloadPlot <- downloadHandler(
+        if (stanrnd_plot == "Points") {
+            p <- stanRnd_plot_points(data.calc = data.calc,
+                                     stanrnd_var = stanrnd_var,
+                                     ui.stanRnd.group.ind = ui.stanRnd.group.ind,
+                                     stanrnd_error = stanrnd_error,
+                                     stanrnd_centr = stanrnd_centr,
+                                     ui.stanRnd.lowsd = ui.stanRnd.lowsd,
+                                     ui.stanRnd.highsd = ui.stanRnd.highsd,
+                                     stanrnd_coulabel = stanrnd_coulabel,
+                                     stanrnd_coulabel.size = stanrnd_coulabel.size,
+                                     nameyear = nameyear)
 
-    ##     filename = function() { paste0('plot.', tolower(stanrnd_downloadplotformat)) },
-    ##     content = function(file) {
-    ##         if (stanrnd_downloadplotformat=="PDF") pdf(file=file, width=stanrnd_downloadplotwidth, height=stanrnd_downloadplotheight)
-    ##         if (stanrnd_downloadplotformat=="PNG") png(file=file, width=stanrnd_downloadplotwidth, height=stanrnd_downloadplotheight, units = "in", res = 300)
-    ##         if (stanrnd_conditionedPanels==1) print(plot_dot())
-    ##         if (stanrnd_conditionedPanels==2) print(plot_line())
-    ##         dev.off()
-    ##     })
+        } else if (stanrnd_plot == "Lines") {
+            p <-  stanRnd_plot_line(data.calc = data.calc,
+                                    stanrnd_ind = stanrnd_ind,
+                                    stanrnd_var = stanrnd_var,
+                                    ui.stanRnd.group.ind = ui.stanRnd.group.ind,
+                                    stanrnd_scalelogs = stanrnd_scalelogs,
+                                    stanrnd_scalefree = stanrnd_scalefree,
+                                    stanrnd_coulabel = stanrnd_coulabel,
+                                    stanrnd_coulabel.size = stanrnd_coulabel.size,
+                                    stanrnd_showvalues = stanrnd_showvalues,
+                                    nameyear = nameyear)
+        }
+        print(p)
+        dev.off()
+
+        zip(zipfile = zipfile, files = tempdir, extras = "-j")
+
+}}
+
+
+

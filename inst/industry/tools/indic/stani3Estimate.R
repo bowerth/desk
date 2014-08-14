@@ -148,7 +148,15 @@ if(testingRadiant==FALSE)
         eval(parse(text = paste0('DATA.', sou, ' <- dcast(DATA.', sou, ', cou + sou + var + year ~ ind, value.var = "value")')))
         ## add aggregates
         ## eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3)')))
+        ##
+        ##
+        ## naAsZero = TRUE: STANandBTD C65T99 is zero though it should be missing
+        ## naAsZero = FALSE: UNSD203CON C65T99, C75T99 is missing because C95 and C99 not set to zero
+        ##
         eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3, naAsZero = TRUE, fill2D = TRUE, missing.2d = c("C95", "C99"))')))
+        ## eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3, naAsZero = FALSE, fill2D = TRUE, missing.2d = c("C95", "C99"))')))
+        ##
+
         ## ## create C75T99 with modified indAggregate function where only selected 2-digit sectors are filled with zero
         ## DATA.STANandBTD.d <- dcast(DATA.STANandBTD, cou + sou + var + year ~ ind, value.var = "value")
         ## n(DATA.STANandBTD.d)
@@ -206,7 +214,7 @@ ui.stani3Estimate.cou <- ui.stani3Estimate.cou[!ui.stani3Estimate.cou=="ROW"]
 ## STANi3.INDA60All <- factor(STANi3.INDA60All, levels = STANi3.IND[["levels"]])
 ## STANi3.INDA60All <- STANi3.INDA60All[order(STANi3.INDA60All)]
 ## ind2 <- STANi3.INDA60All
-merge(data.frame(ind=ind1, vec="ind1"), data.frame(ind=ind2, vec="ind2"), by = "ind", all = TRUE)
+## merge(data.frame(ind=ind1, vec="ind1"), data.frame(ind=ind2, vec="ind2"), by = "ind", all = TRUE)
 
 ui.stani3Estimate.ind.agg <- c("A6", "A18", "A34", "A60All") # "A46" list not included; UNSDSNA C65T99 missing
 ui.stani3Estimate.ind <- STANi3.INDA60All
@@ -418,8 +426,8 @@ output$uiSe_estDetail <- renderUI({
 
 output$ui_stani3Estimate <- renderUI({
 
-    doLogin()
-    if (loginData$LoggedIn) {
+    ## doLogin()
+    ## if (loginData$LoggedIn) {
 
         list(
 
@@ -551,18 +559,25 @@ output$ui_stani3Estimate <- renderUI({
                             selected = c(""), multiple = TRUE),
                 ## checkboxInput("stani3estimate_allvar", "Select all variables", FALSE),
                 selectInput("stani3estimate_morevar", "Variables:", ui.stani3Estimate.var, selected = c("PROD", "VALU"), multiple = TRUE),
-                checkboxInput("stani3estimate_allind", "Select all industries", FALSE),
+                checkboxInput("stani3estimate_allind", "Select all industries", TRUE),
                 downloadButton('download_stani3Estimate', 'Download XLS') # from radiant.R: paste0('download_', fun_label)
             ## downloadButton('downloadChart', 'Download PDF')
                 ),
             helpAndReport("STAN ISIC3 Estimate","stani3Estimate",inclMD("tools/help/stani3Estimate.md"))
             ) # list(...
 
-    } else
-    {
-        h3("Please log in")
-    }
+    ## } else
+    ## {
+    ##     h3("Please log in")
+    ## }
 
+})
+
+stani3Estimate_widthSize <- reactive({
+    ifelse(is.null(input$stani3Estimate_viz_plot_width), return(values$plotWidth), return(input$stani3Estimate_viz_plot_width))
+})
+stani3Estimate_heightSize <- reactive({
+    ifelse(is.null(input$stani3Estimate_viz_plot_height), return(values$plotHeight), return(input$stani3Estimate_viz_plot_height))
 })
 
 output$stani3Estimate <- renderUI({
@@ -573,6 +588,8 @@ output$stani3Estimate <- renderUI({
                  fun_label = "stani3Estimate" # fun_label
                  ## ,rChart_lib = input$stani3estimate_rchartlib
                  ,fun_tabs = c("Tables", "Plots", "DataTables")
+                 ,widthFun = "stani3Estimate_widthSize"
+                 ,heightFun = "stani3Estimate_heightSize"
                  )
 })
 
@@ -722,19 +739,8 @@ output$stani3Estimate <- renderUI({
 
 observe({
     if (is.null(input$stani3estimate_sou_ext_saveButton) || input$stani3estimate_sou_ext_saveButton == 0) return()
-    ## isolate({
-    ## if (input$stani3estimate_allcou==TRUE) {
-    ##     cou <- seq(along = ui.stani3Estimate.cou)
-    ## } else {
-    ## cou <- match(input$stani3estimate_cou, ui.stani3Estimate.cou)
     cou <- match(union(input$stani3estimate_cou, input$stani3estimate_exportcou), ui.stani3Estimate.cou)
-    ## }
-    ## if (input$stani3estimate_allvar==TRUE) {
-    ##     var <- seq(along = ui.stani3Estimate.var)
-    ## } else {
-    ## var <- match(input$stani3estimate_var, ui.stani3Estimate.var)
     var <- match(union(input$stani3estimate_var, input$stani3estimate_morevar), ui.stani3Estimate.var)
-    ## }
     if (input$stani3estimate_allind==TRUE) {
         ind <- seq(along = ui.stani3Estimate.ind)
     } else {
@@ -744,24 +750,13 @@ observe({
     ui.stani3Estimate.est.array[cou,var,ind,"EXT","MAIN"] <- input$stani3estimate_sou_ext_main
     ui.stani3Estimate.est.array[cou,var,ind,"EXT","SEC"] <- toString(input$stani3estimate_sou_ext_sec)
     save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate.rda")
-    ## })
+    print("saved extend information")
 })
 
 observe({
     if (is.null(input$stani3estimate_sou_det_saveButton) || input$stani3estimate_sou_det_saveButton == 0) return()
-    ## isolate({
-    ## if (input$stani3estimate_allcou==TRUE) {
-    ##     cou <- seq(along = ui.stani3Estimate.cou)
-    ## } else {
-    ## cou <- match(input$stani3estimate_cou, ui.stani3Estimate.cou)
     cou <- match(union(input$stani3estimate_cou, input$stani3estimate_exportcou), ui.stani3Estimate.cou)
-    ## }
-    ## if (input$stani3estimate_allvar==TRUE) {
-    ##     var <- seq(along = ui.stani3Estimate.var)
-    ## } else {
-    ## var <- match(input$stani3estimate_var, ui.stani3Estimate.var)
     var <- match(union(input$stani3estimate_var, input$stani3estimate_morevar), ui.stani3Estimate.var)
-    ## }
     if (input$stani3estimate_allind==TRUE) {
         ind <- seq(along = ui.stani3Estimate.ind)
     } else {
@@ -772,7 +767,6 @@ observe({
     ui.stani3Estimate.est.array[cou,var,ind,"DET","SEC"] <- toString(input$stani3estimate_sou_det_sec)
     save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate.rda")
     print("saved detail information")
-    ## })
 })
 
 

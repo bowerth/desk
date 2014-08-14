@@ -1,6 +1,12 @@
 ### STI/EAS Indicators
 
-Version 0.1 (23/04/2014)
+Version 0.1 (09/08/2014)
 
-By: <a href="http://www.oecd.org/sti/" target="_blank">OECD STI</a> (stan.contact[at]oecd.org)
-Built using <a href="http://www.rstudio.com/shiny/" target="_blank">Shiny</a> by <a href="http://www.rstudio.com/" target="_blank">Rstudio</a>
+By: [OECD STI](http://www.oecd.org/sti/")
+[stan.contact@oecd.org](mailto:stan.contact@oecd.org?subject=STI/EAS%20Indicators)
+
+Built using [Shiny](http://www.rstudio.com/shiny/) by
+[Rstudio](http://www.rstudio.com/")
+
+Application structure based on [Radiant](vnijs.rady.ucsd.edu:3838/marketing/) by [Vincent
+Nijs](vnijs@ rady.ucsd.edu)

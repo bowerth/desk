@@ -1,0 +1,147 @@
+#######################################
+## Shiny interface for SDMX retrieval
+## naming conventions
+## UI variables: ui.sdmxBroser.[]
+## rendered UIs: output$uiSb_[]
+
+#######################################
+
+## ui.sdmxBrowser.provider <- c("ECB", "OECD", "EUROSTAT", "ISTAT", "IMF")
+output$uisB_provider <- renderUI({
+    ui.sdmxBrowser_provider <- getProviders()
+    selectInput("sdmxBrowser_provider", "Provider:", ui.sdmxBrowser_provider, selected = ui.sdmxBrowser_provider[1], multiple = FALSE)
+})
+
+output$uisB_flow <- renderUI({
+    ui.sdmxBrowser_flow <- getFlows(input$sdmxBrowser_provider)
+    selectInput("sdmxBrowser_flow", "Flow:", ui.sdmxBrowser_flow, selected = ui.sdmxBrowser_flow[1], multiple = FALSE)
+})
+
+output$uisB_dimensions <- renderUI({
+    ui.sdmxBrowser.dimensions <- getDimensions(input$sdmxBrowser_provider, input$sdmxBrowser_flow)
+    ui.sdmxBrowser.dimensions <- names(ui.sdmxBrowser.dimensions)
+    selectInput("sdmxBrowser_dimensions", "Filter Dimensions:", ui.sdmxBrowser_dimensions, selected = ui.sdmxBrowser_dimensions, multiple = TRUE)
+})
+
+output$uisB_dimensioncodes <- renderUI({
+
+    command.all <- NULL
+    for (d in seq(along = input$sdmxBrowser_dimensions)) {
+        dimension <- input$sdmxBrowser_dimensions[d]
+        ui.sdmxBrowser.dimensioncodes <- getCodes(input$sdmxBrowser_provider, input$sdmxBrowser_flow, dimension)
+        ui.sdmxBrowser.dimensioncodes <- names(ui.sdmxBrowser.dimensioncodes)
+        command <- paste0('selectInput("sdmxBrowser_dimensioncodes_', d,
+                          '", "Select ', dimension,
+                          '", ui.sdmxBrowser.dimensioncodes, selected = ui.sdmxBrowser.dimensioncodes[1] , multiple = TRUE)')
+        command.all <- paste(command.all, command, sep = ",\n")
+    }
+    ## cat(command.all)
+
+    list(
+        eval(parse(text = command.all))
+    )
+
+library(shiny)
+selectInput
+
+input <- list(
+    sdmxBrowser_provider = "EUROSTAT",
+    sdmxBrowser_flow = "nama_nace64_c",
+    sdmxBrowser_dimensions = c("UNIT", "NACE_R2", "INDIC_NA", "GEO")
+    )
+dimension <- input$sdmxBrowser_dimensions[1]
+
+
+output$ui_sdmxBrowser <- renderUI({
+
+    doLogin()
+    if (loginData$LoggedIn) {
+
+        list(
+            ## conditionalPanel(condition = "input.tabs_sdmxBrowser=='NVD3Charts'",
+            ##                  wellPanel(
+            ##                      checkboxInput("sdmxBrowser_viz_plot_controls", "Plot options", FALSE),
+            ##                      conditionalPanel(condition = "input.sdmxBrowser_viz_plot_controls==true",
+            ##                                       ## htmlOutput("ui_plot_options"),
+            ##                                       sliderInput(inputId = "sdmxBrowser_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 600, step = 50),
+            ##                                       sliderInput(inputId = "sdmxBrowser_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 800, step = 50),
+            ##                                       checkboxInput("sdmxBrowser_xrotate", "Rotate x-axis labels", FALSE)
+
+            ##                                       )
+            ##                      )
+            ##                  ),
+            ## wellPanel(
+            ##     checkboxInput("sdmxBrowser_calcshare", "Calculate share in total", TRUE),
+            ##     numericInput("sdmxBrowser_rounddec", "Round to number of decimals:", 2),
+            ##     checkboxInput("sdmxBrowser_labelocu", "Show occupation labels", FALSE)
+            ##     ),
+            ## selectInput("sdmxBrowser_xaxis", "x-Axis variable:", ui.sdmxBrowser.xaxis, selected = "ind", multiple = FALSE),
+
+            uiOutput("uiLs_namesou"),
+            uiOutput("uiLs_namecou"),
+            uiOutput("uiLs_namevar"),
+            uiOutput("uiLs_nameind"),
+            uiOutput("uiLs_nameyear"),
+
+            ## actionButton("sdmxBrowser_recalcButton", "Recalculate with selection"),
+            ##
+            ## wellPanel(
+            ##     htmlOutput("select_occ_high_UI")
+            ##     ),
+            ## ),
+            helpAndReport("SDMX Browser","sdmxBrowser",inclMD("tools/help/sdmxBrowser.md"))
+            ) # list(...
+
+    } else
+    {
+        h3("Please log in")
+    }
+
+})
+output$sdmxBrowser <- renderUI({
+    ## for input-output
+    statTabPanel(menu_name = "SDMX", # menu_name: for side bar - coincide with navbarMenu
+                 fun_name = "SDMX Browser",   # fun_name
+                 rfun_label = ".sdmxBrowser", # rfun_label
+                 fun_label = "sdmxBrowser" # fun_label
+                 ## ,rChart_lib = input$stanindic_rchartlib
+                 ,fun_tabs = c("Tables", "NVD3Charts")
+                 )
+})
+
+
+
+## ######################
+## Input test
+## ######################
+
+## input <- list(
+##     sdmxBrowser_provider="EUROSTAT",
+##     sdmxBrowser_viz_plot_height=600,
+##     sdmxBrowser_viz_plot_width=800
+##     )
+## sdmxBrowser_xaxis <- input$sdmxBrowser_xaxis
+## sdmxBrowser_viz_plot_height <- input$sdmxBrowser_viz_plot_height
+## sdmxBrowser_viz_plot_width <- input$sdmxBrowser_viz_plot_width
+
+.sdmxBrowser <- reactive({
+    ## reactive that calls the function for main analysis
+    ## . used to indicate this is an 'internal' function
+    ##
+    ## if (length(input$stanindic_dimS)==0) return ()
+    ##
+    sdmxBrowser(
+        ## sdmxBrowser_xaxis = input$sdmxBrowser_xaxis,
+        ## sdmxBrowser_viz_plot_height = input$sdmxBrowser_viz_plot_height,
+        ## sdmxBrowser_viz_plot_width = input$sdmxBrowser_viz_plot_width
+        )
+})
+
+sdmxBrowser <- function(
+    ## sdmxBrowser_xaxis = sdmxBrowser_xaxis,
+    ## sdmxBrowser_viz_plot_height = sdmxBrowser_viz_plot_height,
+    ## sdmxBrowser_viz_plot_width = sdmxBrowser_viz_plot_width
+    )
+{
+
+}

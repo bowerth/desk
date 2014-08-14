@@ -57,12 +57,10 @@ date2character <- reactive({
 ################################################################
 plotWidth <- function(width_name) {
     ## ifelse(is.null(input$viz_plot_width), return(values$plotWidth), return(input$viz_plot_width))
-    ## eval(parse(text = paste0('ifelse(is.null(input$', width_name, '), return(values$plotWidth), return(input$', width_name, '))')))
     ifelse(is.null(input[[width_name]]), return(values$plotWidth), return(input[[width_name]]))
 }
 plotHeight <- function(height_name) {
     ## ifelse(is.null(input$viz_plot_height), return(values$plotHeight), return(input$viz_plot_height))
-    ## eval(parse(text = paste0('ifelse(is.null(input$', height_name, '), return(values$plotHeight), return(input$', height_name, '))')))
     ifelse(is.null(input[[height_name]]), return(values$plotHeight), return(input[[height_name]]))
 }
 
@@ -121,10 +119,10 @@ statPanel <- function(fun_name, rfun_label, fun_label,
         get(plot_name)()
         ## isolate(get(plot_name)())
     },
-                                      ## width=get(widthFun),
-                                      ## height=get(heightFun)
-                                      width=get(widthFun)(width_name),
-                                      height=get(heightFun)(height_name)
+                                      width=get(widthFun),
+                                      height=get(heightFun)
+                                      ## width=get(widthFun)(width_name), # call function "widthFun" with variable "width_name"
+                                      ## height=get(heightFun)(height_name)
                                       )
     ## Generate output for the polycharts tab
     output[[polychart_name]] <- renderChart({
@@ -168,12 +166,6 @@ statPanel <- function(fun_name, rfun_label, fun_label,
     })
     output[[download_name]] <- downloadHandler(
         filename = function() { "output.zip" },
-        ## result <- get(rfun_label)() # period_lower
-        ## result <- isolate(get(rfun_label)())
-        ## result
-        ## w    n no analysis was conducted (e.g., no variables selected)
-        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
-        ## if(is.character(result)) return()
         content = function(file) {
                         fname <- paste0(file, '.zip')
                         get(download_name)(zipfile=fname)
@@ -195,18 +187,8 @@ statPanel <- function(fun_name, rfun_label, fun_label,
     }
     if ("Plots"%in%fun_tabs) {
         string.tabPanel <- paste0('tabPanel("Plots", conditionalPanel(condition="!$(\'html\').hasClass(\'shiny-busy\')",\n',
-                                  'plotOutput(plot_name, height = "100%"),\n',
+                                  'plotOutput(plot_name, height = "100%"),\n', # height = "100%"
                                   'verbatimTextOutput(sum_name)))')
-        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
-    }
-    if ("PolyCharts"%in%fun_tabs) {
-        string.tabPanel <- paste0('tabPanel("PolyCharts", conditionalPanel(condition="!$(\'html\').hasClass(\'shiny-busy\')",\n',
-                                  'showOutput(polychart_name, "polycharts")))')
-        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
-    }
-    if ("HighCharts"%in%fun_tabs) {
-        string.tabPanel <- paste0('tabPanel("HighCharts", conditionalPanel(condition="!$(\'html\').hasClass(\'shiny-busy\')",\n',
-                                  'showOutput(highchart_name, "highcharts")))')
         string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
     }
     if ("NVD3Charts"%in%fun_tabs) {
@@ -214,7 +196,20 @@ statPanel <- function(fun_name, rfun_label, fun_label,
                                   'showOutput(nvd3chart_name, "nvd3")))')
         string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
     }
+    if ("HighCharts"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("HighCharts", conditionalPanel(condition="!$(\'html\').hasClass(\'shiny-busy\')",\n',
+                                  'showOutput(highchart_name, "highcharts")))')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("PolyCharts"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("PolyCharts", conditionalPanel(condition="!$(\'html\').hasClass(\'shiny-busy\')",\n',
+                                  'showOutput(polychart_name, "polycharts")))')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
     if ("MorrisCharts"%in%fun_tabs) {
+        ## tags$style(".morris{width: 800px;}"),
+        ## tags$style('.leaflet {height: 400px;}')
+        ## tags$style("#morrischarts_sdmxBrowser{width:800px;}") # CSS
         string.tabPanel <- paste0('tabPanel("MorrisCharts", conditionalPanel(condition="!$(\'html\').hasClass(\'shiny-busy\')",\n',
                                   'showOutput(morrischart_name, "morris")))')
         string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')

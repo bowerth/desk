@@ -3,6 +3,38 @@
 ## if (reload.global==TRUE)
 ## {
 
+app.status.df <- rbind.data.frame(c("active", "ICIO", "Foreign Demand Domestic Value Added", "icioFddva"),
+                                  c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
+                                  c("active", "STAN", "STAN Indicators", "stanIndic"),
+                                  c("active", "STAN", "R&D Intensity", "stanRnd"),
+                                  c("active", "SKILL", "LFS Share", "lfsShare"),
+                                  c("active", "SMDX", "SDMX Browser", "sdmxBrowser")
+                                  )
+names(app.status.df) <- c("status", "menuTitle", "panelTitle", "outputID")
+
+for (outputID in app.status.df$outputID) {
+    ## if (paste0('active.', outputID)%in%ls()) {
+    ##     eval(parse(text = paste0('rm("active.', outputID, '")')))
+    ## }
+    if (app.status.df$status[app.status.df$outputID==outputID]=="active") {
+        eval(parse(text = paste0('active.', outputID, ' <- TRUE')))
+    } else {
+        eval(parse(text = paste0('active.', outputID, ' <- FALSE')))
+    }
+}
+
+command.ui <- NULL
+for (menuTitle in unique(app.status.df$menuTitle[app.status.df$status=="active"])) {
+    command.ui <- paste0(command.ui, 'navbarMenu("', menuTitle, '",\n')
+    for (outputID in app.status.df$outputID[app.status.df$menuTitle==menuTitle]) {
+        panelTitle <- app.status.df$panelTitle[app.status.df$outputID==outputID]
+        command.ui <- paste0(command.ui, '\ttabPanel("', panelTitle, '", uiOutput("', outputID, '")),\n')
+    }
+    command.ui <- paste0(command.ui, '),\n')
+}
+command.ui <- gsub(',\n\\)', '\n\\)', command.ui)
+
+
 ## only write if running on developer computer
 if(file.exists("~\\LocalData\\Dropbox\\GitHub\\desk"))
   {
@@ -55,71 +87,74 @@ setInitValues <- function()
         ## df <- mget(robj)
         ## df <- get(robj)
 
-        ## ICIO
-        ## icioFddva
-        env <- new.env()
-        data("ICIO5837APP", package = "icioData", envir = env)
-        df <- mget(ls(envir = env), envir = env)
-        values[["ICIO5837APP"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
-        values[["ICIO5837APP_descr"]] <- attr(df,"description")
-        values$datasetlist <- c("ICIO5837APP")
+        if (active.icioFddva==TRUE) {
+            env <- new.env()
+            data("ICIO5837APP", package = "icioData", envir = env)
+            df <- mget(ls(envir = env), envir = env)
+            values[["ICIO5837APP"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
+            values[["ICIO5837APP_descr"]] <- attr(df,"description")
+            values$datasetlist <- c("ICIO5837APP")
+        }
 
-        ## ## STAN ISIC 3
-        ## ## stani3Estimate
-        ## env <- new.env()
-        ## data("STANNAi3", package = "stanData", envir = env)
-        ## df <- mget(ls(envir = env), envir = env)
-        ## values[["STANNAi3"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
-        ## values[["STANNAi3_descr"]] <- attr(df,"description")
-        ## values$datasetlist <- c("STANNAi3")
-        ## ## stanIndic, stanRnd
-        ## env <- new.env()
-        ## data("STANNAi4", package = "stanData", envir = env)
-        ## df <- mget(ls(envir = env), envir = env)
-        ## ##
-        ## ## check for duplicates in type: MA and PF
-        ## ## row <- df$DATA.ANBERD[1,]
-        ## ## row$type <- "PF"; row$value <- 10
-        ## ## df$DATA.ANBERD <- rbind(row, df$DATA.ANBERD)
-        ## ## test <- df$DATA.ANBERD[duplicated(df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("value", "type")]),]
-        ## df$DATA.ANBERD <- df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("type")]
-        ## df$DATA.BTD$ind <- sub("D31T32", "D31T33", df$DATA.BTD$ind)
-        ## require(reshape2)
-        ## require(stan)
-        ## df$DATA.BTD <- dcast(df$DATA.BTD, cou + var + year ~ ind, value.var = "value")
-        ## df$DATA.BTD <- indAggregate(df$DATA.BTD, isic = 4)
-        ## df$DATA.BTD <- melt(df$DATA.BTD, id.vars = c("cou", "var", "year"), variable.name = "ind")
-        ## ##
-        ## values[["STANNAi4"]] <- df
-        ## values[["STANNAi4_descr"]] <- attr(df,"description")
-        ## values$datasetlist <- c("STANNAi4")
+        if (active.stani3Estimate==TRUE | active.stanIndic==TRUE | active.stanRnd==TRUE) {
+            env <- new.env()
+            data("STANNAi4", package = "stanData", envir = env)
+            df <- mget(ls(envir = env), envir = env)
+            ##
+            ## check for duplicates in type: MA and PF
+            ## row <- df$DATA.ANBERD[1,]
+            ## row$type <- "PF"; row$value <- 10
+            ## df$DATA.ANBERD <- rbind(row, df$DATA.ANBERD)
+            ## test <- df$DATA.ANBERD[duplicated(df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("value", "type")]),]
+            df$DATA.ANBERD <- df$DATA.ANBERD[,!colnames(df$DATA.ANBERD)%in%c("type")]
+            df$DATA.BTD$ind <- sub("D31T32", "D31T33", df$DATA.BTD$ind)
+            require(reshape2)
+            require(stan)
+            df$DATA.BTD <- dcast(df$DATA.BTD, cou + var + year ~ ind, value.var = "value")
+            df$DATA.BTD <- indAggregate(df$DATA.BTD, isic = 4)
+            df$DATA.BTD <- melt(df$DATA.BTD, id.vars = c("cou", "var", "year"), variable.name = "ind")
+            ##
+            values[["STANNAi4"]] <- df
+            values[["STANNAi4_descr"]] <- attr(df,"description")
+            values$datasetlist <- c("STANNAi4")
 
-        ## ## LFS
-        ## ## lfsShare
-        ## env <- new.env()
-        ## data("LFSi4", package = "skillData", envir = env)
-        ## ##
-        ## ## load(file.path(PATH.REPO, "skillData", "data", "LFSi4.rda"), envir = env)
-        ## ##
-        ## df <- mget(ls(envir = env), envir = env)
-        ## df.rbind <- NULL
-        ## ## unique(df.rbind$ocu)
-        ## ## sou <- "LFSUSA"
-        ## ## namesou <- setdiff(names(df), paste0('DATA.', sou))
-        ## ## for (sou in sub("DATA.", "", namesou))
-        ## for (lfssou in sub("DATA.", "", names(df)))
-        ## {
-        ##     if (!lfssou%in%c("LFSEU", "LFSILO")) sou <- "LFSNSO" else sou <- lfssou
-        ##     eval(parse(text = paste0('DATA.', sou, ' <- df$DATA.', lfssou)))
-        ##     eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
-        ##     eval(parse(text = paste0('DATA.', sou, ' <- subset(DATA.', sou, ', select = c("sou", "cou", "var", "ind", "ocu", "year", "value"))')))
-        ##     eval(parse(text = paste0('df.rbind <- rbind(df.rbind, DATA.', sou, ')')))
-        ## }
-        ## values[["LFSi4"]] <- df.rbind
-        ## values[["LFSi4_descr"]] <- attr(df,"description")
-        ## values$datasetlist <- c("LFSi4")
+            if (active.stani3Estimate==TRUE) {
+                env <- new.env()
+                data("STANNAi3", package = "stanData", envir = env)
+                df <- mget(ls(envir = env), envir = env)
+                values[["STANNAi3"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
+                values[["STANNAi3_descr"]] <- attr(df,"description")
+                values$datasetlist <- c("STANNAi3")
+            }
 
-      }
+        }
+
+        if (active.lfsShare==TRUE) {
+            env <- new.env()
+            data("LFSi4", package = "skillData", envir = env)
+            ##
+            ## load(file.path(PATH.REPO, "skillData", "data", "LFSi4.rda"), envir = env)
+            ##
+            df <- mget(ls(envir = env), envir = env)
+            df.rbind <- NULL
+            ## unique(df.rbind$ocu)
+            ## sou <- "LFSUSA"
+            ## namesou <- setdiff(names(df), paste0('DATA.', sou))
+            ## for (sou in sub("DATA.", "", namesou))
+            for (lfssou in sub("DATA.", "", names(df)))
+            {
+                if (!lfssou%in%c("LFSEU", "LFSILO")) sou <- "LFSNSO" else sou <- lfssou
+                eval(parse(text = paste0('DATA.', sou, ' <- df$DATA.', lfssou)))
+                eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
+                eval(parse(text = paste0('DATA.', sou, ' <- subset(DATA.', sou, ', select = c("sou", "cou", "var", "ind", "ocu", "year", "value"))')))
+                eval(parse(text = paste0('df.rbind <- rbind(df.rbind, DATA.', sou, ')')))
+            }
+            values[["LFSi4"]] <- df.rbind
+            values[["LFSi4_descr"]] <- attr(df,"description")
+            values$datasetlist <- c("LFSi4")
+        }
+
+    }
   }
 
 setInitValues() # using a function here so it can also be called from state.R to reset the app
@@ -134,8 +169,9 @@ libs <- c("AlgDesign",
           "car",
           "digest",
           "ggplot2",
+          "grDevices",
           "gridExtra",
-          "icioData", ## own package, icioFddva
+          ## "icioData", ## own package, icioFddva
           "knitr",
           "lubridate",
           "markdown",
@@ -144,17 +180,15 @@ libs <- c("AlgDesign",
           "psych",
           "R.utils",
           "rCharts", # github
-          "rMaps", # github (own)
+          ## "rMaps", # github (own)
           "RColorBrewer",
           "reshape2",
-          ## "screening", # github (own)
           "shiny",
           "shinyAce",
-          "shinysky", # github
           "shinyExt", # github
           ## "skillData", # dropbox
           "stan", # github (own)
-          "stanData", # dropbox
+          ## "stanData", # dropbox
           "vegan",
           "wordcloud",
           "XLConnect",
@@ -162,23 +196,50 @@ libs <- c("AlgDesign",
           "websockets"
           )
 
-libs.dev <- c("stan", "rMaps")
-available.dev <- suppressWarnings(sapply(libs.dev, require, character.only=TRUE))
-inst.libs.dev <- libs.dev[available.dev == FALSE]
-if(length(inst.libs.dev) != 0)
-## if (length(libs.dev) > 0)
-  {
-    ## libs <- libs[!libs%in%libs.dev]
-    library(devtools)
-    ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
-    install_github("rCharts", username = "ramnathv")
-    install_github("R-Websockets", username = "rstudio")
-    install_github("shinyExt", username = "marcionicolau")
-    install_github("shinysky", username = "AnalytixWare")
-    suppressWarnings(sapply(libs.dev, install_github, username = "bowerth"))
-    ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev), load_all))
+
+
+libs.dev.remote <- c("stan",
+                     "rMaps",
+                     "rCharts",
+                     ## "R-Websockets",
+                     "shinyExt",
+                     "shinysky")
+available.dev <- suppressWarnings(sapply(libs.dev.remote, require, character.only=TRUE))
+inst.libs.dev.remote <- libs.dev.remote[available.dev == FALSE]
+if(length(inst.libs.dev.remote) != 0) {
+    ## if (length(libs.dev.remote) > 0)
+    require(devtools)
+    set_config(config(ssl.verifypeer = 0L))
+    for (lib in inst.libs.dev.remote) {
+        ## if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
+        ## if (lib == "R-Websockets") install_github("R-Websockets", username = "rstudio")
+        if (lib == "shinyExt") install_github("shinyExt", username = "marcionicolau")
+        if (lib == "shinysky") install_github("shinysky", username = "AnalytixWare")
+        if (lib == "stan") install_github("stan", username = "bowerth")
+        if (lib == "rMaps") install_github("rMaps", username = "bowerth")
+    }
+    ## suppressWarnings(sapply("stan", "rMaps"), install_github, username = "bowerth"))
+    ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev.remote), load_all))
     detach("package:devtools", unload = TRUE)
-  }
+}
+
+libs.dev.local <- c(
+    ## "rCharts",
+    "rMaps"
+    )
+require(devtools)
+set_config( config( ssl.verifypeer = 0L ) )
+suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev.local), load_all))
+detach("package:devtools", unload = TRUE)
+
+if (Sys.info()["sysname"]=="Linux") {
+    ## in desk/configuration.properties: comment "http.proxy.name0 = wsg-proxy.oecd.org:80"
+    ## ## install.packages(file.path(dbpath, "CRAN", "src", "contrib", "RJSDMX_0.1.tar.gz"), repos = NULL, type = "source")
+    require(RJSDMX)
+    source(file.path(dbpath, "GitHub", "RJSDMX", "R", "SdmxClient.R"))
+    source(file.path(dbpath, "GitHub", "RJSDMX", "R", "onLoad.R"))
+    source(file.path(dbpath, "GitHub", "RJSDMX", "R", "TSConverter.R"))
+}
 
 ## would prefer to use importFrom but ...
 ## detach("package:R.utils", unload=TRUE)

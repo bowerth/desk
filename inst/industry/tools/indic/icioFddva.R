@@ -414,8 +414,8 @@ fddva_sortdata = c("ICIO industry order" = "indicio", "Decending value" = "desc"
 
 output$ui_icioFddva <- renderUI({
 
-  doLogin()
-  if (loginData$LoggedIn) {
+  ## doLogin()
+  ## if (loginData$LoggedIn) {
 
     list(
 
@@ -523,12 +523,20 @@ output$ui_icioFddva <- renderUI({
       helpAndReport("Foreign Demand Domestic Value Added","icioFddva",inclMD("tools/help/icioFddva.md"))
       ) # list(...
 
-  } else
-    {
-      h3("Please log in")
-    }
+  ## } else
+  ##   {
+  ##     h3("Please log in")
+  ##   }
 
 })
+
+icioFddva_widthSize <- reactive({
+    ifelse(is.null(input$icioFddva_viz_plot_width), return(values$plotWidth), return(input$icioFddva_viz_plot_width))
+})
+icioFddva_heightSize <- reactive({
+    ifelse(is.null(input$icioFddva_viz_plot_height), return(values$plotHeight), return(input$icioFddva_viz_plot_height))
+})
+
 output$icioFddva <- renderUI({
   ## for input-output
   statTabPanel(menu_name = "ICIO", # menu_name: for side bar - coincide with navbarMenu
@@ -536,6 +544,8 @@ output$icioFddva <- renderUI({
                rfun_label = ".icioFddva",         # rfun_label
                fun_label = "icioFddva"           # fun_label
                ,fun_tabs = c("Plots", "Tables", "Maps")
+               ,widthFun = "icioFddva_widthSize"
+               ,heightFun = "icioFddva_heightSize"
                )
 })
 
@@ -1123,7 +1133,6 @@ maps_icioFddva <- function(result = .icioFddva())
   ## d <- choropleth(value ~ cou, data = data.plot[1:9,], map = "world", pal = "PuRd")
   ## m1 <- ichoropleth(value ~ cou, data = data.plot, map = "world", ncuts = 9)
   m1 <- ichoropleth(value ~ cou, data = data.plot, map = "world", ncuts = fddva_viz_plot_ncut)
-  ichoropleth
   m1$set(width = icioFddva_viz_plot_width,
          height = .5 * icioFddva_viz_plot_width,
          ## height = "100%",
