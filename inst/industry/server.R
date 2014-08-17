@@ -15,7 +15,8 @@ shinyServer(function(input, output, session) {
 	## source data & analysis tools
 	R.utils::sourceDirectory('tools/analysis', recursive = TRUE)
 	R.utils::sourceDirectory('tools/data', recursive = TRUE)
-
+	R.utils::sourceDirectory('tools/app', recursive = TRUE)
+ 
 	## R.utils::sourceDirectory('tools/indic', recursive = TRUE)
         if (active.icioFddva==TRUE) {
             source("tools/indic/icioFddva.R", local = TRUE)
@@ -37,8 +38,7 @@ shinyServer(function(input, output, session) {
         }
 
         ## R.utils::sourceDirectory('tools/disclaimer', recursive = TRUE)
-	R.utils::sourceDirectory('tools/app', recursive = TRUE)
-        ## R.utils::sourceDirectory('../base/tools/data', recursive = TRUE)
+       ## R.utils::sourceDirectory('../base/tools/data', recursive = TRUE)
 	## R.utils::sourceDirectory('../base/tools/app', recursive = TRUE)
 
         loginData <- list(LoggedIn = TRUE)
