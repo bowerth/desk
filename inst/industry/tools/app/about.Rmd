@@ -1,4 +1,4 @@
-### STI/EAS Indicators
+### stan-icio indicators
 
 Version 0.1 (09/08/2014)
 

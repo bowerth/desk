@@ -1,5 +1,5 @@
 
-command.ui.prefix <- paste('title = "STAN-ICIO Indicators",',
+command.ui.prefix <- paste('title = "stan-icio indicators",',
                            'header=div(HTML(\'',
                            '<script type="text/javascript" src="js/jquery-ui.custom.min.js"></script>',
                            '<link rel = "stylesheet" href = "style.css"></link>',
