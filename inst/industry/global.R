@@ -4,11 +4,11 @@
 ## {
 
 app.status.df <- rbind.data.frame(c("active", "ICIO", "Foreign Demand Domestic Value Added", "icioFddva"),
-                                  c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
-                                  c("active", "STAN", "STAN Indicators", "stanIndic"),
-                                  c("active", "STAN", "R&D Intensity", "stanRnd"),
-                                  c("active", "SKILL", "LFS Share", "lfsShare"),
-                                  c("active", "SMDX", "SDMX Browser", "sdmxBrowser")
+                                  c("inactive", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
+                                  c("inactive", "STAN", "STAN Indicators", "stanIndic"),
+                                  c("inactive", "STAN", "R&D Intensity", "stanRnd"),
+                                  c("inactive", "SKILL", "LFS Share", "lfsShare"),
+                                  c("inactive", "SMDX", "SDMX Browser", "sdmxBrowser")
                                   )
 names(app.status.df) <- c("status", "menuTitle", "panelTitle", "outputID")
 
@@ -209,6 +209,7 @@ inst.libs.dev.remote <- libs.dev.remote[available.dev == FALSE]
 if(length(inst.libs.dev.remote) != 0) {
     ## if (length(libs.dev.remote) > 0)
     require(devtools)
+    require(httr)
     set_config(config(ssl.verifypeer = 0L))
     for (lib in inst.libs.dev.remote) {
         ## if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
@@ -228,7 +229,7 @@ libs.dev.local <- c(
     "rMaps"
     )
 require(devtools)
-set_config( config( ssl.verifypeer = 0L ) )
+## set_config( config( ssl.verifypeer = 0L ) )
 suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev.local), load_all))
 detach("package:devtools", unload = TRUE)
 

@@ -42,18 +42,19 @@
 library(shiny)
 path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
 setwd(path)
-testingRadiant <- FALSE
-source(file.path(path, "global.R"))
-input <- NULL
-output <- NULL
-source(file.path(path, "tools", "app", "state.R"))
-source(file.path(path, "tools", "app", "tab_ui.R"))
-source(file.path(path, "tools", "indic", "stanIndic.R"))
+
+## testingRadiant <- FALSE
+## source(file.path(path, "global.R"))
+## input <- NULL
+## output <- NULL
+## source(file.path(path, "tools", "app", "state.R"))
+## source(file.path(path, "tools", "app", "tab_ui.R"))
+## ## source(file.path(path, "tools", "indic", "stanIndic.R"))
 ## source(file.path(path, "tools", "indic", "stani3Estimate.R"))
-## source(file.path(path, "tools", "indic", "icioFddva.R"))
-## source(file.path(path, "tools", "indic", "lfsShare.R"))
-source(file.path(path, "radiant.R"))
-testingRadiant <- TRUE
+## ## source(file.path(path, "tools", "indic", "icioFddva.R"))
+## ## source(file.path(path, "tools", "indic", "lfsShare.R"))
+## source(file.path(path, "radiant.R"))
+## testingRadiant <- TRUE
 
 ## source(file.path(path, "tools", "indic", "sdmxBrowser.R"))
 runApp(path)
@@ -155,6 +156,12 @@ runApp(path)
 ## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
 ## detach("package:stanData", unload=TRUE)
 ## install.packages("stanData", repos="file:///C:/Users/werth_b/LocalData/Dropbox/CRAN_Data/")
+## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "icioData_0.1.tar.gz"), repos=NULL, type = "source")
+## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "stanData_0.1.tar.gz"), repos=NULL, type = "source")
+## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "skillData_0.1.tar.gz"), repos=NULL, type = "source")
+## require(httr)
+## require(RCurl)
+
 
 ## unique(DATA.XRATES$value[is.na(DATA.XRATES$value)])
 ## library(stanData)

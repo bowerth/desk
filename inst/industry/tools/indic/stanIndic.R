@@ -681,7 +681,7 @@ polycharts_stanIndic <- function(result = .stanIndic())
   p1$addParams(height = 500,
                ## height = stanIndic_viz_plot_height,
                ## width = stanIndic_viz_plot_width,
-               dom = "polycharts_stanIndic", # capial "Indic", see radiant.R
+               ## dom = "polycharts_stanIndic", # capial "Indic", see radiant.R
                title = string.formula)
   return(p1)
 

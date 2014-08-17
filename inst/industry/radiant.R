@@ -125,7 +125,7 @@ statPanel <- function(fun_name, rfun_label, fun_label,
                                       ## height=get(heightFun)(height_name)
                                       )
     ## Generate output for the polycharts tab
-    output[[polychart_name]] <- renderChart({
+    output[[polychart_name]] <- renderChart2({
         result <- get(rfun_label)() # period_lower
         ## w    n no analysis was conducted (e.g., no variables selected)
         ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))

@@ -161,7 +161,7 @@ output$ui_sdmxBrowser <- renderUI({
     list(
         conditionalPanel(condition = "input.tabs_sdmxBrowser!='DataTables'",
                          wellPanel(
-                             checkboxInput("sdmxbrowser_viz_plot_controls", "Plot options", TRUE),
+                             checkboxInput("sdmxbrowser_viz_plot_controls", "Plot options", FALSE),
                              conditionalPanel(condition = "input.sdmxbrowser_viz_plot_controls==true",
                                               ## htmlOutput("ui_plot_options"),
                                               sliderInput(inputId = "sdmxBrowser_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 500, step = 50),
@@ -344,7 +344,7 @@ summary_sdmxBrowser <- function(result = .sdmxBrowser())
   blurb <- paste(paste('Provider =', sdmxbrowser_provider),
                      paste('Flow =', sdmxbrowser_flow),
                      paste('Dimensions =', toString(sdmxbrowser_dimensions_all)),
-                     paste('Query =', paste(sdmxbrowser_query, 'start =', yearStart, 'end =', yearEnd, sep = ', ')),
+                     paste('Query =', paste0(sdmxbrowser_query, ', start = ', yearStart, 'end = ', yearEnd)),
                      sep = '\n')
   return(cat(blurb))
 
