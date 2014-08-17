@@ -486,7 +486,7 @@ output$ui_icioFddva <- renderUI({
         conditionalPanel(condition = "input.tabs_icioFddva == 'Plots' | input.tabs_icioFddva == 'Tables'",
                          wellPanel(
                            h5("Aggregate results"),
-                           radioButtons(inputId = "fddva_dimS", label = "Data by Source Dimension:", fddva_dimS,
+                           radioButtons(inputId = "fddva_dimS", label = "Data by Source Dimension:", ui.icioFddva.dimS,
                                         ## selected = state_init_list("fddva_dimS","ind", fddva_dimS)),
                                         selected = ui.icioFddva.dimS[[1]]),
                            conditionalPanel(condition = "input.fddva_dimS == 'ind'",
