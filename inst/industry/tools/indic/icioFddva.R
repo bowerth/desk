@@ -411,8 +411,8 @@ ui.icioFddva.dim_conv <- list(row=c(ui.icioFddva.nocou, ui.icioFddva.noind), col
 ## icioFddva ui script
 ## ########################
 
-fddva_dimS = c("Industry" = "ind", "Country" = "cou")
-fddva_sortdata = c("ICIO industry order" = "indicio", "Decending value" = "desc", "Ascending value" = "asc")
+ui.icioFddva.dimS = c("Industry" = "ind", "Country" = "cou")
+ui.icioFddva.sortdata = c("ICIO industry order" = "indicio", "Decending value" = "desc", "Ascending value" = "asc")
 
 output$ui_icioFddva <- renderUI({
 
@@ -487,7 +487,8 @@ output$ui_icioFddva <- renderUI({
                          wellPanel(
                            h5("Aggregate results"),
                            radioButtons(inputId = "fddva_dimS", label = "Data by Source Dimension:", fddva_dimS,
-                                        selected = state_init_list("fddva_dimS","ind", fddva_dimS)),
+                                        ## selected = state_init_list("fddva_dimS","ind", fddva_dimS)),
+                                        selected = ui.icioFddva.dimS[[1]],
                            conditionalPanel(condition = "input.fddva_dimS == 'ind'",
                                             selectInput("fddva_couS", "Source Country: (couS)", ui.icioFddva.cou,
                                                         selected = 64) # "Total OECD"
@@ -507,7 +508,9 @@ output$ui_icioFddva <- renderUI({
           numericInput("fddva_rounddec", "Round to number of decimals:", 4),
           numericInput("fddva_topN", "Display first N values in legend:", 5),
           selectInput("fddva_sortdata", "Order or sorting (legend, table):", fddva_sortdata,
-                      selected = state_init_list("fddva_sortdata", "", fddva_sortdata), multiple = FALSE),
+                      ## selected = state_init_list("fddva_sortdata", "", ui.icioFddva.sortdata),
+                      selected = ui.icioFddva.sortdata[[1]],
+                      multiple = FALSE),
           conditionalPanel(condition = "input.tabs_icioFddva == 'Tables'",
                            ## conditionalPanel(condition="input.datatabs==4" ,
                            checkboxInput("fddva_aggindS", "Add ICIO 18 industry aggregates", FALSE)
