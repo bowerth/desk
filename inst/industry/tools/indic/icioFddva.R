@@ -507,7 +507,7 @@ output$ui_icioFddva <- renderUI({
           checkboxInput("fddva_calcshare", "Calculate share in total", FALSE),
           numericInput("fddva_rounddec", "Round to number of decimals:", 4),
           numericInput("fddva_topN", "Display first N values in legend:", 5),
-          selectInput("fddva_sortdata", "Order or sorting (legend, table):", fddva_sortdata,
+          selectInput("fddva_sortdata", "Order or sorting (legend, table):", ui.icioFddva.sortdata,
                       ## selected = state_init_list("fddva_sortdata", "", ui.icioFddva.sortdata),
                       selected = ui.icioFddva.sortdata[[1]],
                       multiple = FALSE),
