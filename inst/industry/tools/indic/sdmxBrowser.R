@@ -73,6 +73,9 @@ output$uisB_flow <- renderUI({
 })
 ##
 output$uisB_dimensions <- renderUI({
+  
+    if (input$sdmxbrowser_flow=="") return()
+  
     sdmxbrowser_dimensions_all <- .sdmxbrowser_dimensions_all()
     selectInput("sdmxbrowser_dimensions", "Filter Dimensions:", sdmxbrowser_dimensions_all,
                 ## selected = state_multvar("sdmxbrowser_dimensions", sdmxbrowser_dimensions_all),
@@ -117,7 +120,7 @@ output$uisB_dimensioncodes <- renderUI({
         eval(parse(text = paste0('list(', command.all, ')')))
 
     } else {
-        return(h5("Please select data flow"))
+        return(h5("Please select data flow and submit query"))
     }
 
 })
@@ -148,7 +151,7 @@ output$uisB_query <- renderUI({
                   query)
 
     } else {
-        return(h5("Please select data flow"))
+        return(h5("Please select data flow and submit query"))
     }
 
 })
@@ -158,40 +161,42 @@ output$ui_sdmxBrowser <- renderUI({
     ## doLogin()
     ## if (loginData$LoggedIn) {
 
-    list(
-        conditionalPanel(condition = "input.tabs_sdmxBrowser!='DataTables'",
-                         wellPanel(
-                             checkboxInput("sdmxbrowser_viz_plot_controls", "Plot options", FALSE),
-                             conditionalPanel(condition = "input.sdmxbrowser_viz_plot_controls==true",
-                                              ## htmlOutput("ui_plot_options"),
-                                              sliderInput(inputId = "sdmxBrowser_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 500, step = 50),
-                                              sliderInput(inputId = "sdmxBrowser_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 850, step = 50)
-                                              )
-                             )
-                         )
-        ,
-        wellPanel(
-            uiOutput("uisB_query"),
-            ## actionButton("sdmxbrowser_querySendButton", "Send query"),
-            shinysky::actionButton("sdmxbrowser_querySendButton", "Submit Query", styleclass="success",icon = NULL, size = "large", block = TRUE),
-            helpText("Click button to retrieve values"),
-            downloadButton('download_sdmxBrowser', 'Download CSV')
-            ),
-        wellPanel(
-            h5("SDMX Query Builder"),
-            uiOutput("uisB_provider"),
-            uiOutput("uisB_flow"),
-            actionButton("sdmxbrowser_flow_updateButton", "Update Flows"),
-            uiOutput("uisB_dimensions"),
-            uiOutput("uisB_dimensioncodes"),
-            sliderInput(inputId = "sdmxbrowser_yearStartEnd", label = "Period:",
-                        min = 1970,
-                        max = 2015,
-                        value = c(2000, 2012),
-                        format = "####")
-            ),
-        helpAndReport("SDMX Browser","sdmxBrowser",inclMD("tools/help/sdmxBrowser.md"))
-        ) # list(...
+  list(
+    conditionalPanel(condition = "input.tabs_sdmxBrowser!='DataTables'",
+                     wellPanel(
+                       checkboxInput("sdmxbrowser_viz_plot_controls", "Plot options", FALSE),
+                       conditionalPanel(condition = "input.sdmxbrowser_viz_plot_controls==true",
+                                        ## htmlOutput("ui_plot_options"),
+                                        sliderInput(inputId = "sdmxBrowser_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 500, step = 50),
+                                        sliderInput(inputId = "sdmxBrowser_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 850, step = 50)
+                                        )
+                       )
+                     )
+    ,
+    wellPanel(
+      uiOutput("uisB_query"),
+      ## actionButton("sdmxbrowser_querySendButton", "Send query"),
+      shinysky::actionButton("sdmxbrowser_querySendButton", "Submit Query", styleclass="success",icon = NULL, size = "large", block = TRUE),
+      helpText("Click button to retrieve values"),
+      downloadButton('download_sdmxBrowser', 'Download CSV')
+      ),
+    wellPanel(
+      h5("SDMX Query Builder"),
+      uiOutput("uisB_provider"),
+      uiOutput("uisB_flow"),
+      actionButton("sdmxbrowser_flow_updateButton", "Update Flows"),
+      wellPanel(
+        uiOutput("uisB_dimensions"),
+        uiOutput("uisB_dimensioncodes")
+        ),
+      sliderInput(inputId = "sdmxbrowser_yearStartEnd", label = "Period:",
+                  min = 1970,
+                  max = 2015,
+                  value = c(2000, 2012),
+                  format = "####")
+      ),
+    helpAndReport("SDMX Browser","sdmxBrowser",inclMD("tools/help/sdmxBrowser.md"))
+    ) # list(...
 
     ## } else
     ## {
@@ -278,6 +283,8 @@ sdmxBrowser <- function(
     )
 {
 
+  if (sdmxbrowser_flow=="") return(list(sdmxbrowser_flow = sdmxbrowser_flow))
+  
     sdmxbrowser_dimensions_all <- .sdmxbrowser_dimensions_all()
 
     yearStart <- as.character(sdmxbrowser_yearStartEnd[1])
@@ -299,6 +306,52 @@ sdmxBrowser <- function(
     ## queryData <- getTimeSeries('ECB', 'EXR.Q.USD+GBP.EUR.SP00.A')
     ## queryData <- getTimeSeries('ECB', 'EXR.A.USD+GBP.EUR.SP00.A')
 
+##   getDimensions <- function(provider, dataflow) {
+##   res <- J("it.bankitalia.reri.sia.sdmx.client.SdmxClientHandler")$getDimensions(provider, dataflow)
+##   jlist <- .jcall(res,"[Ljava/lang/Object;","toArray");
+##   res = convertDimList(jlist)
+##   return(res)
+## }
+
+  ## require(devtools)
+  ## load_all(file.path(dbpath, "GitHub", "RJSDMX"))
+  ## ## install.packages(file.path(dbpath, "CRAN", "src", "contrib", "RJSDMX_0.1.tar.gz"), repos = NULL, type = "source")
+
+  getDimensions("EUROSTAT", "DS-016890")
+##   getCodes("EUROSTAT", "DS-016890", "FLOW")
+##   getCodes("EUROSTAT", "DS-016890", "PRODUCT")
+
+  all.codes.FLOW <- names(getCodes("EUROSTAT", "DS-016890", "FLOW"))
+
+  all.codes.FREQ <- names(getCodes("EUROSTAT", "DS-016890", "FREQ"))
+  all.codes.INDICATORS <- names(getCodes("EUROSTAT", "DS-016890", "INDICATORS"))
+
+##   names(getCodes("EUROSTAT", "nama_nace64_c", "UNIT"))
+
+##   ## all.codes.OBS_STATUS <- names(getCodes("EUROSTAT", "DS-016890", "OBS_STATUS"))
+
+##   all.codes.PARTNER <- names(getCodes("EUROSTAT", "DS-016890", "PARTNER"))
+##   all.codes.PRODUCT <- names(getCodes("EUROSTAT", "DS-016890", "PRODUCT"))
+##   all.codes.REPORTER <- names(getCodes("EUROSTAT", "DS-016890", "REPORTER"))
+
+##   for(i in seq(1,10)) {
+##     query <- gsub(", ", ".", toString(c(sample(all.codes.FLOW, 1),
+##                                         sample(all.codes.FREQ, 1),
+##                                         sample(all.codes.INDICATORS, 1),
+##                                         "",
+##                                         sample(all.codes.PARTNER, 1),
+##                                         sample(all.codes.PRODUCT, 1),
+##                                         sample(all.codes.REPORTER, 1)
+##                                         )))
+##     ##
+##     getTimeSeries("EUROSTAT", paste0("DS-016890.", query))
+##   }  
+
+  ## ######################
+  ## end testing
+  ## ######################
+
+  
     queryDataFreq <- frequency(queryData[[1]])
 
     queryData <- as.data.frame(queryData)
@@ -341,11 +394,14 @@ summary_sdmxBrowser <- function(result = .sdmxBrowser())
 
   queryData <- result$queryData
 
+  if (sdmxbrowser_flow=="") return(cat("Please select data flow and submit query"))
+  
   blurb <- paste(paste('Provider =', sdmxbrowser_provider),
-                     paste('Flow =', sdmxbrowser_flow),
-                     paste('Dimensions =', toString(sdmxbrowser_dimensions_all)),
-                     paste('Query =', paste0(sdmxbrowser_query, ', start = ', yearStart, 'end = ', yearEnd)),
-                     sep = '\n')
+                 paste('Flow =', sdmxbrowser_flow),
+                 paste('Dimensions =', toString(sdmxbrowser_dimensions_all)),
+                 paste('Query =', paste0(sdmxbrowser_query, ', start = ', yearStart, ', end = ', yearEnd)),
+                 sep = '\n')
+
   return(cat(blurb))
 
   ## return data in Summary:
@@ -366,18 +422,22 @@ summary_sdmxBrowser <- function(result = .sdmxBrowser())
 datatables_sdmxBrowser <- function(result = .sdmxBrowser())
 { if (length(result) > 0) {
 
-    sdmxbrowser_dimensions_all = result$sdmxbrowser_dimensions_all
-    queryData <- result$queryData
+  sdmxbrowser_flow = result$sdmxbrowser_flow
 
-    data.datatable <- queryData
-    X <- strsplit(as.character(data.datatable$variable), split = "[.]")
+  sdmxbrowser_dimensions_all = result$sdmxbrowser_dimensions_all
+  queryData <- result$queryData
 
-    for (d in (seq(along = sdmxbrowser_dimensions_all)+1)) { # first item is flow id, d starting from 2
-        data.datatable[[sdmxbrowser_dimensions_all[d-1]]] <- sapply(X, '[[', d)
-    }
-    data.datatable <- data.datatable[,!colnames(data.datatable)=="variable"]
+  if (sdmxbrowser_flow=="") return(data.frame(INFO = "Please select data flow and submit query"))
 
-    return(data.datatable)
+  data.datatable <- queryData
+  X <- strsplit(as.character(data.datatable$variable), split = "[.]")
+
+  for (d in (seq(along = sdmxbrowser_dimensions_all)+1)) { # first item is flow id, d starting from 2
+    data.datatable[[sdmxbrowser_dimensions_all[d-1]]] <- sapply(X, '[[', d)
+  }
+  data.datatable <- data.datatable[,!colnames(data.datatable)=="variable"]
+
+  return(data.datatable)
 
 }}
 
@@ -391,9 +451,10 @@ datatables_sdmxBrowser <- function(result = .sdmxBrowser())
 
 
 
-  plots_sdmxBrowser <- function(result = .sdmxBrowser())
+plots_sdmxBrowser <- function(result = .sdmxBrowser())
 { if (length(result) > 0) {
 
+    sdmxbrowser_flow = result$sdmxbrowser_flow
     sdmxbrowser_query <- result$sdmxbrowser_query
     sdmxbrowser_yearStart <- result$sdmxbrowser_yearStart
     sdmxbrowser_yearEnd <- result$sdmxbrowser_yearEnd
@@ -402,6 +463,8 @@ datatables_sdmxBrowser <- function(result = .sdmxBrowser())
     queryData <- result$queryData
 
     data.plots <- queryData
+    
+    if (sdmxbrowser_flow=="") return()
 
     if (queryDataFreq==12) {
         data.plots$time <- as.Date(as.yearmon(data.plots$time, format = "%b %Y"))
@@ -416,19 +479,16 @@ datatables_sdmxBrowser <- function(result = .sdmxBrowser())
     ncol <- length(unique(data.plots$variable))
     color.fill <- colorRampPalette(ui.sdmxBrowser.col)(ncol)
 
-    p1 <- ggplot(data = data.plots, aes(x = time, y = value, group = variable)) + geom_line(aes(color = variable)) +
-        ## facet_wrap(~ ind, scales = "free_y", ncol = 1) +
-        ## expand_limits(y=0) +
-            ## xlim(min(nameyear), max(nameyear)) +
-                ylab(label = NULL) +
-                    xlab(label = NULL) +
-                        ## scale_colour_manual(values = ui.sdmxBrowser.col) +
-                        scale_colour_manual(values = color.fill) +
-                            theme_bw() +
-                                theme(legend.position = "top", legend.box = "horizontal") +
-                                    ## ggtitle(label = paste(sdmxbrowser_query, "Start:", sdmxbrowser_yearStart, "End:", sdmxbrowser_yearEnd))
-                                    ggtitle(label = paste(sdmxbrowser_query, "Start:", min(data.plots$time), "End:", max(data.plots$time)))
-    ## p1
+    p1 <- ggplot(data = data.plots, aes(x = time, y = value, group = variable)) + 
+      geom_line(aes(color = variable)) +
+        ylab(label = NULL) +
+          xlab(label = NULL) +
+            scale_colour_manual(values = color.fill) +
+              theme_bw() +
+                theme(legend.position = "top", legend.box = "horizontal") +
+                  ggtitle(label = paste(sdmxbrowser_query, "Start:", min(data.plots$time), "End:", max(data.plots$time)))
+
+    ## print(p1)
     return(p1)
 
 }}

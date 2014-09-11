@@ -1,26 +1,13 @@
-#######################################
-## Shiny interface for data functions
-#######################################
-## data ui and tabs
-## output$ui_stanindici4 <- renderUI({
-
 data(stanDim)
-## data(STANNAi4)
-
-## options(RCHART_WIDTH = 800)
 
 dat <- isolate(values[["STANNAi4"]])
 ##
-## ui.icioFddva.nocou <- dim(dat$DATA.ICIO5837GRTR)[2]
-## unique(dat$DATA.STAN$var)
 ui.stanIndic.xrates <- dat$DATA.XRATES
 names(ui.stanIndic.xrates) <- sub("var", "cur", names(ui.stanIndic.xrates))
 
 ui.stanIndic.namevar.btd <- unique(dat$DATA.BTD$var)
 ui.stanIndic.namevar.stan <- unique(dat$DATA.STAN$var)
 ui.stanIndic.namevar.anberd <- as.factor(unique(dat$DATA.ANBERD$var))
-
-## SQL.STAN <- odbcDriverConnect(connection = "SERVER=VS-GEN-SQL-3; DRIVER=SQL Server; DATABASE=STAN", readOnlyOptimize = TRUE)
 
 ui.stanIndic.group <- list(
   "cou: by Country" = "cou",
@@ -62,13 +49,6 @@ ui.stanIndic.indic <- list(
   "XSHP: Export share of production" = "XSHP",
   "MPEN: Import penetration" = "MPEN"
   )
-## ui.stanIndic.indic2 <- c(list(None = ""), ui.stanIndic.indic)
-## ui.var2 <- c(ui.var[2], list(None = ""), ui.var[-2]) # PROD as first
-
-## ui.stanIndic.sqltable <- list(
-##   "Rda DATA.STAN" = "STANRDA",
-##   "SQL STANPUBi4_PRE" = "STANPUBi4_PRE"
-##   )
 
 ui.stanIndic.formula.indic.init <- rbind.data.frame(
   c("VSHT", "VALU / VALU_DTOTAL"),
@@ -105,7 +85,34 @@ ui.stanIndic.formula.indic.init <- rbind.data.frame(
   c("MPEN", "IMPO / (PROD - EXPO + IMPO)"))
 names(ui.stanIndic.formula.indic.init) <- c("indic", "formula")
 
+## function for table output and download to avoid repetition
+pivottable_stanIndic <- function(data.calc,
+                                 data.set,
+                                 stanindic_showData,
+                                 stanindic_showIndic,
+                                 stanindic_pivotRow
+                                 )
+    {
 
+        names(data.calc) <- sub("indic", "var", names(data.calc))
+        data.calc <- subset(data.calc, select = names(data.set))
+
+        data.table <- NULL
+        if (stanindic_showData==TRUE) data.table <- rbind(data.table, data.set)
+        if (stanindic_showIndic==TRUE) data.table <- rbind(data.table, data.calc)
+
+        pivot.row <- stanindic_pivotRow
+        string.pivot.row <- gsub(",", " +", toString(pivot.row))
+        pivot.col <- setdiff(names(data.table), c(pivot.row, "value"))
+        string.pivot.col <- gsub(",", " +", toString(pivot.col))
+
+        if (length(pivot.col) > 0) {
+            eval(parse(text = paste0('data.table <- dcast(data.table, ', string.pivot.row, ' ~ ', string.pivot.col, ', value.var = "value")')))
+            eval(parse(text = paste0('data.table <- data.table[order(', toString(paste0('data.table$', pivot.row)), '),]')))
+        }
+
+        return(data.table)
+    }
 
 ## ########################
 ## stanIndic ui script
@@ -115,23 +122,19 @@ names(ui.stanIndic.formula.indic.init) <- c("indic", "formula")
 ## ui.stanIndic.charttype <- c("Bar", "Scatter", "Bubble", "Line")
 
 output$uiSi_charttype <- renderUI({
-    if (input$tabs_stanIndic=="PolyCharts")
-        {
+    if (input$tabs_stanIndic=="PolyCharts") {
             ui.stanIndic.charttype <- c("Bar") # "Scatter"
             ui.stanIndic.charttype.selected <- "Bar"
         }
-    if (input$tabs_stanIndic=="HighCharts")
-        {
+    if (input$tabs_stanIndic=="HighCharts") {
             ui.stanIndic.charttype <- c("Bubble") # "Bar", "Scatter"
             ui.stanIndic.charttype.selected <- "Bubble"
         }
-    if (input$tabs_stanIndic=="NVD3Charts")
-        {
+    if (input$tabs_stanIndic=="NVD3Charts") {
             ui.stanIndic.charttype <- c("Bar") # "Scatter"
             ui.stanIndic.charttype.selected <- "Bar"
         }
-    if (input$tabs_stanIndic=="MorrisCharts")
-        {
+    if (input$tabs_stanIndic=="MorrisCharts") {
             ui.stanIndic.charttype <- c("Bar", "Line", "Area")
             ui.stanIndic.charttype.selected <- "Line"
         }
@@ -145,26 +148,22 @@ output$uiSi_charttype <- renderUI({
 
 
 output$uiSi_nameyear <- renderUI({
-    if (input$tabs_stanIndic%in%c("PolyCharts", "HighCharts", "NVD3Charts", "MorrisCharts"))
-    {
-        if (input$stanindic_charttype%in%c("Bar", "Scatter", "Bubble"))
-        {
+    if (input$tabs_stanIndic%in%c("PolyCharts", "HighCharts", "NVD3Charts", "MorrisCharts")) {
+        if (input$stanindic_charttype%in%c("Bar", "Scatter", "Bubble")) {
             selectInput("stanindic_nameyear", "Year:", as.list(c(2012:1970)), selected = 2011, multiple = FALSE)
-        } else
-        {
+        } else {
             sliderInput("stanindic_nameyear",
                         "Years:",
-                        value = c(1970,2012),
+                        value = c(2000,2012),
                         min = 1970,
                         max = 2012,
                         step = 1,
                         format="#")
         }
-    } else
-    {
+    } else {
         sliderInput("stanindic_nameyear",
                     "Years:",
-                    value = c(1970,2012),
+                    value = c(2000,2012),
                     min = 1970,
                     max = 2012,
                     step = 1,
@@ -179,84 +178,55 @@ output$ui_stanIndic <- renderUI({
   ## if (loginData$LoggedIn) {
 
     list(
-        ## conditionalPanel(condition = "input.tabs_sdmxBrowser!='Tables'",
-        ##                  wellPanel(
-        ##                      checkboxInput("stanindic_viz_plot_controls", "Plot options", TRUE),
-        ##                      conditionalPanel(condition = "input.stanindic_viz_plot_controls==true",
-        ##                                       ## htmlOutput("ui_plot_options"),
-        ##                                       sliderInput(inputId = "stanIndic_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 500, step = 50),
-        ##                                       sliderInput(inputId = "stanIndic_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 850, step = 50)
-        ##                                       )
-        ##                      )
-        ##                  )
-        ## ,
         conditionalPanel(condition="input.tabs_stanIndic=='PolyCharts' | input.tabs_stanIndic=='HighCharts' | input.tabs_stanIndic=='NVD3Charts' | input.tabs_stanIndic=='MorrisCharts'",
                          uiOutput("uiSi_charttype")
                          ),
-          selectInput("stanindic_indic", "Indicator:", ui.stanIndic.indic),
-          conditionalPanel(condition="input.tabs_stanIndic=='PolyCharts' | input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
-                           conditionalPanel(condition="input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
-                                            selectInput("stanindic_indic2", "Indicator 2 (y-axis):", ui.stanIndic.indic, selected = "ESHT"),
-                                            conditionalPanel(condition="input.stanindic_charttype=='Bubble'",
-                                                             selectInput("stanindic_indic3", "Indicator 3 (size):", ui.stanIndic.indic, selected = "LBNT")
-                                                             )
-                                            ),
-                           selectInput("stanindic_group", "Group by:", ui.stanIndic.group, selected = "cou")
-                           )
-          ,
-          conditionalPanel(condition="input.tabs_stanIndic=='Tables'",
-                           ## checkboxInput("cover", "Show data coverage", FALSE),
+        wellPanel(
+            helpText("Click '?' button below for indicator calculation formula"),
+            selectInput("stanindic_indic", "Indicator:", ui.stanIndic.indic),
+            conditionalPanel(condition="input.tabs_stanIndic=='PolyCharts' | input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
+                             conditionalPanel(condition="input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
+                                              selectInput("stanindic_indic2", "Indicator 2 (y-axis):", ui.stanIndic.indic, selected = "ESHT"),
+                                              conditionalPanel(condition="input.stanindic_charttype=='Bubble'",
+                                                               selectInput("stanindic_indic3", "Indicator 3 (size):", ui.stanIndic.indic, selected = "LBNT")
+                                                               )
+                                              ),
+                             selectInput("stanindic_group", "Group by:", ui.stanIndic.group, selected = "cou")
+                             )
+            )
+        ,
+        ## conditionalPanel(condition="input.tabs_stanIndic=='Tables'",
+        conditionalPanel(condition="input.tabs_stanIndic=='DataTables'",
                            checkboxInput("stanindic_showIndic", "Show indicator values", TRUE),
                            checkboxInput("stanindic_showData", "Show source data values", FALSE),
                            selectInput("stanindic_pivotRow", "ID variables and order of sorting",
                                        as.list(c("var", "cou", "ind", "year")),
                                        selected = c("var", "cou", "ind"), multiple = TRUE)
                            ),
-          ## conditionalPanel(condition="input.tabs_stanIndic=='download'",
-          ##                  checkboxInput("stanindic_pivotDataDownload", "Show variables in columns", FALSE)
-          ##                  ),
           actionButton("stanindic_recalcButton", "Recalculate with selection"),
           selectInput("stanindic_namecou", "Country:", as.list(STAN.COU[["OECD"]]), selected = sample(STAN.COU[["OECD"]], 15), multiple = TRUE),
           selectInput("stanindic_nameind", "Industries:", c(list("A10"), as.list(STANi4.INDALL)), selected = "D10T33", multiple = TRUE),
-
           uiOutput("uiSi_nameyear"),
-          ## conditionalPanel(condition="input.tabs_stanIndic=='Tables' | input.tabs_stanIndic=='MorrisCharts' | input.stanindic_charttype=='Line'",
-        ##                    sliderInput("stanindic_nameyear",
-        ##                                "Years:",
-        ##                                value = c(1970,2012),
-        ##                                min = 1970,
-        ##                                max = 2012,
-        ##                                step = 1,
-        ##                                format="#")
-        ##                    ),
-        ## conditionalPanel(condition="input.tabs_stanIndic=='PolyCharts' | input.tabs_stanIndic=='HighCharts' | input.tabs_stanIndic=='NVD3Charts'",
-        ##                  conditionalPanel(condition="input.stanindic_charttype=='Bar' | input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
-        ##                                   selectInput("stanindic_year", "Year:", as.list(c(2012:1970)), selected = 2011, multiple = FALSE)
-        ##                                   )
-        ##                  )
-        ## ,
-
           selectInput("stanindic_cur", "Currency:",
                       list(
                           "Exchange Rate" = "EXCH",
-                          ## "Purchasing Power Parities" = "PPPS",
+                          "Purchasing Power Parities" = "PPPS", # test
                           "National Currency Units" = "NCU"
                           )
                       ),
           numericInput("stanindic_rounddec", "Round to number of decimals:", 4),
-          conditionalPanel(condition="input.tabs_stanIndic=='table' | input.tabs_stanIndic=='download'",
+          ## conditionalPanel(condition="input.tabs_stanIndic=='Tables' | input.tabs_stanIndic=='download'",
+          conditionalPanel(condition="input.tabs_stanIndic=='DataTables' | input.tabs_stanIndic=='download'",
                            helpText("Download comma-separated values:"),
-                           downloadButton('stanindic_downloadData', label= '')
+                           downloadButton('download_stanIndic', 'Download CSV')
                            ),
-          helpAndReport("STAN Indicators","stanIndic",inclMD("tools/help/stanIndic.md"))
+          helpAndReport("STAN Indicators", "stanIndic", inclMD("tools/help/stanIndic.md"))
           ) # list(...
 
   ## } else
   ##   {
   ##     h3("Please log in")
   ##   }
-
-
 
 })
 
@@ -268,14 +238,13 @@ stanIndic_heightSize <- reactive({
 })
 
 output$stanIndic <- renderUI({
-  ## for input-output
-  statTabPanel(menu_name = "STAN", # menu_name: for side bar - coincide with navbarMenu
-               fun_name = "STAN Indicators",   # fun_name
-               rfun_label = ".stanIndic", # rfun_label
-               fun_label = "stanIndic" # fun_label
-               ,widthFun = "stanIndic_widthSize"
-               ,heightFun = "stanIndic_heightSize"
-               ,fun_tabs = c("Tables", "PolyCharts", "HighCharts", "NVD3Charts") # "Plots"
+  statTabPanel(menu_name = "STAN",
+               fun_name = "STAN Indicators",
+               rfun_label = ".stanIndic",
+               fun_label = "stanIndic",
+               widthFun = "stanIndic_widthSize",
+               heightFun = "stanIndic_heightSize",
+               fun_tabs = c("DataTables", "PolyCharts", "HighCharts", "NVD3Charts") # "Tables"
                )
 })
 
@@ -329,13 +298,7 @@ output$stanIndic <- renderUI({
 
 
 .stanIndic <- reactive({
-    ## reactive that calls the function for main analysis
-    ## . used to indicate this is an 'internal' function
-    ##
-    ## if (length(input$stanindic_dimS) == 0) return ()
-    ##
     stanIndic(
-        ## stanindic_rchartlib = input$stanindic_rchartlib,
         stanindic_indic = input$stanindic_indic,
         stanindic_indic2 = input$stanindic_indic2,
         stanindic_indic3 = input$stanindic_indic3,
@@ -343,12 +306,10 @@ output$stanIndic <- renderUI({
         stanindic_showIndic = input$stanindic_showIndic,
         stanindic_showData = input$stanindic_showData,
         stanindic_pivotRow = input$stanindic_pivotRow,
-        ## stanindic_pivotDataDownload = input$stanindic_pivotDataDownload,
         stanindic_recalcButton = input$stanindic_recalcButton,
         stanindic_namecou = input$stanindic_namecou,
         stanindic_nameind = input$stanindic_nameind,
         stanindic_nameyear = input$stanindic_nameyear,
-        ## stanindic_year = input$stanindic_year,
         stanindic_cur = input$stanindic_cur,
         stanindic_rounddec = input$stanindic_rounddec,
         stanindic_downloadData = input$stanindic_downloadData,
@@ -358,7 +319,6 @@ output$stanIndic <- renderUI({
         stanIndic_viz_plot_width = input$stanIndic_viz_plot_width
         )
 })
-## isolate(.stanIndic())
 ##
 ## observe({
 ##   if(is.null(input$stanIndicReport) || input$stanIndicReport == 0) return()
@@ -381,7 +341,6 @@ output$stanIndic <- renderUI({
 ## })
 
 stanIndic <- function(
-    ## stanindic_rchartlib = stanindic_rchartlib,
     stanindic_indic = stanindic_indic,
     stanindic_indic2 = stanindic_indic2,
     stanindic_indic3 = stanindic_indic3,
@@ -389,12 +348,10 @@ stanIndic <- function(
     stanindic_showIndic = stanindic_showIndic,
     stanindic_showData = stanindic_showData,
     stanindic_pivotRow = stanindic_pivotRow,
-    ## stanindic_pivotDataDownload = stanindic_pivotDataDownload,
     stanindic_recalcButton = stanindic_recalcButton,
     stanindic_namecou = stanindic_namecou,
     stanindic_nameind = stanindic_nameind,
     stanindic_nameyear = stanindic_nameyear,
-    ## stanindic_year = stanindic_year,
     stanindic_cur = stanindic_cur,
     stanindic_rounddec = stanindic_rounddec,
     stanindic_downloadData = stanindic_downloadData,
@@ -406,7 +363,7 @@ stanIndic <- function(
 {
 
   formula.indic <- ui.stanIndic.formula.indic.init
-  ##
+  ## namecou
   if(is.null(stanindic_recalcButton) || stanindic_recalcButton == 0) {
         isolate({
             namecou <- stanindic_namecou
@@ -416,41 +373,40 @@ stanIndic <- function(
             namecou <- stanindic_namecou
         })
     }
-  ## namecou
+  ## nameindic
   nameindic <- stanindic_indic
   if (stanindic_tabs_stanIndic%in%c("PolyCharts", "HighCharts", "NVD3Charts")) {
       if (stanindic_charttype%in%c("Scatter", "Bubble")) nameindic <- union(nameindic, stanindic_indic2)
       if (stanindic_charttype%in%c("Bubble")) nameindic <- union(nameindic, stanindic_indic3)
     }
-  ## nameindic
+  ## namedim
   namedim <- NULL
-  ## indic <- nameindic[1]
   for (indic in nameindic) {
       dim.indic <- gsub(pattern = "[^a-zA-Z0-9]", replacement = " ", formula.indic$formula[formula.indic$indic==indic])
       dim.indic <- gsub(pattern = "[ ]+", replacement = " ", dim.indic)
       dim.indic <- unlist(strsplit(dim.indic, split = " "))
       namedim <- union(namedim, dim.indic)
     }
-  ## namedim
+  ## string.formula
   string.formula <- NULL
   for (indic in nameindic) {
       formula <- formula.indic$formula[formula.indic$indic==indic]
       string.formula <- toString(paste(string.formula, formula))
     }
-  ## string.formula
+  ## nameind
   if(is.null(stanindic_recalcButton) || stanindic_recalcButton == 0) {
         isolate({
             nameind <- stanindic_nameind
         })
-        ## )
     } else {
         isolate({
             nameind <- stanindic_nameind
             if ("A10"%in%nameind) nameind <- union(nameind[!nameind%in%"A10"], STANi4.INDA10)
         })
-    } ## nameind
-  namevar <- namedim[namedim%in%STAN.VARALL]
+    }
   ## namevar
+  namevar <- namedim[namedim%in%STAN.VARALL]
+  ## nameyear
   if (length(stanindic_nameyear) > 1) {
       nameyear <- c(stanindic_nameyear[1]:stanindic_nameyear[2])
   } else nameyear <- stanindic_nameyear
@@ -458,31 +414,11 @@ stanIndic <- function(
   denom.year <- suppressWarnings(as.numeric(namedim)[!is.na(as.numeric(namedim[nchar(namedim)==4]))])
   ## denom.ind
   denom.ind <- namedim[namedim%in%STANi4.INDALL]
-  ##
-## namesqltable <- reactive({
-##   namesqltable <- stanindic_sqltable
-##   namesqltable
-## })
-  ##
-  ## if (namesqltable=="STANPUBi4_PRE")
-  ##   {
-  ##     data.sql <- queryData(
-  ##       connection=SQL.STAN,
-  ##       table=namesqltable,
-  ##       namecou=namecou,
-  ##       namevar=namevar,
-  ##       ## nameeuc=nameeuc,
-  ##       dim.ind="ind",
-  ##       nameind=union(nameind, denom.ind),
-  ##       nameyear=union(nameyear, denom.year),
-  ##       isic=4,
-  ##       add.where=NULL,
-  ##       topn=character())
-  ##   } else if (namesqltable=="STANRDA")
-  ##     {
+  ## ######
+  ## Data
+  ## ######
   dat <- values[["STANNAi4"]]
-  ## dat <- isolate(values[["STANNAi4"]])
-  data.sql <- NULL
+  data.set <- NULL
   for (dataset in c("stan", "btd", "anberd")) {
     eval(parse(text = paste0(
                  'if (length(intersect(namevar, ui.stanIndic.namevar.', dataset, ')) > 0) {',
@@ -490,29 +426,29 @@ stanIndic <- function(
                    'dat$DATA.', toupper(dataset), '$var%in%namevar & ',
                    'dat$DATA.', toupper(dataset), '$ind%in%union(nameind, denom.ind) & ',
                    'dat$DATA.', toupper(dataset), '$year%in%union(nameyear, denom.year),];',
-                 'data.sql <- rbind(data.sql, data.temp)',
+                 'data.set <- rbind(data.set, data.temp)',
                  '}'
                  )))
   }
-  ## data.sql
   ## apply exchange USD rates
   if (stanindic_cur!="NCU") {
-      data.sql.mon <- data.sql[data.sql$var%in%STAN.VARMON,]
-      data.sql.mon <- merge(data.sql.mon, ui.stanIndic.xrates[ui.stanIndic.xrates$cur==stanindic_cur,], by = c("cou", "year"))
-      data.sql.mon$value <- data.sql.mon$value.x / data.sql.mon$value.y
-      data.sql.mon <- subset(data.sql.mon, select = c("cou", "var", "ind", "year", "value"))
-      data.sql <- rbind(data.sql[!data.sql$var%in%STAN.VARMON,], data.sql.mon)
+      data.set.mon <- data.set[data.set$var%in%STAN.VARMON,]
+      data.set.mon <- merge(data.set.mon, ui.stanIndic.xrates[ui.stanIndic.xrates$cur==stanindic_cur,], by = c("cou", "year"))
+      data.set.mon$value <- data.set.mon$value.x / data.set.mon$value.y
+      data.set.mon <- subset(data.set.mon, select = c("cou", "var", "ind", "year", "value"))
+      data.set <- rbind(data.set[!data.set$var%in%STAN.VARMON,], data.set.mon)
     }
-  ## data.sql
+  ## denom
   denom <- list(denom.ind, denom.year)
   names(denom) <- c("ind", "year")
+  ## data.denom.all
   data.denom.all <- NULL
   for (dim in names(denom)) {
       if (length(denom[[dim]]) > 0)
           {
               denom.member <- denom[[dim]]
               eval(parse(text = paste0('nom.member <- name', dim)))
-              data.denom <- data.sql[data.sql[,dim]%in%denom.member,]
+              data.denom <- data.set[data.set[,dim]%in%denom.member,]
               data.denom$var <- paste0(data.denom$var, "_", denom.member)
               data.denom <- merge(data.denom, nom.member, all = TRUE)
               data.denom[,dim] <- data.denom$y
@@ -520,8 +456,9 @@ stanIndic <- function(
               if (length(denom.member) > 0) data.denom.all <- rbind(data.denom.all, data.denom)
           }
   }
-  if (length(data.denom.all) > 0) data.sql <- rbind(data.sql, data.denom.all)
-  data.calc <- dcast(data.sql, cou + ind + year ~ var, value.var = "value")
+  if (length(data.denom.all) > 0) data.set <- rbind(data.set, data.denom.all)
+  ## data.calc
+  data.calc <- dcast(data.set, cou + ind + year ~ var, value.var = "value")
   attach(data.calc)
   for (indic in nameindic) {
       eval(parse(text = paste0('data.calc$', indic, ' <- ', formula.indic$formula[formula.indic$indic==indic])))
@@ -531,7 +468,6 @@ stanIndic <- function(
   data.calc$ind <- factor(data.calc$ind, levels = STANi4.INDALL)
   data.calc <- melt(data.calc, id.vars = c("cou", "ind", "year"), variable.name = "indic", na.rm = TRUE)
   data.calc <- transform(data.calc, value = round(value, stanindic_rounddec))
-  ## data.calc
   ## sort values for plotting
   data.calc.indic <- dcast(data.calc, cou + ind + year ~ indic, value.var = "value")
   ## sort data according to largest industry in selection
@@ -539,7 +475,6 @@ stanIndic <- function(
   data.calc.indic.ind.top <- data.calc.indic[data.calc.indic$ind==ind.top,]
   data.calc.indic$cou <- factor(data.calc.indic$cou, levels = unique(data.calc.indic.ind.top$cou[order(-data.calc.indic.ind.top[,stanindic_indic])])) # added: 'unique' if more than one year
   data.calc.indic <- data.calc.indic[order(data.calc.indic$cou),]
-  ## data.calc.indic
 
   return(list(namecou = namecou,
               nameindic = nameindic,
@@ -550,12 +485,10 @@ stanIndic <- function(
               nameyear = nameyear,
               denom.year = denom.year,
               denom.ind = denom.ind,
-              ## namesqltable = namesqltable,
-              data.sql = data.sql,
+              data.set = data.set,
               data.calc = data.calc,
               data.calc.indic = data.calc.indic,
               stanindic_charttype = stanindic_charttype,
-              ## stanindic_rchartlib = stanindic_rchartlib,
               stanindic_indic = stanindic_indic,
               stanindic_indic2 = stanindic_indic2,
               stanindic_indic3 = stanindic_indic3,
@@ -578,63 +511,23 @@ summary_stanIndic <- function(result = .stanIndic())
 
 }}
 
-tables_stanIndic <- function(result = .stanIndic())
+datatables_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
 
-  data.calc <- result$data.calc
-  data.sql <- result$data.sql
-  stanindic_showData <- result$stanindic_showData
-  stanindic_showIndic <- result$stanindic_showIndic
-  stanindic_pivotRow <- result$stanindic_pivotRow
+  data.table <- pivottable_stanIndic(result$data.calc,
+                                     result$data.set,
+                                     result$stanindic_showData,
+                                     result$stanindic_showIndic,
+                                     result$stanindic_pivotRow
+                                     )
 
-  ## ## coverage table
-  ## data.min <- aggregate(data.calc$year, by = list(data.calc$indic, data.calc$cou, data.calc$ind), FUN = "min")
-  ## data.max <- aggregate(data.calc$year, by = list(data.calc$indic, data.calc$cou, data.calc$ind), FUN = "max")
-  ## names <- c("indic", "cou", "ind", "period")
-  ## names(data.min) <- names
-  ## names(data.max) <- names
-  ## data.cover <- merge(data.min, data.max, by = c("indic", "cou", "ind"))
-  ## data.cover$period <- paste0(data.cover$period.x, "-", data.cover$period.y)
-  ## data.cover$ind <- factor(data.cover$ind, levels = STANi4.INDALL)
-  ## ## data.cover
-
-  ## standard table
-  names(data.calc) <- sub("indic", "var", names(data.calc))
-  data.calc <- subset(data.calc, select = names(data.sql))
-
-  data.table <- NULL
-  if (stanindic_showData==TRUE) data.table <- rbind(data.table, data.sql)
-  if (stanindic_showIndic==TRUE) data.table <- rbind(data.table, data.calc)
-
-  pivot.row <- stanindic_pivotRow
-  ## pivot.row <- c("cou", "var", "ind", "year")
-  ## pivot.row <- c("cou", "var", "ind")
-  ## pivot.row <- c("cou", "var")
-  string.pivot.row <- gsub(",", " +", toString(pivot.row))
-  pivot.col <- setdiff(names(data.table), c(pivot.row, "value"))
-  string.pivot.col <- gsub(",", " +", toString(pivot.col))
-
-  if (length(pivot.col) > 0)
-    {
-      eval(parse(text = paste0('data.table <- dcast(data.table, ', string.pivot.row, ' ~ ', string.pivot.col, ', value.var = "value")')))
-      eval(parse(text = paste0('data.table <- data.table[order(', toString(paste0('data.table$', pivot.row)), '),]')))
-    }
-
-  data.table
-
-}}
-
-plots_stanIndic <- function(result = .stanIndic())
-{ if (length(result) > 0) {
-
-  plot(c(1,2,3))
+  return(data.table)
 
 }}
 
 polycharts_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
 
-    ## result = isolate(.stanIndic())
     data.calc.indic <- result$data.calc.indic
     string.formula <-  result$string.formula
     namecou <- result$namecou
@@ -648,22 +541,12 @@ polycharts_stanIndic <- function(result = .stanIndic())
     stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
     stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
 
-## data.calc.indic <- data.calc.indic[!is.na(data.calc.indic$ESHT),]
-
   if (stanindic_charttype == "Bar") {
-      ## p1 <- rPlot(x = list(var = "cou", sort = stanindic_indic),
-      ##             y = stanindic_indic,
-      ##             color = 'ind',
-      ##             data = data.calc.indic,
-      ##             type = 'bar')
-      ## p1$guides(x = list(title = "", ticks = levels(data.calc.indic$cou)))
 
-      ## facet <- "ind"
       xValue <- stanindic_group
       facet <- setdiff(c("cou", "ind"), xValue) # complementary
 
       p1 <- rPlot(x = list(var = xValue, sort = stanindic_indic),
-                  ## x = xValue,
                   y = stanindic_indic,
                   facet = facet,
                   color = xValue,
@@ -686,7 +569,6 @@ polycharts_stanIndic <- function(result = .stanIndic())
   return(p1)
 
 }}
-## polycharts_stanIndic(result = isolate(.stanIndic()))
 
 highcharts_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
@@ -703,16 +585,12 @@ highcharts_stanIndic <- function(result = .stanIndic())
   stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
   stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
 
-  ## Pie
-  if (stanindic_charttype == "Bar")
-  {
+  if (stanindic_charttype == "Bar") {
       eval(parse(text = paste0('h1 <- hPlot(', stanindic_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "column", title = string.formula)')))
       h1$xAxis(categories = levels(data.calc.indic$cou), title = list(text = ""))
-  } else if (stanindic_charttype == "Scatter")
-  {
+  } else if (stanindic_charttype == "Scatter") {
       eval(parse(text = paste0('h1 <- hPlot(', stanindic_indic2, ' ~ ', stanindic_indic, ', group = "', stanindic_group,'", data = data.calc.indic, type = "scatter")')))
-  } else if (stanindic_charttype == "Bubble")
-  {
+  } else if (stanindic_charttype == "Bubble") {
       eval(parse(text = paste0('h1 <- hPlot(', stanindic_indic2, ' ~ ', stanindic_indic, ', group = "', stanindic_group,'", size = "', stanindic_indic3, '", data = data.calc.indic, type = "bubble")')))
   }
   h1$addParams(height = 500,
@@ -722,7 +600,6 @@ highcharts_stanIndic <- function(result = .stanIndic())
   return(h1)
 
 }}
-## highcharts_stanIndic(result = isolate(.stanIndic()))
 
 nvd3charts_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
@@ -739,15 +616,13 @@ nvd3charts_stanIndic <- function(result = .stanIndic())
   stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
   stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
 
-  if (stanindic_charttype == "Bar")
-  {
+  if (stanindic_charttype == "Bar") {
       eval(parse(text = paste0('n1 <- nPlot(', stanindic_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "multiBarChart")')))
       n1$chart(reduceXTicks = FALSE)
       n1$xAxis(ticks = levels(data.calc.indic$cou))
       eval(parse(text = paste0('n1$yAxis(tickFormat = "#!function(x) { return (x).toFixed(', as.numeric(stanindic_rounddec),') }!#")')))
 
-  } else if (stanindic_charttype == "Scatter")
-  {
+  } else if (stanindic_charttype == "Scatter") {
       eval(parse(text = paste0('n1 <- nPlot(', stanindic_indic2, ' ~ ', stanindic_indic, ', group = "cou", data = data.calc.indic, type = "scatterChart")')))
       n1$xAxis(axisLabel = stanindic_indic)
       n1$yAxis(axisLabel = stanindic_indic2)
@@ -759,7 +634,6 @@ nvd3charts_stanIndic <- function(result = .stanIndic())
   return(n1)
 
 }}
-## nvd3charts_stanIndic(result = isolate(.stanIndic()))
 
 morrischarts_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
@@ -796,35 +670,35 @@ morrischarts_stanIndic <- function(result = .stanIndic())
   return(m1)
 
 }}
-## morrischarts_stanIndic(result = isolate(.stanIndic()))
 
-maps_stanIndic <- function(result = .stanIndic())
+## maps_stanIndic <- function(result = .stanIndic())
+## { if (length(result) > 0) {
+
+##   return()
+
+## }}
+
+download_stanIndic <- function(result = .stanIndic(), zipfile = fname)
 { if (length(result) > 0) {
 
-  return()
+    data.table <- pivottable_stanIndic(result$data.calc,
+                                       result$data.set,
+                                       result$stanindic_showData,
+                                       result$stanindic_showIndic,
+                                       result$stanindic_pivotRow
+                                       )
+
+    nameindic <- result$nameindic
+
+    tempdir = tempdir()
+    unlink(paste0(tempdir, list.files(tempdir)))
+    file.remove(file.path(tempdir, list.files(tempdir)))
+
+    file <- file.path(tempdir, paste0('stanIndic_', nameindic, '.csv'))
+
+    write.csv(data.table, file, row.names = FALSE, na = "")
+
+    zip(zipfile = zipfile, files = tempdir, extras = "-j")
 
 }}
 
-##
-## output$downloadData <- downloadHandler(
-##   filename = function() { paste0(gsub(", ", "_", toString(stanindic_indic)), '.csv')},
-##   content = function(file) {
-##     data.table <- data.table()
-##     data.out <- data.table
-##     write.csv(data.out, file, row.names = FALSE, na = "")
-##     ## if (stanindic_tabs_stanIndic=="table")
-##     ##   {
-##     ##     data.table.pivot <- data.table.pivot()
-##     ##     data.out <- data.table.pivot
-##     ##     write.csv(data.out, file, row.names = FALSE, na = "")
-##     ##   }
-##     ## if (stanindic_tabs_stanIndic=="download")
-##     ##   {
-##     ##     data.sql <- data.sql()
-##     ##     data.out <- data.sql
-##     ##     if (stanindic_pivotDataDownload==TRUE) data.out <- dcast(data.out, cou + ind + year ~ var, value.var = "value")
-##     ##     write.csv(data.out, file, row.names = FALSE, na = "")
-##     ##   }
-##   }
-##   )
-##

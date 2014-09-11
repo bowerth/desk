@@ -1,9 +1,12 @@
 
 command.ui.prefix <- paste('title = "stan-icio indicators",',
+                           ## 'withMathJax(),',
                            'header=div(HTML(\'',
                            '<script type="text/javascript" src="js/jquery-ui.custom.min.js"></script>',
-                           '<link rel = "stylesheet" href = "style.css"></link>',
+                           '<link rel="stylesheet" href="style.css"></link>',
                            ## tags$script(src="js/MathJax.js?config=TeX-AMS-MML_HTMLorMML"),
+                           ## '<script type="text/javascript" src = "https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>',
+                           ## '<script type="text/javascript" src="js/mathscribe/jqmath-0.4.0.min.js"></script>',
                            '<script type="text/javascript" src="js/busy.js"></script>',
                            '\')),',
                            'footer = div(HTML(\'<center><a href="http://www.oecd.org"><img src="OECD_grey.png", width = 80></a></center>\'), br()),',
@@ -15,7 +18,10 @@ command.ui.prefix <- paste('title = "stan-icio indicators",',
                            sep = '\n')
 ## cat(command.ui.prefix)
 
-command.ui.suffix <- paste('tabPanel("About", includeRmd("tools/app/about.Rmd"))')
+command.ui.suffix <- paste(## 'tabPanel("Report", uiOutput("report")),\n',
+                           'tabPanel("About", includeRmd("tools/app/about.Rmd"))',
+                           sep = '\n')
+## cat(command.ui.suffix)
 
 shinyUI(
     eval(parse(text = paste0('navbarPage(', command.ui.prefix, command.ui, command.ui.suffix, ')')))

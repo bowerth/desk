@@ -62,6 +62,7 @@ if(testingRadiant==FALSE)
     }
     DATA.STANandBTD <- rbind(DATA.STAN, DATA.BTD)
     ## data(STANNAi4)
+    ## data in national currency units - not in USD - need to apply USD conversion
     dat <- isolate(values[["STANNAi4"]])
     for (sou in names(dat))
     {
@@ -135,51 +136,50 @@ if(testingRadiant==FALSE)
         eval(parse(text = paste0('DATA.', sou, ' <- data')))
     }
     ##
+    ## sou <- "NSONAPATCH"
     for (sou in ui.stani3Estimate.sou[!ui.stani3Estimate.sou%in%ui.stani3Estimate.sou.estim])
     {
         ## add source name
         eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
-        ## modify value unit of monetary variables
-        ## eval(parse(text = paste0('DATA.', sou, '$value <- DATA.', sou, '$value * 10^(-', stani3Estimate.VIS.SOU$unit[stani3Estimate.VIS.SOU$sou==sou], ')')))
+        ## modify power of values for monetary variables
         eval(parse(text = paste0('DATA.', sou, '$value[DATA.', sou, '$var%in%STAN.VARMON] <- DATA.', sou, '$value[DATA.', sou, '$var%in%STAN.VARMON] * 10^(-', stani3Estimate.VIS.SOU$unit[stani3Estimate.VIS.SOU$sou==sou], ')')))
-        ## ## order by factor levels -> not required, taking place in data table
-        ## eval(parse(text = paste0('DATA.', sou, ' <- DATA.', sou, '[order(DATA.', sou, '$cou, DATA.', sou, '$var, DATA.', sou, '$ind, DATA.', sou, '$year),]')))
         ## pivot to add aggregates
         eval(parse(text = paste0('DATA.', sou, ' <- dcast(DATA.', sou, ', cou + sou + var + year ~ ind, value.var = "value")')))
-        ## add aggregates
-        ## eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3)')))
         ##
+        ## naAsZero: specify aggregates where missings are treated as zero for aggregation
         ##
-        ## naAsZero = TRUE: STANandBTD C65T99 is zero though it should be missing
-        ## naAsZero = FALSE: UNSD203CON C65T99, C75T99 is missing because C95 and C99 not set to zero
-        ##
-        eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3, naAsZero = TRUE, fill2D = TRUE, missing.2d = c("C95", "C99"))')))
-        ## eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3, naAsZero = FALSE, fill2D = TRUE, missing.2d = c("C95", "C99"))')))
-        ##
+        eval(parse(text = paste0('DATA.', sou, ' <- indAggregate(DATA.', sou, ', isic = 3, naAsZero = c("C73T74", "C75T99", "C65T99"), fill2D = TRUE, missing.2d = c("C95", "C99"))')))
+        ## missing.2d  C37     AUS
+        ## naAsZero    C23T26  IRL
+        ##             C73T74  JPN
 
         ## ## create C75T99 with modified indAggregate function where only selected 2-digit sectors are filled with zero
-        ## DATA.STANandBTD.d <- dcast(DATA.STANandBTD, cou + sou + var + year ~ ind, value.var = "value")
-        ## n(DATA.STANandBTD.d)
-        ## test <- indAggregate(
-        ##     data=DATA.STANandBTD.d
-        ##     ,
-        ##     isic=3
-        ##     ,
-        ##     cumulative=FALSE
-        ##     ,
-        ##     naAsZero=TRUE
-        ##     ,
-        ##     fill2D=TRUE
-        ##     ,
-        ##     missing.2d=c("C95", "C99")
-        ##     )
-        ## n(test)
-        ## View(test)
-
         ## pivot back to long format
         eval(parse(text = paste0('DATA.', sou, ' <- melt(DATA.', sou, ', id.vars = c("cou", "sou", "var", "year"), variable.name = "ind", na.rm = TRUE)')))
         ## ## remove missing values
         ## eval(parse(text = paste0('DATA.', sou, ' <- DATA.', sou, '[!is.na(DATA.', sou, '$value),]')))
+
+        ## Table to drop information
+        ui.stani3Estimate.drop.table <- read.csv("data/data_init/stani3Estimate_drop.csv")
+        drop.sou.list <- ui.stani3Estimate.drop.table[ui.stani3Estimate.drop.table$sou==sou,]
+        ## sou <- "STANandBTDi4"
+        if (nrow(drop.sou.list) > 0) {
+            for (i in 1:nrow(drop.sou.list)) {
+                ##
+                drop.cou <- as.character(drop.sou.list$cou[i])
+                drop.var <- as.character(drop.sou.list$var[i])
+                drop.yearmin <- drop.sou.list$yearmin[i]
+                drop.yearmax <- drop.sou.list$yearmax[i]
+                ##
+                if (!is.na(drop.yearmin)) {
+                    eval(parse(text = paste0('DATA.', sou, ' <- DATA.', sou, '[!(DATA.', sou, '$cou==drop.cou & DATA.', sou, '$var==drop.var & DATA.', sou, '$year < drop.yearmin),]')))
+                }
+                if (!is.na(drop.yearmax)) {
+                    eval(parse(text = paste0('DATA.', sou, ' <- DATA.', sou, '[!(DATA.', sou, '$cou==drop.cou & DATA.', sou, '$var==drop.var & DATA.', sou, '$year > drop.yearmax),]')))
+                }
+            }
+        }
+
     }
     ## for (sou in ui.stani3Estimate.sou[!ui.stani3Estimate.sou%in%ui.stani3Estimate.sou.estim]) eval(parse(text = paste0('print("', sou, '");print(n(DATA.', sou, '))')))
     ## combine all data sources
@@ -194,6 +194,7 @@ if(testingRadiant==FALSE)
 }
 ## save(stani3Estimate.data.all, file = file.path(PATH.SASi3, "DATA_in", "R", "STANNAi3.rda"))
 ## write.csv(stani3Estimate.data.all, file = file.path(PATH.SASi3, "DATA_in", "R", "STANNAi3.csv"))
+
 
 ## UI lists
 
@@ -217,7 +218,9 @@ ui.stani3Estimate.cou <- ui.stani3Estimate.cou[!ui.stani3Estimate.cou=="ROW"]
 ## merge(data.frame(ind=ind1, vec="ind1"), data.frame(ind=ind2, vec="ind2"), by = "ind", all = TRUE)
 
 ui.stani3Estimate.ind.agg <- c("A6", "A18", "A34", "A60All") # "A46" list not included; UNSDSNA C65T99 missing
-ui.stani3Estimate.ind <- STANi3.INDA60All
+## ui.stani3Estimate.ind <- STANi3.INDA60All # defined in estimation array
+ui.stani3Estimate.ind <- STANi3.INDA34All
+ui.stani3Estimate.ind <- as.character(ui.stani3Estimate.ind)
 
 ## ui.stani3Estimate.ind <- NULL
 ## for (ind in as.character(STANi3.INDA60All))
@@ -228,6 +231,7 @@ ui.stani3Estimate.ind <- STANi3.INDA60All
 ## }
 ui.stani3Estimate.ind2 <- union("", ui.stani3Estimate.ind)
 ##
+
 ui.stani3Estimate.var <- rbind.data.frame(
     c("VALU", "Value-Added"),
     c("PROD", "Output"),
@@ -245,6 +249,7 @@ ui.stani3Estimate.var <- rbind.data.frame(
     )
 ## tools/help/stani3Estimate.md
 ui.stani3Estimate.var <- ui.stani3Estimate.var[,1]
+ui.stani3Estimate.var <- as.character(ui.stani3Estimate.var)
 ui.stani3Estimate.var2 <- union("", ui.stani3Estimate.var)
 
 ## ## List for estimation
@@ -262,33 +267,37 @@ ui.stani3Estimate.var2 <- union("", ui.stani3Estimate.var)
 ##                                      ind = ui.stani3Estimate.ind,
 ##                                      est = ui.stani3Estimate.est,
 ##                                      sou = ui.stani3Estimate.est.sou))
-## ##
-## ui.stani3Estimate.est.array[, , , "EXT", "MAIN"] <- ""
-## ui.stani3Estimate.est.array[, , , "EXT", "SEC"] <- ""
-## ui.stani3Estimate.est.array[, , , "DET", "MAIN"] <- "UNDATA203CON" # UNSDSNA2013
-## ui.stani3Estimate.est.array[, , , "DET", "SEC"] <- "INDSTAT32"
-## ##
-## namecou <- STAN.COU[["OECD"]]
-## ui.stani3Estimate.est.array[namecou, , , "EXT", "MAIN"] <- "STANandBTD"
-## ui.stani3Estimate.est.array[namecou, , , "EXT", "SEC"] <- "STANandBTDi4"
-## ui.stani3Estimate.est.array[namecou, , , "DET", "MAIN"] <- "PATCHEXT"
-## ui.stani3Estimate.est.array[namecou, , , "DET", "SEC"] <- "INDSTAT32"
-## ##
-## namecou <- c("BRN", "MYS")
-## ui.stani3Estimate.est.array[namecou, , , "EXT", "MAIN"] <- ""
-## ui.stani3Estimate.est.array[namecou, , , "EXT", "SEC"] <- ""
-## ui.stani3Estimate.est.array[namecou, , , "DET", "MAIN"] <- "NSONAPATCH"
-## ui.stani3Estimate.est.array[namecou, , , "DET", "SEC"] <- "INDSTAT32"
-## ##
-## namecou <- c("CHN", "IDN", "KHM", "VNM")
-## ui.stani3Estimate.est.array[namecou, , , "EXT", "MAIN"] <- ""
-## ui.stani3Estimate.est.array[namecou, , , "EXT", "SEC"] <- ""
-## ui.stani3Estimate.est.array[namecou, , , "DET", "MAIN"] <- "UNSDSNA2013"
-## ui.stani3Estimate.est.array[namecou, , , "DET", "SEC"] <- "INDSTAT32"
-## ##
-## save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate.rda")
 
-load("data/data_init/stani3Estimate.rda")
+## ##################################################################################
+## ## procedure to copy array settings to new array with different industry dimension
+## ##################################################################################
+## ui.stani3Estimate.est.array.old <- ui.stani3Estimate.est.array
+## dim(ui.stani3Estimate.est.array.old)
+## ## List for estimation
+## ui.stani3Estimate.est <- c("EXT", "DET")
+## ui.stani3Estimate.est.sou <- c("MAIN", "SEC")
+## ui.stani3Estimate.est.array <- array(dim = c(
+##                                      length(ui.stani3Estimate.cou),
+##                                      length(ui.stani3Estimate.var),
+##                                      length(ui.stani3Estimate.ind),
+##                                      length(ui.stani3Estimate.est),
+##                                      length(ui.stani3Estimate.est.sou)),
+##                                      dimnames = list(
+##                                      cou = ui.stani3Estimate.cou,
+##                                      var = ui.stani3Estimate.var,
+##                                      ind = ui.stani3Estimate.ind,
+##                                      est = ui.stani3Estimate.est,
+##                                      sou = ui.stani3Estimate.est.sou))
+## dim(ui.stani3Estimate.est.array)
+## ##
+## ## format: cou, var, ind, ext, sou
+## for (ind in dimnames(ui.stani3Estimate.est.array)[["ind"]]) {
+##     ui.stani3Estimate.est.array[, , ind, , ] <- ui.stani3Estimate.est.array.old[, , "CTOTAL", , ]
+## }
+## save(ui.stani3Estimate.est.array.old, file = "data/data_init/stani3Estimate_old.rda")
+## save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate_srcarray.rda")
+
+load("data/data_init/stani3Estimate_srcarray.rda")
 ## Example:
 ## ui.stani3Estimate.est.array["AUT", "VALU", "C15T37", "EXT",] <- c("STANandBTD", "STANandBTDi4")
 
@@ -327,12 +336,13 @@ output$uiSe_ind <- renderUI({
             (input$tabs_stani3Estimate=="Tables" & input$stani3estimate_tabletype=="Calculation") )
         {
             selectInput("stani3estimate_ind", "Industry:", ui.stani3Estimate.ind,
-                        selected = state_init_list("stani3estimate_ind", "C15T37", ui.stani3Estimate.ind),
+                        ## selected = state_init_list("stani3estimate_ind", "C15T37", ui.stani3Estimate.ind),
+                        selected = "C15T37",
                         multiple = FALSE)
         } else {
             selectInput("stani3estimate_ind", "Industry:", union(ui.stani3Estimate.ind.agg, ui.stani3Estimate.ind),
-                        ## selected = "A6",
-                        selected = state_init_multvar("stani3estimate_ind", "CTOTAL", union(ui.stani3Estimate.ind.agg, ui.stani3Estimate.ind)),
+                        ## selected = state_init_multvar("stani3estimate_ind", "CTOTAL", union(ui.stani3Estimate.ind.agg, ui.stani3Estimate.ind)),
+                        selected = "CTOTAL",
                         multiple = TRUE)
         }
     ## }
@@ -344,7 +354,8 @@ output$uiSe_indParent <- renderUI({
     ind.parent <- as.character(STANi3.HIERARCHYINV[[input$stani3estimate_ind]])
         if (input$stani3estimate_detail==TRUE) {
             selectInput("stani3estimate_ind.parent.select", "Show parent level", ind.parent,
-                        selected = state_init_multvar("stani3estimate_ind.parent.select", ind.parent[1], ind.parent), # ind.parent[1]
+                        ## selected = state_init_multvar("stani3estimate_ind.parent.select", ind.parent[1], ind.parent), # ind.parent[1]
+                        selected = "C10T41",
                         multiple = TRUE)
         }
     ## }
@@ -358,7 +369,8 @@ output$uiSe_indPeers <- renderUI({
         if (input$stani3estimate_detail==TRUE) {
             ind.peers <- as.character(STANi3.HIERARCHY[[ind.parent[1]]])
             selectInput("stani3estimate_ind.peers.select", "Selected peer industries", ind.peers,
-                        selected = state_init_multvar("stani3estimate_ind.peers.select", input$stani3estimate_ind, ind.peers), # input$stani3estimate_ind
+                        ## selected = state_init_multvar("stani3estimate_ind.peers.select", input$stani3estimate_ind, ind.peers), # input$stani3estimate_ind
+                        selected = "C15T37",
                         multiple = TRUE)
         }
     ## }
@@ -367,7 +379,7 @@ output$uiSe_indPeers <- renderUI({
 output$uiSe_estExtend <- renderUI({
     ##
     if (input$stani3estimate_sou_ext_reloadButton != 0) {
-        load("data/data_init/stani3Estimate.rda")
+        load("data/data_init/stani3Estimate_srcarray.rda")
     }
     ##
     sou.ext <- ui.stani3Estimate.est.array[input$stani3estimate_cou,
@@ -396,7 +408,7 @@ output$uiSe_estExtend <- renderUI({
 output$uiSe_estDetail <- renderUI({
     ##
     if (input$stani3estimate_sou_det_reloadButton != 0) {
-        load("data/data_init/stani3Estimate.rda")
+        load("data/data_init/stani3Estimate_srcarray.rda")
     }
     ##
     sou.det <- ui.stani3Estimate.est.array[input$stani3estimate_cou,
@@ -436,7 +448,7 @@ output$ui_stani3Estimate <- renderUI({
                                  checkboxInput("stani3estimate_viz_plot_controls", "Plot options", FALSE),
                                  conditionalPanel(condition = "input.stani3estimate_viz_plot_controls==true",
                                                   ## htmlOutput("ui_plot_options"),
-                                                  sliderInput(inputId = "stani3Estimate_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 750, step = 50),
+                                                  sliderInput(inputId = "stani3Estimate_viz_plot_height", label = "Height:", min = 400, max = 2000, value = 750, step = 50),
                                                   sliderInput(inputId = "stani3Estimate_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 750, step = 50),
                                                   conditionalPanel(condition="input.stani3estimate_plottype=='Bars'",
                                                                    checkboxInput("stani3estimate_horiz", "Horizontal plot", FALSE)
@@ -518,7 +530,7 @@ output$ui_stani3Estimate <- renderUI({
                 ),
             wellPanel(
                 ## conditionalPanel(condition="input.tabs_stani3Estimate!=2",
-                checkboxInput("stani3estimate_detail", "Apply detailed industry share", TRUE),
+                checkboxInput("stani3estimate_detail", "Apply detailed industry share", FALSE),
                 conditionalPanel(condition="input.stani3estimate_detail==true",
                                  actionButton("stani3estimate_sou_det_reloadButton", "reload"),
                                  htmlOutput("uiSe_estDetail"),
@@ -554,11 +566,12 @@ output$ui_stani3Estimate <- renderUI({
             ##          'as well as the source selection.'),
             wellPanel(
                 h5("Export Estimates"),
+                helpText("Sources for estimation will be saved for all countries and variables selected in this section. The country selection for region aggregates can be seen from the summary text"),
                 ## checkboxInput("stani3estimate_allcou", "Select all countries", FALSE),
                 selectInput("stani3estimate_exportcou", "Countries:", union(ui.stani3Estimate.cou.agg, ui.stani3Estimate.cou),
                             selected = c(""), multiple = TRUE),
                 ## checkboxInput("stani3estimate_allvar", "Select all variables", FALSE),
-                selectInput("stani3estimate_morevar", "Variables:", ui.stani3Estimate.var, selected = c("PROD", "VALU"), multiple = TRUE),
+                selectInput("stani3estimate_morevar", "Variables:", ui.stani3Estimate.var, selected = c("EMPN", "PROD", "VALU"), multiple = TRUE),
                 checkboxInput("stani3estimate_allind", "Select all industries", TRUE),
                 downloadButton('download_stani3Estimate', 'Download XLS') # from radiant.R: paste0('download_', fun_label)
             ## downloadButton('downloadChart', 'Download PDF')
@@ -594,10 +607,9 @@ output$stani3Estimate <- renderUI({
 })
 
 
-## ######################
-## Input test
-## ######################
-
+## ## ######################
+## ## Input test
+## ## ######################
 ## input <- list(
 ##     nav_radiant="STAN ISIC3 Estimate",
 ##     ## stani3estimate_allcou=FALSE,
@@ -606,12 +618,12 @@ output$stani3Estimate <- renderUI({
 ##     stani3estimate_morevar=c("VALU","PROD"),
 ##     stani3estimate_allind=TRUE,
 ##     tabs_stani3Estimate=1,
-##     stani3estimate_cou="AUT", # VNM
+##     stani3estimate_cou="JPN", # VNM
 ##     stani3estimate_detail=FALSE,
 ##     stani3estimate_diff=FALSE,
 ##     stani3estimate_extend=TRUE,
 ##     stani3estimate_horiz=FALSE,
-##     stani3estimate_ind="CTOTAL", # C15T16
+##     stani3estimate_ind="C30", # C15T16
 ##     stani3estimate_ind2="",
 ##     stani3estimate_ind.peers.select="C15T16",
 ##     stani3estimate_ind.parent.select=NULL,
@@ -621,12 +633,12 @@ output$stani3Estimate <- renderUI({
 ##     stani3estimate_singlesou="UNSDSNA2013",
 ##     stani3estimate_sou=c("INDSTAT32", "UNSDSNA2013"),
 ##     stani3estimate_souall=FALSE,
-##     stani3estimate_sou_det_main="UNSDSNA2013",
+##     stani3estimate_sou_det_main="PATCHEXT",
 ##     stani3estimate_sou_det_sec="INDSTAT32",
 ##     stani3estimate_sou_det_sec2="",
 ##     stani3estimate_sou_det_sec3="",
 ##     stani3estimate_sou_ext_main="STANandBTD",
-##     stani3estimate_sou_ext_sec="STANandBTDi4",
+##     stani3estimate_sou_ext_sec=c("STANandBTDi4", "UNDATA203CON", "UNSDSNA2013"),
 ##     stani3estimate_sou_ext_sec2="",
 ##     stani3estimate_sou_ext_sec3="",
 ##     stani3estimate_STANi3.INDA6=FALSE,
@@ -746,10 +758,10 @@ observe({
     } else {
         ind <- match(input$stani3estimate_ind, ui.stani3Estimate.ind)
     }
-    load("data/data_init/stani3Estimate.rda")
+    load("data/data_init/stani3Estimate_srcarray.rda")
     ui.stani3Estimate.est.array[cou,var,ind,"EXT","MAIN"] <- input$stani3estimate_sou_ext_main
     ui.stani3Estimate.est.array[cou,var,ind,"EXT","SEC"] <- toString(input$stani3estimate_sou_ext_sec)
-    save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate.rda")
+    save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate_srcarray.rda")
     print("saved extend information")
 })
 
@@ -762,10 +774,10 @@ observe({
     } else {
         ind <- match(input$stani3estimate_ind, ui.stani3Estimate.ind)
     }
-    load("data/data_init/stani3Estimate.rda")
+    load("data/data_init/stani3Estimate_srcarray.rda")
     ui.stani3Estimate.est.array[cou,var,ind,"DET","MAIN"] <- input$stani3estimate_sou_det_main
     ui.stani3Estimate.est.array[cou,var,ind,"DET","SEC"] <- toString(input$stani3estimate_sou_det_sec)
-    save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate.rda")
+    save(ui.stani3Estimate.est.array, file = "data/data_init/stani3Estimate_srcarray.rda")
     print("saved detail information")
 })
 
@@ -895,6 +907,7 @@ stani3Estimate <- function(
     ##
     ind.parent.select <- stani3estimate_ind.parent.select
     ##
+
     nameind <- stani3estimate_ind
     if (stani3estimate_detail==TRUE) {
         nameind <- c(ind.parent.select, ind.peers) # ind.parent[1]
@@ -905,6 +918,7 @@ stani3Estimate <- function(
             eval(parse(text = paste0('if ("', indlist, '"%in%nameind) nameind <- union(nameind[!nameind%in%"', indlist, '"], STANi3.IND', indlist, ')')))
         }
     }
+
     ## years
     nameyear <- c(stani3estimate_time[1]:stani3estimate_time[2])
     ## plot limits
@@ -924,105 +938,36 @@ stani3Estimate <- function(
 
     ## Create estimates: extend
     if (stani3estimate_extend==TRUE & length(namesou.ext) >= 2) {
-        sources.ext <- data.frame(cou = stani3estimate_cou,
+
+                sources.ext <- data.frame(cou = stani3estimate_cou,
                                   var = stani3estimate_var,
                                   ind = stani3estimate_ind,
                                   est = "EXT",
                                   MAIN = namesou.ext[1],
-                                  SEC = namesou.ext[2:length(namesou.ext)],
+                                  SEC = toString(namesou.ext[2:length(namesou.ext)]),
                                   stringsAsFactors = FALSE)
-        data.patch.ext <- estimate(data = data.all, sources = sources.ext, period = nameyear)
+
+                data.patch.ext <- estimate(data = data.all, sources = sources.ext, period = nameyear)
+
     } else {
         data.patch.ext <- NULL
     }
-    ## ## Create estimates: extend
-    ## if (stani3estimate_extend==TRUE & length(namesou.ext) >= 2) {
-    ##     data.ext.start <- data.all[data.all$cou==stani3estimate_cou &
-    ##                                data.all$sou%in%namesou.ext &
-    ##                                data.all$var==stani3estimate_var &
-    ##                                data.all$ind==stani3estimate_ind &
-    ##                                data.all$year%in%nameyear,]
-    ##     PATCHEXT <- stan::extend(data = data.ext.start, namesou = namesou.ext)
-    ##     newsou <- "PATCHEXT"
-    ##     data.patch.ext <- data.frame(cou = stani3estimate_cou,
-    ##                                  sou = newsou,
-    ##                                  var = stani3estimate_var,
-    ##                                  year = PATCHEXT$year,
-    ##                                  ind = stani3estimate_ind,
-    ##                                  value = PATCHEXT$value)
-    ## } else {
-    ##     data.patch.ext <- NULL
-    ## }
 
     ## Create estimates: detail
     if (stani3estimate_detail==TRUE & length(namesou.det) >= 2) {
+
         sources.det <- data.frame(cou = stani3estimate_cou,
                                   var = stani3estimate_var,
                                   ind = stani3estimate_ind,
                                   est = "DET",
                                   MAIN = namesou.det[1],
-                                  SEC = namesou.det[2:length(namesou.det)],
+                                  SEC = toString(namesou.det[2:length(namesou.det)]),
                                   stringsAsFactors = FALSE)
+
         data.patch.det <- estimate(data = data.all, sources = sources.det, period = nameyear)
     } else {
         data.patch.det <- NULL
     }
-    ## ## Create estimates: detail
-    ## if (stani3estimate_detail==TRUE & length(namesou.det) >= 2) {
-    ##     newsou <- "PATCHDET"
-    ##     data.det.start <- data.all[data.all$cou==stani3estimate_cou &
-    ##                                data.all$sou%in%namesou.det &
-    ##                                data.all$var==stani3estimate_var &
-    ##                                data.all$ind%in%c(ind.parent[1], ind.peers) &
-    ##                                data.all$year%in%nameyear,]
-    ##     ## if parent industry in main source: calculate using this number
-    ##     if (ind.parent[1]%in%unique(data.det.start$ind[data.det.start$sou==namesou.det[1]])) {
-    ##         PATCHDET <- stan::detail(data = data.det.start,
-    ##                                  namesou = namesou.det,
-    ##                                  ind.parent = ind.parent[1],
-    ##                                  ind.peers = ind.peers)
-    ##     } else { # if parent industry not in main source, look for first parent
-    ##         p <- 2
-    ##         parent.in.namesou <- FALSE
-    ##         while (p==2 | (p <= length(ind.parent) & parent.in.namesou==FALSE)) {
-    ##             data.det.start.p <- data.all[data.all$cou==stani3estimate_cou &
-    ##                                          data.all$sou%in%namesou.det &
-    ##                                          data.all$var==stani3estimate_var &
-    ##                                          data.all$ind%in%c(ind.parent[1:p]) &
-    ##                                          data.all$year%in%nameyear,]
-    ##             if (ind.parent[p]%in%unique(data.det.start.p$ind[data.det.start.p$sou==namesou.det[1]])) {
-    ##                 PATCHDET.p <- detail(data = data.det.start.p,
-    ##                                      namesou = namesou.det,
-    ##                                      ind.parent = ind.parent[p],
-    ##                                      ind.peers = ind.parent)
-    ##                 data.patch.det.p <- data.frame(cou = stani3estimate_cou,
-    ##                                                sou = newsou,
-    ##                                                var = stani3estimate_var,
-    ##                                                year = PATCHDET.p$year,
-    ##                                                ind = PATCHDET.p$ind,
-    ##                                                value = PATCHDET.p$value)
-    ##             }
-    ##             if (exists("data.patch.det.p")==TRUE) {
-    ##                 parent.in.namesou <- ind.parent[p]%in%unique(data.patch.det.p$ind[data.patch.det.p$sou=="PATCHDET"])
-    ##             } else {
-    ##                 parent.in.namesou <- FALSE
-    ##             }
-    ##             p = p + 1
-    ##         }
-    ##         PATCHDET <- detail(data = rbind(data.det.start, data.patch.det.p),
-    ##                            namesou = sub(namesou.det[1], newsou, namesou.det),
-    ##                            ind.parent = ind.parent[1],
-    ##                            ind.peers = ind.peers)
-    ##     }
-    ##     data.patch.det <- data.frame(cou = stani3estimate_cou,
-    ##                                  sou = newsou,
-    ##                                  var = stani3estimate_var,
-    ##                                  year = PATCHDET$year,
-    ##                                  ind = PATCHDET$ind,
-    ##                                  value = PATCHDET$value)
-    ## } else {
-    ##     data.patch.det <- NULL
-    ## }
 
     if (stani3estimate_var2 != "") {
         data.table <- data.all[data.all$cou%in%namecou &
@@ -1185,45 +1130,50 @@ tables_stani3Estimate <- function(result = .stani3Estimate()) {
 datatables_stani3Estimate <- function(result = .stani3Estimate()) {
     if (length(result) > 0) {
 
-    ## print array with estimation sources
-    ## stani3estimate_sou_all_print <- result$stani3estimate_sou_all_print
-    ## if (stani3estimate_sou_all_print==TRUE) return(melt(ui.stani3Estimate.est.array))
+
+        ## print array with estimation sources
+        ## stani3estimate_sou_all_print <- result$stani3estimate_sou_all_print
+        ## if (stani3estimate_sou_all_print==TRUE) return(melt(ui.stani3Estimate.est.array))
         stani3estimate_datatabletype <- result$stani3estimate_datatabletype
-        if (stani3estimate_datatabletype=="Sources") return(melt(ui.stani3Estimate.est.array))
 
-    stani3estimate_ind <- result$stani3estimate_ind
-    ## stani3estimate_STANi3.INDA6 <- result$stani3estimate_STANi3.INDA6
-    ## stani3estimate_STANi3.INDA18 <- result$stani3estimate_STANi3.INDA18
-    ## stani3estimate_STANi3.INDA34 <- result$stani3estimate_STANi3.INDA34
-    ## stani3estimate_STANi3.INDA46 <- result$stani3estimate_STANi3.INDA46
-    stani3estimate_STANi3.INDLABEL <- result$stani3estimate_STANi3.INDLABEL
+        if (stani3estimate_datatabletype=="Sources") {
+            load("data/data_init/stani3Estimate_srcarray.rda")
+            return(melt(ui.stani3Estimate.est.array))
+        }
 
-    ## ## dataTableOutput
-    ##       ## join industry lists
-    ##     table.ind <- reactive({
-    ##         if (input$tabs_stani3Estimate%in%c(5))
-    ##         {
-    table.ind <- data.frame(STANi3.INDA60All = STANi3.INDA60All)
-    for (indlist in ui.stani3Estimate.ind.agg) {
-        eval(parse(text = paste0('if ("', indlist, '"%in%stani3estimate_ind) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.IND', indlist, ', STANi3.IND', indlist, '=STANi3.IND', indlist, '), all = TRUE)')))
-    }
+        stani3estimate_ind <- result$stani3estimate_ind
+        ## stani3estimate_STANi3.INDA6 <- result$stani3estimate_STANi3.INDA6
+        ## stani3estimate_STANi3.INDA18 <- result$stani3estimate_STANi3.INDA18
+        ## stani3estimate_STANi3.INDA34 <- result$stani3estimate_STANi3.INDA34
+        ## stani3estimate_STANi3.INDA46 <- result$stani3estimate_STANi3.INDA46
+        stani3estimate_STANi3.INDLABEL <- result$stani3estimate_STANi3.INDLABEL
 
-    ## if (stani3estimate_STANi3.INDA6==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA6, STANi3.INDA6=STANi3.INDA6), all = TRUE)
-    ## if (stani3estimate_STANi3.INDA18==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA18, STANi3.INDA18=STANi3.INDA18), all = TRUE)
-    ## if (stani3estimate_STANi3.INDA34==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA34, STANi3.INDA34=STANi3.INDA34), all = TRUE)
-    ## ## if (input$stani3estimate_STANi3.INDA60==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA60, STANi3.INDA60=STANi3.INDA60), all = TRUE)
-    ## if (stani3estimate_STANi3.INDA46==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA60All, STANi3.INDA46=STANi3.INDA60All), all = TRUE)
-    if (stani3estimate_STANi3.INDLABEL==TRUE)
-    {
-        table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDLABEL$ind, STANi3.INDLABEL=STANi3.INDLABEL$label), all = FALSE)
-        ## required by "merge(..., all = FALSE")
-        table.ind$STANi3.INDA60All <- factor(table.ind$STANi3.INDA60All, levels = STANi3.INDA60All)
-        table.ind <- table.ind[order(table.ind$STANi3.INDA60All),]
-    }
+        ## ## dataTableOutput
+        ##       ## join industry lists
+        ##     table.ind <- reactive({
+        ##         if (input$tabs_stani3Estimate%in%c(5))
+        ##         {
+        table.ind <- data.frame(STANi3.INDA60All = STANi3.INDA60All)
+        for (indlist in ui.stani3Estimate.ind.agg) {
+            eval(parse(text = paste0('if ("', indlist, '"%in%stani3estimate_ind) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.IND', indlist, ', STANi3.IND', indlist, '=STANi3.IND', indlist, '), all = TRUE)')))
+        }
 
-    return(table.ind)
+        ## if (stani3estimate_STANi3.INDA6==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA6, STANi3.INDA6=STANi3.INDA6), all = TRUE)
+        ## if (stani3estimate_STANi3.INDA18==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA18, STANi3.INDA18=STANi3.INDA18), all = TRUE)
+        ## if (stani3estimate_STANi3.INDA34==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA34, STANi3.INDA34=STANi3.INDA34), all = TRUE)
+        ## ## if (input$stani3estimate_STANi3.INDA60==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA60, STANi3.INDA60=STANi3.INDA60), all = TRUE)
+        ## if (stani3estimate_STANi3.INDA46==TRUE) table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDA60All, STANi3.INDA46=STANi3.INDA60All), all = TRUE)
+        if (stani3estimate_STANi3.INDLABEL==TRUE)
+            {
+                table.ind <- merge(table.ind, data.frame(STANi3.INDA60All=STANi3.INDLABEL$ind, STANi3.INDLABEL=STANi3.INDLABEL$label), all = FALSE)
+                ## required by "merge(..., all = FALSE")
+                table.ind$STANi3.INDA60All <- factor(table.ind$STANi3.INDA60All, levels = STANi3.INDA60All)
+                table.ind <- table.ind[order(table.ind$STANi3.INDA60All),]
+            }
 
-}}
+        return(table.ind)
+
+    }}
 
 plots_stani3Estimate <- function(result = .stani3Estimate()) {
     if (length(result) > 0) {
@@ -1364,35 +1314,6 @@ plots_stani3Estimate <- function(result = .stani3Estimate()) {
 
 }}
 
-polycharts_stani3Estimate <- function(result = .stani3Estimate()) {
-    if (length(result) > 0) {
-
-}}
-## polycharts_stani3Estimate(result = isolate(.stani3Estimate()))
-
-highcharts_stani3Estimate <- function(result = .stani3Estimate()) {
-    if (length(result) > 0) {
-
-}}
-## highcharts_stani3Estimate(result = isolate(.stani3Estimate()))
-
-nvd3charts_stani3Estimate <- function(result = .stani3Estimate()) {
-    if (length(result) > 0) {
-
-}}
-## nvd3charts_stani3Estimate(result = isolate(.stani3Estimate()))
-
-morrischarts_stani3Estimate <- function(result = .stani3Estimate()) {
-    if (length(result) > 0) {
-
-}}
-## morrischarts_stani3Estimate(result = isolate(.stani3Estimate()))
-
-maps_stani3Estimate <- function(result = .stani3Estimate()){
-    if (length(result) > 0) {
-
-}}
-
 download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname) {
     if (length(result) > 0) {
 
@@ -1404,27 +1325,32 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
         stani3estimate_extend <- result$stani3estimate_extend
         stani3estimate_detail <- result$stani3estimate_detail
 
+        load("data/data_init/stani3Estimate_srcarray.rda")
 
-        load("data/data_init/stani3Estimate.rda")
-
-        ## ## testing
-        ## exportcou <- c("IDN")
-        ## exportcou <- c("BRN", "IDN", "KHM", "MYS", "PHL", "SGP", "THA", "VNM")
+        ## ## #######################
+        ## ## begin testing
+        ## ## #######################
+        ## exportcou <- c("IRL")
+        ## ## exportcou <- c("BRN", "IDN", "KHM", "MYS", "PHL", "SGP", "THA", "VNM")
         ## namevar <- c("VALU", "PROD")
+        ## ## namevar <- c("VALU")
         ## nameyear <- c(1994:2012)
-        ## stani3estimate_extend <- FALSE
+        ## stani3estimate_extend <- TRUE
         ## stani3estimate_detail <- TRUE
-
         ## ## namecou <- unique(STAN.COU[["OECD"]], STAN.COU[["KPC"]])
-        ## namecou <- STAN.COU[["KPC"]]
+        ## ## namecou <- STAN.COU[["KPC"]]
+        ## ## nameind <- c("CTOTAL", "C15T37", "C80T93", "C99") # "C65T99"
+        ## ## nameind <- c(nameind, "C65T99")
+        ## ## nameind <- c("C30T33", "C30T33X", "C30", "C31", "C32", "C33")
+        ## ## nameind <- unique(c(nameind, as.character(STANi3.INDA6), as.character(STANi3.INDA18), as.character(STANi3.INDA34)))
+        ## ## nameind <- factor(nameind, levels = STANi3.INDA60All)
+        ## ## nameind <- as.character(nameind[order(nameind)])
+        ## ## ui.stani3Estimate.ind <- STANi3.INDA60All
+        ## ui.stani3Estimate.ind <- STANi3.INDA34All
+        ## ## #######################
+        ## ## end testing
+        ## ## #######################
 
-        ## nameind <- c("CTOTAL", "C15T37", "C80T93", "C99") # "C65T99"
-        ## nameind <- c(nameind, "C65T99")
-        ## nameind <- unique(c(nameind, as.character(STANi3.INDA6), as.character(STANi3.INDA18), as.character(STANi3.INDA34)))
-        ## nameind <- factor(nameind, levels = STANi3.INDA60All)
-        ## nameind <- as.character(nameind[order(nameind)])
-        ##
-        ## ui.stani3Estimate.ind <- STANi3.INDA60All
         nameind <- as.character(ui.stani3Estimate.ind)
         ## "C65T99"%in%nameind
         ## "C65T99"%in%ui.stani3Estimate.ind
@@ -1433,7 +1359,8 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
         nameest <- NULL
         if (stani3estimate_extend==TRUE) nameest <- c(nameest, "EXT")
         if (stani3estimate_detail==TRUE) nameest <- c(nameest, "DET")
-
+        ## nameest
+        ## load("data/data_init/stani3Estimate_srcarray.rda")
         est.array <- ui.stani3Estimate.est.array[exportcou, namevar, nameind, nameest,,drop = FALSE]
         ##
         est.array.m <- melt(est.array, id.vars = c("cou", "var", "ind", "est"), variable.name = "sou")
@@ -1459,6 +1386,7 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
 
         res.ext <- NULL
         if (stani3estimate_extend==TRUE) {
+            ## does this need to be filtered to contain only sources considered for extension?
             data.ext <- data.all
             print(est.array.d[est.array.d$est=="EXT",])
             res.ext <- estimate(data=data.ext,
@@ -1478,9 +1406,14 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
         if (stani3estimate_detail==TRUE) {
             data.det <- res.ext
             print(est.array.d[est.array.d$est=="DET",])
-            res.det <- estimate(data=data.det,
-                                sources=est.array.d[est.array.d$est=="DET",],
-                                period=nameyear)
+
+            res.det <- estimate(data=data.det
+                                ,
+                                sources=est.array.d[est.array.d$est=="DET",]
+                                ,
+                                period=nameyear
+                )
+
             res.det <- rbind(res.det, res.ext)
         }
         data.est <- rbind(res.det, res.ext)
@@ -1493,18 +1426,20 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
         data.est <- data.est[order(data.est$ind),]
 
         data <- data.est
+
         data <- dcast(data, cou + var + year ~ ind, value.var = "value")
         nameagg <- "CTOTAL"
+        ## ## testing
+        ## agg <- "C36T37"
+        ## View(data)
+        ## ##
         while(length(nameagg) > 0) {
             parts.all <- NULL
             for (agg in nameagg) {
                 parts <- as.character(STANi3.HIERARCHY[[agg]])
                 if (length(parts) > 0) {
-                    ## cat(paste0(agg, ': ', toString(parts), '\n'))
                     temp <- data[, colnames(data) %in% parts]
-                    ## if ("C99"%in%parts & !"C99"%in%colnames(data)) temp[,"C99"] <- 0
-                    ## if ("C95"%in%parts & !"C95"%in%colnames(data)) temp[,"C95"] <- 0
-                    ##
+                    ## returns vector if only one sector available and next command fails
                     if (all(is.element(parts, colnames(temp))==TRUE))
                     {
                         sum.parts <- unname(apply(as.matrix(temp), 1, "sum"))
@@ -1520,6 +1455,9 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
                         ##
                         data <- data[,!colnames(data)%in%names(temp)]
                         data <- cbind(data, temp)
+                    } else {
+                        ## remove parts columns from data
+                        data <- data[, !colnames(data) %in% parts]
                     }
                     parts.all <- c(parts.all, parts)
                 }
@@ -1528,14 +1466,16 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
         }
 
         data.adj <- melt(data, id.vars = c("cou", "var", "year"), variable.name = "ind")
-        ## data.out <- data.adj
-        ## data <- data.out
         data <- data.adj
 
-        ## h(data)
-        ## View(dcast(data, cou + var + ind ~ year, value.var = "value"))
-        ## View(dcast(data.est, cou + var + ind ~ year, value.var = "value"))
-        ## content = function(file){
+
+        ## == BEGIN DEV == ##
+
+        ## ## export without estimate
+        ## save(data, file = "data/data_init/stani3Estimate_results.rda")
+        ## load("data/data_init/stani3Estimate_results.rda")
+
+        ## == END DEV == ##
 
         tempdir = tempdir()
         unlink(paste0(tempdir, list.files(tempdir)))
@@ -1547,13 +1487,36 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
             ##
             ## cat(paste0(cou, '\n'))
             data.cou <- data[data$cou==cou,]
-            ##
-            ## path.out <- file.path("//ASAP5", "STI", "Data", "STAN", "STAN07", "PUB", "WORK", "XLS_VBAoutput")
-            ## if (!file.exists(file.path(path.out, paste0('STAN_', cou)))) {
-            ##     dir.create(file.path(path.out, paste0('STAN_', cou)))
-            ## }
+
+            ## add sheets with calculations
+            data.cou.d <- dcast(data.cou, cou + ind + year ~ var, value.var = "value")
+            if ("VALU"%in%names(data.cou.d) & "PROD"%in%names(data.cou.d)) {
+                attach(data.cou.d)
+                data.cou.d[["VALUshPROD"]] <- VALU / PROD
+                detach(data.cou.d)
+            }
+            if ("LABR"%in%names(data.cou.d) & "VALU"%in%names(data.cou.d)) {
+                attach(data.cou.d)
+                data.cou.d[["LABRshVALU"]] <- LABR / VALU
+                detach(data.cou.d)
+            }
+            if ("VALU"%in%names(data.cou.d) & "EMPN"%in%names(data.cou.d)) {
+                attach(data.cou.d)
+                data.cou.d[["VALUshEMPN"]] <- VALU / EMPN
+                detach(data.cou.d)
+            }
+            data.cou <- melt(data.cou.d, id.vars = c("cou", "ind", "year"), variable.name = "var")
+
+            ## data.cou <- DATA.STAN[DATA.STAN$cou=="AUT" & DATA.STAN$var=="VALU",]
+            data.cou.share <- merge(data.cou, data.cou[data.cou$ind=="CTOTAL" & data.cou$var=="VALU", colnames(data.cou)!="ind"], by = c("cou", "var", "year"))
+            data.cou.share$value <- data.cou.share$value.x / data.cou.share$value.y
+            data.cou.share$var <- "VALUshCTOTAL"
+            data.cou.share <- data.cou.share[,!colnames(data.cou.share)%in%c("value.x", "value.y")]
+
+            data.cou <- rbind(data.cou, data.cou.share)
+
             ## file = file.path(path.out, paste0('STAN_', cou), paste0('STAN_', cou, '.xls'))
-            file <- file.path(tempdir, paste0('STAN_', cou, '.xls'))
+            file <- file.path(tempdir, paste0('STAN3_4IO_', cou, '.xls'))
 
             ## wb <- loadWorkbook(filename = file , create = TRUE)
             wb <- loadWorkbook(filename = file , create = TRUE)
@@ -1561,8 +1524,10 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
             for (var in unique(data.cou$var)) {
                 data.var <- dcast(data.cou[data.cou$var==var,], ind ~ year, value.var = "value")
                 ## add missing industries
-                data.var <- merge(data.var, data.frame(ind = nameind), all = TRUE)
-                data.var$ind <- factor(data.var$ind, levels = nameind)
+                ## nameind.out <- as.character(STANi3.INDA34All)
+                nameind.out <- nameind
+                data.var <- merge(data.var, data.frame(ind = nameind.out), all.y = TRUE)
+                data.var$ind <- factor(data.var$ind, levels = nameind.out)
                 data.var <- data.var[order(data.var$ind),]
                 ##
                 names(data.var)[2:length(names(data.var))] <- paste0('_',names(data.var)[2:length(names(data.var))])
@@ -1578,190 +1543,4 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
         zip(zipfile = zipfile, files = tempdir, extras = "-j")
 
 }}
-
-
-    ## ## subset data to download selection
-    ## data.out <- reactive({
-    ##     if (stani3estimate_allcou==TRUE) namecou <- sort(unique(data.all$cou)) else namecou <- stani3estimate_cou
-    ##     if (stani3estimate_allvar==TRUE) namevar <- sort(unique(data.all$var)) else namevar <- c(stani3estimate_var, stani3estimate_var2)
-    ##     if (stani3estimate_allind==TRUE) nameind <- sort(unique(data.all$ind)) else nameind <- union(nameind(), stani3estimate_ind2)
-    ##     data.all[data.all$cou%in%namecou &
-    ##              data.all$var%in%namevar &
-    ##              data.all$ind%in%nameind & # nameind
-    ##              data.all$year%in%nameyear() & # c(stani3estimate_time[1]:stani3estimate_time[2]) &
-    ##              data.all$sou%in%namesou(), ] # namesou() reactive function
-    ## })
-    ##
-    ## output$downloadData <- downloadHandler(
-    ##     filename = function() {
-    ##         if (stani3estimate_allcou==TRUE) namecou <- "ALLCOU" else namecou <- stani3estimate_cou
-    ##         if (stani3estimate_allvar==TRUE) namevar <- "ALLVAR" else namevar <- c(stani3estimate_var, stani3estimate_var2)
-    ##         if (stani3estimate_allind==TRUE) nameind <- "ALLIND" else nameind <- toString(union(nameind(), stani3estimate_ind2))
-    ##         if (tabs_stani3Estimate==4) nameind <- sub("STANi3.", "", stani3estimate_indlist)
-    ##
-    ##         paste0(namecou, '_', namevar, '_', nameind, '.csv')
-    ##     },
-    ##     content = function(file) {
-    ##         data.out <- data.out()
-    ##         data.table.pivot <- data.table.pivot()
-    ##         if (tabs_stani3Estimate==4)
-    ##         {
-    ##             data.out <- data.table.pivot
-    ##         }
-    ##         write.csv(data.out, file)
-    ##     }
-    ##     )
-    ##
-    ## output$downloadChart <- downloadHandler(
-    ##     filename = function() {
-    ##         if (stani3estimate_allcou==TRUE) namecou <- "ALLCOU" else namecou <- stani3estimate_cou
-    ##         if (stani3estimate_allvar==TRUE) namevar <- "ALLVAR" else namevar <- c(stani3estimate_var, stani3estimate_var2)
-    ##         if (stani3estimate_allind==TRUE) nameind <- "ALLIND" else nameind <- toString(union(nameind(), stani3estimate_ind2))
-    ##         paste0(namecou, '_', namevar, '_', nameind, '.pdf')
-    ##     },
-    ##     content = function(file) {
-    ##         ## ##########################
-    ##         ## namecou <- c('AUT','BEL')
-    ##         ## namevar <- c('VALU','PROD')
-    ##         ## nameind <- c('CTOTAL','C01T05')
-    ##         ## nameyear <- c(1995:2009)
-    ##         ## data <- data.all[data.all$cou%in%namecou & data.all$var%in%namevar & data.all$ind%in%nameind,]
-    ##         ## file <- tempfile(fileext=".pdf")
-    ##         ##
-    ##         ## cou <- namecou[1]
-    ##         ## var <- namevar[1]
-    ##         ## ind <- nameind[1]
-    ##         ##
-    ##         ## data.ind
-    ##         ## ###########################
-    ##         data <- data.out()
-    ##
-    ##         namevar <- unique(data$var)
-    ##         namecou <- unique(data$cou)
-    ##         nameind <- unique(data$ind)
-    ##         nameyear <- nameyear()
-    ##
-    ##         data <- data[data$year%in%nameyear,]
-    ##
-    ##         pdf(file = file, width=16, height=10)
-    ##         for (var in namevar)
-    ##         {
-    ##             data.var <- data[data$var==var,]
-    ##             for (cou in namecou)
-    ##             {
-    ##                 data.cou <- data.var[data.var$cou==cou,]
-    ##                 par(oma=c(0,0,2,0))
-    ##                 if (stani3estimate_allind==TRUE) par(mfrow=c(11,10), mar=c(0.1,0.1,0,0), xaxt="n", yaxt="n")
-    ##                 for (ind in nameind)
-    ##                 {
-    ##                     data.ind <- data.cou[data.cou$ind==ind,]
-    ##                     if (nrow(data.ind) > 0)
-    ##                     {
-    ##                         ymin <- min(data.ind$value)
-    ##                         ymax <- max(data.ind$value)
-    ##                         plot(nameyear, rep(NA, length(nameyear)), ylim=c(ymin, ymax), xlab='', ylab='', main=paste('\n',ind))
-    ##                         if (stani3estimate_STAN==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="STANandBTD",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="STANandBTD"],
-    ##                                   col='darkred', type='l', lty=2)
-    ##                         }
-    ##                         if (stani3estimate_OECDSUT112013==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="OECDSUT112013",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="OECDSUT112013"],
-    ##                                   col='darkblue', type='l')
-    ##                         }
-    ##                         if (stani3estimate_UNSDSNA2013==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNSDSNA2013",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNSDSNA2013"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         if (stani3estimate_UNDATA203CON==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNDATA203CON",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203CON"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         if (stani3estimate_UNDATA203100==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNDATA203100",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203100"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         ## if (stani3estimate_UNDATA203150==TRUE)
-    ##                         ## {
-    ##                         ##     lines(intersect(data.ind[data.ind$sou=="UNDATA203150",]$year, nameyear),
-    ##                         ##           data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203150"],
-    ##                         ##           col='darkorange', type='l', lty=3)
-    ##                         ## }
-    ##                         if (stani3estimate_UNDATA203200==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNDATA203200",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203200"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         if (stani3estimate_UNDATA203300==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNDATA203300",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203300"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         if (stani3estimate_UNDATA203400==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNDATA203400",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203400"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         if (stani3estimate_UNDATA203500==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="UNDATA203500",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="UNDATA203500"],
-    ##                                   col='darkorange', type='l', lty=3)
-    ##                         }
-    ##                         if (stani3estimate_WIOT042012==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="WIOT042012",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="WIOT042012"],
-    ##                                   col='darkgreen', type='l', lty=4)
-    ##                         }
-    ##                         if (stani3estimate_WIOT112013==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="WIOT112013",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="WIOT112013"],
-    ##                                   col='darkgreen', type='l', lty=4)
-    ##                         }
-    ##                         if (stani3estimate_INDSTAT32==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="INDSTAT32",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="INDSTAT32"],
-    ##                                   col='magenta', type='l', lty=5)
-    ##                         }
-    ##                         if (stani3estimate_NSONAPATCH==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="NSONAPATCH",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="NSONAPATCH"],
-    ##                                   col='black', type='l', lty=5)
-    ##                         }
-    ##                         if (stani3estimate_EUNAIOR1==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="EUNAIOR1",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="EUNAIOR1"],
-    ##                                   col='black', type='l', lty=5)
-    ##                         }
-    ##                         if (stani3estimate_ICIO052013==TRUE)
-    ##                         {
-    ##                             lines(intersect(data.ind[data.ind$sou=="ICIO052013",]$year, nameyear),
-    ##                                   data.ind$value[data.ind$year%in%intersect(data.ind$year, nameyear) & data.ind$sou=="ICIO052013"],
-    ##                                   col='black', type='p', pch=19)
-    ##                         }
-    ##                     }
-    ##                 }
-    ##                 title(main=paste(cou, var),outer=T)
-    ##             }
-    ##         }
-    ##         dev.off()
-    ##     }
-    ##     )
 

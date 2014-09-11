@@ -43,22 +43,29 @@ library(shiny)
 path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
 setwd(path)
 
-## testingRadiant <- FALSE
-## source(file.path(path, "global.R"))
-## input <- NULL
-## output <- NULL
-## source(file.path(path, "tools", "app", "state.R"))
-## source(file.path(path, "tools", "app", "tab_ui.R"))
-## ## source(file.path(path, "tools", "indic", "stanIndic.R"))
-## source(file.path(path, "tools", "indic", "stani3Estimate.R"))
-## ## source(file.path(path, "tools", "indic", "icioFddva.R"))
-## ## source(file.path(path, "tools", "indic", "lfsShare.R"))
-## source(file.path(path, "radiant.R"))
-## testingRadiant <- TRUE
+testingRadiant <- FALSE
+source(file.path(path, "global.R"))
 
+## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
+
+input <- NULL
+output <- NULL
+source(file.path(path, "tools", "app", "state.R"))
+## source(file.path(path, "tools", "app", "tab_ui.R"))
+## source(file.path(path, "tools", "indic", "stanIndic.R"))
+source(file.path(path, "tools", "indic", "stani3Estimate.R"))
+## source(file.path(path, "tools", "indic", "icioFddva.R"))
+## source(file.path(path, "tools", "indic", "lfsShare.R"))
+source(file.path(path, "radiant.R"))
+testingRadiant <- TRUE
 ## source(file.path(path, "tools", "indic", "sdmxBrowser.R"))
+## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
+## library(devtools); load_all(file.path(dbpath, "GitHub", "stanData"))
+
 runApp(path)
 
+## system('g++ -v')
+## system('where make')
 
 ## ## https://github.com/ramnathv/rChartsShiny
 ## library(shiny)
@@ -80,16 +87,20 @@ runApp(path)
 ##             nameyear=c(1995:2009),
 ##             file = paste0(PATH.REPO, "icioData\\data\\ICIO5837APP.rda"),
 ##             replace = TRUE)
+
 ## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "stanData_0.1.tar.gz"), repos = NULL, type = "source")
 
-## #################
+
 ## ## ISIC Rev. 3 ##
 ## #################
+
+
 ## sourcesSTANNAi3 <- c("BTD", "EUNAIOR1", "ICIO052013", "INDSTAT32", "NSONAPATCH", "OECDSUT112013", "STAN", "UNDATA203100", "UNDATA203CON", "UNSDSNA2013", "WIOT042012", "WIOT112013")
 ## namecou <- STAN.COU[["ICIO"]] # excluding LKA
 ## ## namecou <- unique(c(union(STAN.COU, STAN.COUKPC), "BGR", "BRN", "CYP", "HKG", "KHM", "LKA", "LTU", "LVA", "MLT", "MYS", "ROU", "SAU", "SGP", "THA", "VNM"))
 ## namevar <- c("VALU", "PROD", "EMPN", "EMPE", "GFCF", "LABR", "NOPS", "OTXS", "EXPO", "IMPO", "FDDE", "FGGE", "FHHE", "GCFI", "INVC", "GDPR")
 ## nameyear <- c(1995:2012) # nameyear only used for ICIO extraction
+
 
 ## packageData(list=sourcesSTANNAi3, # c("UNSDSNA2013")
 ##             namecou = namecou,
@@ -98,20 +109,44 @@ runApp(path)
 ##             isic = 3,
 ##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi3.rda"),
 ##             replace = TRUE)
-## ##
+
+
 ## packageData(list = c("NSONAPATCH"),
 ##             namecou = namecou,
 ##             namevar = namevar,
 ##             nameind = STANi3.INDA60All,
 ##             isic = 3,
-##             file = paste0(PATH.REPO, "stanData\\data\\STANNAi3.rda"),
+##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi3.rda"),
 ##             replace = FALSE)
-## ##
+
 ## load(file.path(PATH.REPO, "stanData", "data", "STANNAi3.rda"))
 
+## require(stanData)
+## data(STANNAi3)
+## h(DATA.NSONAPATCH)
+## unique(DATA.NSONAPATCH$cou)
+
+## test <- stani3Estimate.data.all
+
+## cou <- "BRA"
+## cou <- "FRA"
+## var <- "VALU"
+## ind <- "CTOTAL"
+## sou <- "NSONAPATCH"
+## sou <- "STANandBTD"
+## year <- 2005
+## unique(test$sou)
+## test[test$sou==sou & test$var==var & test$ind==ind & test$year==year,]
+
+## data <- DATA.STAN
+## data <- data[data$cou=="IRL" & data$var=="VALU",]
+## View(dcast(data, ind ~ year, value.var = "value"))
+
+## ## "C73"%in%unique(DATA.STAN$ind)
 ## ## "C65T99"%in%STANi3.INDA60All
 ## ## "C65T99"%in%DATA.UNSDSNA2013$ind
 ## ## unique(DATA.UNSDSNA2013$ind)
+## ## unique(DATA.INDSTAT32$cou)
 
 ## #################
 ## ## ISIC Rev. 4 ##
@@ -143,7 +178,7 @@ runApp(path)
 ##     , # unique(union(STAN.COU, STAN.COUKPC))
 ##     namevar = c("RDNC")
 ##     ,
-##     isic = 4
+##     Isic = 4
 ##     ,
 ##     file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda")
 ##     ,
@@ -154,10 +189,11 @@ runApp(path)
 ## sort(unique(DATA.STAN$var))
 
 ## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
+
 ## detach("package:stanData", unload=TRUE)
-## install.packages("stanData", repos="file:///C:/Users/werth_b/LocalData/Dropbox/CRAN_Data/")
-## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "icioData_0.1.tar.gz"), repos=NULL, type = "source")
 ## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "stanData_0.1.tar.gz"), repos=NULL, type = "source")
+
+## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "icioData_0.1.tar.gz"), repos=NULL, type = "source")
 ## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "skillData_0.1.tar.gz"), repos=NULL, type = "source")
 ## require(httr)
 ## require(RCurl)

@@ -4,11 +4,11 @@
 ## {
 
 app.status.df <- rbind.data.frame(c("active", "ICIO", "Foreign Demand Domestic Value Added", "icioFddva"),
-                                  c("inactive", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
-                                  c("inactive", "STAN", "STAN Indicators", "stanIndic"),
-                                  c("inactive", "STAN", "R&D Intensity", "stanRnd"),
-                                  c("inactive", "SKILL", "LFS Share", "lfsShare"),
-                                  c("inactive", "SMDX", "SDMX Browser", "sdmxBrowser")
+                                  c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
+                                  c("active", "STAN", "STAN Indicators", "stanIndic"),
+                                  c("active", "STAN", "R&D Intensity", "stanRnd"),
+                                  c("active", "SKILL", "LFS Share", "lfsShare"),
+                                  c("active", "SMDX", "SDMX Browser", "sdmxBrowser")
                                   )
 names(app.status.df) <- c("status", "menuTitle", "panelTitle", "outputID")
 
@@ -187,7 +187,7 @@ libs <- c("AlgDesign",
           "shinyAce",
           "shinyExt", # github
           ## "skillData", # dropbox
-          "stan", # github (own)
+          ## "stan", # github (own)
           ## "stanData", # dropbox
           "vegan",
           "wordcloud",
@@ -196,13 +196,12 @@ libs <- c("AlgDesign",
           "websockets"
           )
 
-
-
+## install.packages(file.path(dbpath, "CRAN", "src", "contrib", "RJSDMX_0.1.tar.gz"), repos = NULL, type = "source")
 libs.dev.remote <- c("stan",
+                     ## "RJSDMX",
                      "rMaps",
-                     "rCharts",
+                     ## "rCharts",
                      ## "R-Websockets",
-                     "RJSDMX",
                      "shinyExt",
                      "shinysky")
 available.dev <- suppressWarnings(sapply(libs.dev.remote, require, character.only=TRUE))
@@ -219,7 +218,7 @@ if(length(inst.libs.dev.remote) != 0) {
         if (lib == "shinysky") install_github("shinysky", username = "AnalytixWare")
         if (lib == "stan") install_github("stan", username = "bowerth")
         if (lib == "rMaps") install_github("rMaps", username = "bowerth")
-        if (lib == "RJSDMX") install_github("RJSDMX", username = "bowerth")
+        ## if (lib == "RJSDMX") install_github("RJSDMX", username = "bowerth")
     }
     ## suppressWarnings(sapply("stan", "rMaps"), install_github, username = "bowerth"))
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev.remote), load_all))
@@ -239,6 +238,7 @@ if (Sys.info()["sysname"]=="Linux") {
     ## in desk/configuration.properties: comment "http.proxy.name0 = wsg-proxy.oecd.org:80"
     ## ## install.packages(file.path(dbpath, "CRAN", "src", "contrib", "RJSDMX_0.1.tar.gz"), repos = NULL, type = "source")
     require(RJSDMX)
+    ## .jaddClassPath(file.path(dbpath, "GitHub", "RJSDMX", "inst", "java", "SDMX.jar"))
     ## source(file.path(dbpath, "GitHub", "RJSDMX", "R", "SdmxClient.R"))
     ## source(file.path(dbpath, "GitHub", "RJSDMX", "R", "onLoad.R"))
     ## source(file.path(dbpath, "GitHub", "RJSDMX", "R", "TSConverter.R"))
@@ -351,7 +351,10 @@ helpAndReport <- function(title, link, content)
     HTML(html)
   }
 
-inclMD <- function(file) return(markdownToHTML(file, options = c(""), stylesheet="www/empty.css"))
 ## inclMD <- function(file) return(includeHTML(file))
+inclMD <- function(file) return(markdownToHTML(file, options = c(""), stylesheet="www/empty.css"))
 
 ## }
+
+
+

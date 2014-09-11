@@ -12,13 +12,21 @@ other statistical tools (e.g. MATLAB, Excel, SAS).
 __SDMX Query:__ The query combines selected dimension codes. It can be
 edited directly. Edits are overridden by the SDMX Query Builder
 
-__Submit Query:__ Update values from provider
+__Submit Query:__ Retrieve values from provider
 
-__Download CSV:__ Download zipped values in flat file format
+__Download CSV:__ Download data table
 
-#### SDMX Query Builder
+##### SDMX Query Builder
 
 __Provider:__ Select among ECB, OECD, EUROSTAT, ISTAT, IMF
+
+__Flows:__ Select among provided flows
+
+__Update Flows:__ Click button to update the list of flows from selected provider (the flows from each provider are not updated automatically)
+
+__Filter Dimensions:__ Apply filters to selected dimensions. Hold `Ctrl` and click on a dimension to remove the filter. The available codes for each filtered dimension are shown below
+
+__Period:__ Select time period in years 
 
 #### Output Tabs
 
@@ -63,6 +71,27 @@ Attilio Mattiocco
 and
 Diana Nicoletti
 [diana.nicoletti@bancaditalia.it](mailto:diana.nicoletti@bancaditalia.it)
+
+### Provider REST APIs
+
+#### Eurostat
+
+The structure to build the query is:
+
+ec.europa.eu/eurostat/SDMX/diss-web/rest/data/`[flowRef]`/`[key]`/`[providerRef]`
+
+For instance the query below demands:
+  - data flow with ID `nama_nace64_c`
+  - annual frequency data (__FREQ__ = `A`)
+  - units precentage of total economy (__UNIT__ = `PC_TOT`)
+  - total manufacturing industries (__NACE_R2__ = `C`)
+  - value-added (__INDIC_NA__ = `B1G`)
+  - country selection (__GEO__ = `AT+BE+CZ+DE+DK`)
+  - from 2000 to 2010 (__startperiod__ = `2000` & __endperiod__ = `2010`)
+
+[ec.europa.eu/eurostat/SDMX/diss-web/rest/data/nama_nace64_c/A.PC_TOT.C.B1G.AT+BE+CZ+DE+DK/startperiod=2000&endperiod=2010](http://ec.europa.eu/eurostat/SDMX/diss-web/rest/data/nama_nace64_c/A.PC_TOT.C.B1G.AT+BE+CZ+DE+DK/startperiod=2000&endperiod=2010).
+
+See also [REST SDMX 2.1](http://epp.eurostat.ec.europa.eu/portal/page/portal/sdmx_web_services/getting_started/rest_sdmx_2.1)
 
 ---
 

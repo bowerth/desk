@@ -160,12 +160,16 @@ ui.icioFddva.cou <- list(
 ##
 ui.icioFddva.year <- c(1995, 2000, 2005, 2008, 2009)
 ##
+
 ui.icioFddva.coef <- rbind.data.frame(
-  ## c("eB", "Employment"),
-  c("vB", "Value added")
-  )
+    c("vB", "Value-added")
+    ## ,
+    ## c("eB", "Employment")
+    )
 names(ui.icioFddva.coef) <- c("coef", "label")
-##
+ui.icioFddva.coef.list <- as.list(as.character(ui.icioFddva.coef$coef))
+names(ui.icioFddva.coef.list) <- ui.icioFddva.coef$label
+
 ui.icioFddva.demand <- rbind.data.frame(
   c("FDTTLWITHDISC", "Final demand"),
   c("GFCF", "Capital formation"),
@@ -173,46 +177,49 @@ ui.icioFddva.demand <- rbind.data.frame(
   c("HHCP", "Household consumption")
   )
 names(ui.icioFddva.demand) <- c("demand", "label")
+ui.icioFddva.demand.list <- as.list(as.character(ui.icioFddva.demand$demand))
+names(ui.icioFddva.demand.list) <- ui.icioFddva.demand$label
+
 ##
 ui.icioFddva.aggind <- rbind.data.frame(
-  c("C01T05 AGR", "C01T05 AGR"),
-  c("C10T14 MIN", "C10T14 MIN"),
-  c("C15T16 FOD", "C15T16 FOD"),
-  c("C17T19 TEX", "C17T19 TEX"),
-  c("C20T22 WPP", "C20 WOD"),
-  c("C20T22 WPP", "C21T22 PAP"),
-  c("C23T26 CNM", "C23 PET"),
-  c("C23T26 CNM", "C24 CHM"),
-  c("C23T26 CNM", "C25 RBP"),
-  c("C23T26 CNM", "C26 NMM"),
-  c("C27T28 MFM", "C27 MET"),
-  c("C27T28 MFM", "C28 FBM"),
-  c("C29 MEQ", "C29 MEQ"),
-  c("C30T33 ICT", "C30 ITQ"),
-  c("C30T33 ICT", "C31 ELQ"),
-  c("C30T33 ICT", "C32 CMQ"),
-  c("C30T33 ICT", "C33 SCQ"),
-  c("C34T35 MTQ", "C34 MTR"),
-  c("C34T35 MTQ", "C35 TRQ"),
-  c("C36T37 OTM", "C36T37 OTM"),
-  c("C40T41 EGW", "C40T41 EGW"),
-  c("C45 CON", "C45 CON"),
-  c("C50T55 THR", "C50T52 WRT"),
-  c("C50T55 THR", "C55 HTR"),
-  c("C60T64 TRT", "C60T63 TRN"),
-  c("C60T64 TRT", "C64 PTL"),
-  c("C65T67 FIN", "C65T67 FIN"),
-  c("C70T74 BZS", "C70 REA"),
-  c("C70T74 BZS", "C71 RMQ"),
-  c("C70T74 BZS", "C72 ITS"),
-  c("C70T74 BZS", "C73 RDS"),
-  c("C70T74 BZS", "C74 BZS"),
-  c("C75T95 OTS", "C75 GOV"),
-  c("C75T95 OTS", "C80 EDU"),
-  c("C75T95 OTS", "C85 HTH"),
-  c("C75T95 OTS", "C90T93 OTS"),
-  c("C75T95 OTS", "C95 PVH")
-  )
+    c("C01T05 AGR", "C01T05 AGR"),
+    c("C10T14 MIN", "C10T14 MIN"),
+    c("C15T16 FOD", "C15T16 FOD"),
+    c("C17T19 TEX", "C17T19 TEX"),
+    c("C20T22 WPP", "C20 WOD"),
+    c("C20T22 WPP", "C21T22 PAP"),
+    c("C23T26 CNM", "C23 PET"),
+    c("C23T26 CNM", "C24 CHM"),
+    c("C23T26 CNM", "C25 RBP"),
+    c("C23T26 CNM", "C26 NMM"),
+    c("C27T28 MFM", "C27 MET"),
+    c("C27T28 MFM", "C28 FBM"),
+    c("C29 MEQ", "C29 MEQ"),
+    c("C30T33 ICT", "C30 ITQ"),
+    c("C30T33 ICT", "C31 ELQ"),
+    c("C30T33 ICT", "C32 CMQ"),
+    c("C30T33 ICT", "C33 SCQ"),
+    c("C34T35 MTQ", "C34 MTR"),
+    c("C34T35 MTQ", "C35 TRQ"),
+    c("C36T37 OTM", "C36T37 OTM"),
+    c("C40T41 EGW", "C40T41 EGW"),
+    c("C45 CON", "C45 CON"),
+    c("C50T55 THR", "C50T52 WRT"),
+    c("C50T55 THR", "C55 HTR"),
+    c("C60T64 TRT", "C60T63 TRN"),
+    c("C60T64 TRT", "C64 PTL"),
+    c("C65T67 FIN", "C65T67 FIN"),
+    c("C70T74 BZS", "C70 REA"),
+    c("C70T74 BZS", "C71 RMQ"),
+    c("C70T74 BZS", "C72 ITS"),
+    c("C70T74 BZS", "C73 RDS"),
+    c("C70T74 BZS", "C74 BZS"),
+    c("C75T95 OTS", "C75 GOV"),
+    c("C75T95 OTS", "C80 EDU"),
+    c("C75T95 OTS", "C85 HTH"),
+    c("C75T95 OTS", "C90T93 OTS"),
+    c("C75T95 OTS", "C95 PVH")
+    )
 names(ui.icioFddva.aggind) <- c("ind.icio18", "ind.icio37")
 ##
 ui.icioFddva.secagg <- rbind.data.frame(
@@ -439,8 +446,8 @@ output$ui_icioFddva <- renderUI({
                        ),
       wellPanel(
         selectInput("fddva_coef", "Coefficients:",
-                    ui.icioFddva.coef$coef
-                    ## list("eB: Employment" = "eB", "vB: Value-added" = "vB")
+                    choices = ui.icioFddva.coef.list,
+                    selected = "vB"
                     ),
         selectInput("fddva_time", "Year:",
                     list(
@@ -453,12 +460,13 @@ output$ui_icioFddva <- renderUI({
                     ),
         ## conditionalPanel(condition="input.datatabs==3 | input.datatabs==4 | input.datatabs==5 | input.datatabs==6" ,
         selectInput("fddva_demand", "Demand concept: (demand)",
-                    list(
-                      "GRTR: Gross Trade" = "GRTR",
-                      "FD: Final Demand" = "FDTTLWITHDISC",
-                      "GFCF: Gross Fixed Capital Formation" = "GFCF",
-                      "HHCP: Household Consumption" = "HHCP"
-                      ),
+                    ## list(
+                    ##   "GRTR: Gross Trade" = "GRTR",
+                    ##   "FD: Final Demand" = "FDTTLWITHDISC",
+                    ##   "GFCF: Gross Fixed Capital Formation" = "GFCF",
+                    ##   "HHCP: Household Consumption" = "HHCP"
+                    ##   ),
+                    choices = ui.icioFddva.demand.list,
                     selected = "FDTTLWITHDISC"
                     )
         ## )

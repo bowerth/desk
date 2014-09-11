@@ -73,7 +73,7 @@ output$saveHTML <- downloadHandler(
         if(running_local) {
             isolate({
                 html <- knit2html(text = input$rmd_report, quiet = TRUE, options=c("mathjax", "base64_images"))
-                cat(html,file=file,sep="\n")
+                cat(html, file = file, sep = '\n')
             })
         }
     }
@@ -83,7 +83,7 @@ output$saveRmd <- downloadHandler(
     filename = function() {"report.Rmd"},
     content = function(file) {
         isolate({
-            cat(input$rmd_report,file=file,sep="\n")
+            cat(input$rmd_report, file = file, sep = '\n')
         })
     }
     )
@@ -97,7 +97,7 @@ observe({
     inFile <- input$loadRmd
     if(!is.null(inFile) && !is.na(inFile)) {
         isolate({
-            rmdfile <- paste0(readLines(inFile$datapath), collapse = "\n")
+            rmdfile <- paste0(readLines(inFile$datapath), collapse = '\n')
             updateAceEditor(session, "rmd_report", value = rmdfile)
         })
     }
@@ -105,28 +105,29 @@ observe({
 
 ## updating the report when called
 updateReport <- function(inp, fun_name, fig.width = 7, fig.height = 7, xcmd = "",
-                         sum_name = paste0("summary_",fun_name), plots_name = paste0("plots_",fun_name)) {
+                         sum_name = paste0('summary_', fun_name),
+                         plots_name = paste0('plots_', fun_name)) {
 
-    cmd <- paste0("result <- ", sub('list',fun_name, deparse(inp, control = c("keepNA"), width.cutoff = 500L)),
-                  collapse="\n")
-    cmd <- paste0(cmd, "\n", sum_name,"(result)\n", plots_name,"(result)")
-    if(xcmd != "") cmd <- paste0(cmd, "\n", xcmd)
-    cmd <- paste0("\n```{r fig.width=",fig.width,", fig.height=",fig.height,"}\n",cmd,"\n```\n")
+    cmd <- paste0('result <- ', sub('list',fun_name, deparse(inp, control = c("keepNA"), width.cutoff = 500L)),
+                  collapse = '\n')
+    cmd <- paste0(cmd, '\n', sum_name, '(result)\n', plots_name, '(result)')
+    if(xcmd != "") cmd <- paste0(cmd, '\n', xcmd)
+    cmd <- paste0('\n```{r fig.width=', fig.width, ', fig.height=', fig.height, '}\n', cmd, '\n```\n')
     updateReportFun(cmd)
 }
 
 updateReportViz <- function(inp, fun_name, fig.width = 7, fig.height = 7, xcmd = "") {
 
     cmd <- sub('list',fun_name, deparse(inp, control = c("keepNA"), width.cutoff = 500L))
-    if(xcmd != "") cmd <- paste0(cmd, "\n", xcmd)
-    cmd <- paste0("\n```{r fig.width=",fig.width,", fig.height=",fig.height,"}\n",cmd,"\n```\n")
+    if(xcmd != "") cmd <- paste0(cmd, '\n', xcmd)
+    cmd <- paste0('\n```{r fig.width=', fig.width, ', fig.height=', fig.height, '}\n', cmd, '\n```\n')
     updateReportFun(cmd)
 }
 
 updateReportMerge <- function(inp, fun_name) {
 
     cmd <- sub('list',fun_name, deparse(inp, control = c("keepNA"), width.cutoff = 500L))
-    cmd <- paste0("\n```{r }\n",cmd,"\n```\n")
+    cmd <- paste0('\n```{r }\n', cmd, '\n```\n')
     updateReportFun(cmd)
 }
 
@@ -135,10 +136,10 @@ updateReportFun <- function(cmd) {
         if(is.null(state_list$rmd_report)) {
             state_list$rmd_report <<- cmd
         } else {
-            state_list$rmd_report <<- paste0(state_list$rmd_report,"\n",cmd)
+            state_list$rmd_report <<- paste0(state_list$rmd_report,'\n',cmd)
         }
     } else {
-        updateAceEditor(session, "rmd_report", value = paste0(input$rmd_report,"\n",cmd))
+        updateAceEditor(session, "rmd_report", value = paste0(input$rmd_report,'\n',cmd))
     }
 
     ## move to the report panel
