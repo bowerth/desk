@@ -1,0 +1,721 @@
+## require(brew)
+## require(knitr)
+## require(markdown)
+## require(xlsx)
+## require(ggplot2)
+## require(reshape2)
+## library(RColorBrewer)
+## library(gridExtra)
+
+## icioIndic_data <- NULL
+## for (yr in c(1995, 2009)) {
+##     data.yr <- read.csv(file.path(path.data, paste0(filename, yr, '.csv')), header=F, sep='|')
+##     names(data.yr) <- c('indic','year','cou','par','ind','value')
+##     data.yr$year <- as.numeric(data.yr$year)
+##     data.yr$value <- as.numeric(data.yr$value)
+##     data.yr <- data.yr[data.yr$cou%in%namereg$cou & data.yr$par%in%union('Total',namereg$cou),]
+##     icioIndic_data <- rbind(icioIndic_data, data.yr)
+## }
+## icioIndic_data_bsci <- sqlQuery(connection, "SELECT Cou, Ind, Indic, SUM(SHARE) AS SHARE, SrcIndgrp1, srcreg4, Year FROM TIVAPUB_CUBEB_EXPINDwtSH WHERE Ind = '30T33' AND Indic = 'EXGR_VA_BSCI' AND Year IN (1995,2009) GROUP BY Cou, Ind, Indic, SrcIndgrp1, srcreg4, Year")
+## names(icioIndic_data_bsci) <- tolower(names(icioIndic_data_bsci))
+## ## unique(icioIndic_data_bsci$srcreg4)
+## ## Europe, North America, East and S.E. Asia Other regions, South America
+## ## save(list = c("icioIndic_data", "icioIndic_data_bsci"), file = file.path("data", "data_init", "icioIndic.rda"))
+load(file.path("data", "data_init", "icioIndic.rda"))
+
+icioIndic_nameind <- read.csv(file.path("data", "data_init", "icioIndic_nameind.csv"))
+icioIndic_namereg <- read.csv(file.path("data", "data_init", "icioIndic_namereg.csv"))
+## icioIndic_nameindic <- read.csv(file.path("data", "data_init", "icioIndic_nameindic.csv"))
+
+## oecd, eu27, americas, eastasia, asean, asiapacific, othereu27, restofworld
+icioIndic_reg <- list()
+icioIndic_reg[["oecd"]] <- as.character(icioIndic_namereg$cou[icioIndic_namereg$inoecd==1])
+icioIndic_reg.label <- rbind.data.frame(c("EU27", "eu27"),
+                                        c("Americas", "americas"),
+                                        c("East Asia", "eastasia"),
+                                        c("ASEAN", "asean"),
+                                        c("Ot.ASIA-PACIFIC", "asiapacific"),
+                                        c("OtherEUR", "othereu27"),
+                                        c("Restof the World", "restoftheworld"))
+names(icioIndic_reg.label) <- c("label", "reg")
+for (i in seq(along = icioIndic_reg.label$label)) {
+    reg <- as.character(icioIndic_reg.label$reg[i])
+    icioIndic_reg[[reg]] <- as.character(icioIndic_namereg$cou[icioIndic_namereg$region==as.character(icioIndic_reg.label$label[i])])
+}
+
+## detach("package:xlsx", unload=TRUE)
+## icioIndic_cntext <- read.xlsx(file = file.path("data", "data_init", "icioIndic_custom_text.xlsx"), sheetIndex=1, header=T)
+## library(XLConnect)
+icioIndic_cntext <- readWorksheetFromFile(file = file.path("data", "data_init", "icioIndic_custom_text.xlsx"), sheet=1)
+
+## ## modify scientific notation
+options(scipen=8)
+axis.text.size=12
+legend.text.size=14
+
+ui.icioIndic.cou <- STAN.COU[["ICIO"]]
+## ui.icioIndic.indic <- c("EXGRDVA", "EXGRDVA_EX")
+## ui.icioIndic.indic <- rbind.data.frame(c("exgrdvaex", "EXGRDVA_EX"),
+##                                        c("exgrdva", "EXGRDVA"),
+##                                        c("exgrfvash", "EXGR_FVASH", )
+
+ui.icioIndic.indic <- list(exgrdvaex = "EXGRDVA_EX",
+                           exgrdva = "EXGRDVA",
+                           exgrfvash = c("EXGR_FVASH", "EXGR_DDCSH", "EXGR_IDCSH", "EXGR_RIMSH"),
+                           rei = "REI",
+                           exgrvabsci = "EXGR_VA_BSCI",
+                           fddvash = c("FDFVASH", "FDDVASH", "EXGRSH", "IMGRSH"),
+                           tsvafd = c("TSVAFD", "TSGR")
+                           )
+
+## names(ui.icioIndic.indic) <- c("chart", "indic")
+## ui.icioIndic.indic$indic <- as.character(ui.icioIndic.indic$indic)
+## ui.icioIndic.indic$indic <- as.character(ui.icioIndic.indic$indic)
+## ui.icioIndic.xaxis <- c("country", "industry")
+
+## ui.icioIndic.chart <- c("chart1")
+## ui.icioIndic.chart <- as.character(ui.icioIndic.indic$chart)
+ui.icioIndic.chart <- names(ui.icioIndic.indic)
+
+
+## ui.icioIndic.ind <- as.character(icioIndic_nameind$ind)
+## ui.icioIndic.ind <- icioIndic_nameind$ind
+
+## ui.icioIndic.year <- c(1995, 2000, 2005, 2008, 2009)
+ui.icioIndic.year <- c(1995, 2009)
+
+
+## output$uiiI_cou <- renderUI({
+##     ## if (input$icioindic_xaxis == "country") {
+##     ##     selectInput("icioindic_cou", "Country:", ui.icioIndic.cou, selected = ui.icioIndic.cou,
+##     ##                 multiple = TRUE,
+##     ##                 selectize = TRUE)
+##     ## } else {
+##         selectInput("icioindic_cou", "Country:", ui.icioIndic.cou, selected = "AUT",
+##                     multiple = FALSE,
+##                     selectize = TRUE)
+
+##     ## }
+## })
+
+## output$uiiI_ind <- renderUI({
+##     ## if (subset(ui.icioIndic.indic, indic==input$icioindic_indic, select = "xaxis") == "ind") {
+##     if (input$icioindic_xaxis == "industry") {
+##         selectInput("icioindic_ind", "Industry:", ui.icioIndic.ind, selected = ui.icioIndic.ind,
+##                     multiple = TRUE,
+##                     selectize = TRUE)
+##     } else {
+##         selectInput("icioindic_ind", "Industry:", ui.icioIndic.ind, selected = "Total",
+##                     multiple = FALSE,
+##                     selectize = TRUE)
+
+##     }
+## })
+
+output$ui_icioIndic <- renderUI({
+
+  ## doLogin()
+  ## if (loginData$LoggedIn) {
+
+    list(
+
+      conditionalPanel(condition = "input.tabs_icioIndic == 'Plots'",
+                       wellPanel(
+                         checkboxInput("icioIndic_viz_plot_controls", "Plot options", FALSE),
+                         conditionalPanel(condition = "input.icioIndic_viz_plot_controls == true",
+                                          ## htmlOutput("ui_plot_options"),
+                                          sliderInput(inputId = "icioIndic_viz_plot_width", label = "Width:", min = 900, max = 2400, value = 900, step = 50),
+                                          conditionalPanel(condition = "input.tabs_icioIndic == 'Plots'",
+                                                           sliderInput(inputId = "icioIndic_viz_plot_height", label = "Height:", min = 400, max = 1200, value = 600, step = 50)
+                                                           )
+                                          )
+                         )
+                       ),
+        selectInput("icioindic_cou", "Country:", ui.icioIndic.cou, selected = "AUT", multiple = FALSE, selectize = TRUE),
+        ## htmlOutput("uiiI_cou"),
+        ## selectInput("icioindic_indic", "Indicator:", ui.icioIndic.indic$indic, selected = "EXGRDVA", multiple = FALSE, selectize = TRUE),
+        ## selectInput("icioindic_indic", "Indicator:", ui.icioIndic.indic, selected = "EXGRDVA", multiple = FALSE, selectize = TRUE),
+        ## radioButtons("icioindic_xaxis", "x Axis:", ui.icioIndic.xaxis, selected = "industry"),
+        selectInput("icioindic_chart", "Chart:", ui.icioIndic.chart, selected = "chart1", multiple = FALSE, selectize = TRUE),
+        ## htmlOutput("uiiI_ind"),
+        selectInput("icioindic_year", "Year:", ui.icioIndic.year, selected = 2009, multiple = FALSE, selectize = TRUE),
+        selectInput("icioindic_refyear", "Reference Year:", ui.icioIndic.year, selected = 1995, multiple = FALSE, selectize = TRUE),
+        helpAndReport("TiVA Indicators","tivaIndic",inclMD(file.path("tools", "help", "tivaIndic.md")))
+        ) # list(...
+
+})
+
+
+icioIndic_widthSize <- reactive({
+    ifelse(is.null(input$icioIndic_viz_plot_width), return(values$plotWidth), return(input$icioIndic_viz_plot_width))
+})
+icioIndic_heightSize <- reactive({
+    ifelse(is.null(input$icioIndic_viz_plot_height), return(values$plotHeight), return(input$icioIndic_viz_plot_height))
+})
+
+output$icioIndic <- renderUI({
+  ## for input-output
+  statTabPanel(menu_name = "ICIO", # menu_name: for side bar - coincide with navbarMenu
+               fun_name = "TiVA Indicators",           # fun_name
+               rfun_label = ".icioIndic",         # rfun_label
+               fun_label = "icioIndic"           # fun_label
+               ,fun_tabs = c("Plots") # , "Tables", "Maps")
+               ,widthFun = "icioIndic_widthSize"
+               ,heightFun = "icioIndic_heightSize"
+               )
+})
+
+
+.icioIndic <- reactive({
+    ## reactive that calls the function for main analysis
+    ## . used to indicate this is an 'internal' function
+    ##
+    ## if (length(input$stani3estimate_dimS) == 0) return ()
+    ##
+
+    icioIndic(
+        icioindic_cou = input$icioindic_cou,
+        icioindic_chart = input$icioindic_chart,
+        ## icioindic_ind = input$icioindic_ind,
+        ## icioindic_indic = input$icioindic_indic,
+        ## icioindic_xaxis = input$icioindic_xaxis,
+        icioindic_year = input$icioindic_year,
+        icioindic_refyear = input$icioindic_refyear
+        )
+})
+
+
+icioIndic <- function(
+    icioindic_cou = icioindic_cou,
+    icioindic_chart = icioindic_chart,
+    ## icioindic_ind = icioindic_ind,
+    ## icioindic_indic = icioindic_indic,
+    ## icioindic_xaxis = icioindic_xaxis,
+    icioindic_year = icioindic_year,
+    icioindic_refyear = icioindic_refyear
+    ) {
+
+    ## icioindic_cou="AUT"
+    ## icioindic_year=2009
+    ## icioindic_refyear=1995
+    ## h(icioIndic_data)
+    ## h(data)
+
+    ## nameindic <- ui.icioIndic.indic$indic[ui.icioIndic.indic$chart==icioindic_chart]
+    nameindic <- ui.icioIndic.indic[[icioindic_chart]]
+
+    if (icioindic_chart %in% c("exgrdvaex")) {
+        data <- subset(icioIndic_data, indic%in%nameindic & ind=="Total")
+    }
+    if (icioindic_chart %in% c("exgrdva", "exgrfvash")) {
+        data <- subset(icioIndic_data, indic%in%nameindic & cou==icioindic_cou)
+        data <- subset(data, year==icioindic_year)
+    }
+    if (icioindic_chart %in% "rei") {
+        data <- subset(icioIndic_data, indic%in%nameindic & cou==icioindic_cou & par=="Total")
+    }
+    if (icioindic_chart %in% "exgrvabsci") {
+        data <- subset(icioIndic_data_bsci, cou==icioindic_cou & srcindgrp1!="Total")
+    }
+    if (icioindic_chart %in% "fddvash") {
+        data <- subset(icioIndic_data, indic%in%nameindic & cou==icioindic_cou & par!="ROW" & ind=="Total" )
+    }
+    if (icioindic_chart %in% "tsvafd") {
+        data <- subset(icioIndic_data, indic%in%nameindic & cou==icioindic_cou & !par%in%c("Total", "ROW") & ind=="Total")
+    }
+
+
+    ## else if (icioindic_xaxis == "industry") {
+    ##     data <- subset(icioIndic_data, cou%in%icioindic_cou & indic==icioindic_indic)
+    ## }
+    ## data$ind <- factor(data$ind, levels = unique(data$ind))
+    data.ref <- subset(data, year==icioindic_refyear)
+    data <- subset(data, year==icioindic_year)
+
+    ## print(unique(data$cou))
+    ## print(unique(data.ref$cou))
+
+    return(list(icioindic_cou = icioindic_cou,
+                icioindic_chart = icioindic_chart,
+                data = data,
+                data.ref = data.ref,
+                nameindic = nameindic))
+}
+
+summary_icioIndic <- function(result = .icioIndic()) {
+    if (length(result) > 0) {
+
+        icioindic_cou <- result$icioindic_cou
+        ## icioindic_indic <- result$icioindic_indic
+        nameindic <- result$nameindic
+        ## icioindic_ind <- result$icioindic_ind
+        data <- result$data
+        data.ref <- result$data.ref
+
+        list.print <- NULL
+
+        list.print <- c(list.print, list(Country = icioindic_cou,
+                                         ## Indicator = icioindic_indic,
+                                         Indicator = nameindic,
+                                         Data = data))
+
+        return(list.print)
+
+    }
+}
+
+plots_icioIndic <- function(result = .icioIndic()) {
+    if (length(result) > 0) {
+
+        icioindic_cou <- result$icioindic_cou
+        ## icioindic_indic <- result$icioindic_indic
+        icioindic_chart <- result$icioindic_chart
+        data <- result$data
+        data.ref <- result$data.ref
+
+        if (icioindic_chart=="exgrdvaex") {
+            p <- icioIndic_plot_fig1(data,
+                                          data.ref,
+                                          cou = icioindic_cou)
+        }
+        if (icioindic_chart=="exgrdva") {
+            p <- icioIndic_plot_fig9(data,
+                                        data.ref,
+                                        nameind = icioIndic_nameind)
+        }
+        if (icioindic_chart=="exgrfvash") {
+            p <- icioIndic_plot_fig2(data,
+                                     data.ref,
+                                     cou = icioindic_cou,
+                                     nameind = icioIndic_nameind)
+        }
+        if (icioindic_chart=="rei") {
+            p <- icioIndic_plot_fig3(data,
+                                     data.ref,
+                                     ## cou = icioindic_cou,
+                                     nameind = icioIndic_nameind)
+        }
+        if (icioindic_chart=="exgrvabsci") {
+            p <- icioIndic_plot_fig4(data,
+                                     data.ref,
+                                     nameind = icioIndic_nameind)
+        }
+        if (icioindic_chart=="fddvash") {
+            p <- icioIndic_plot_fig5(data,
+                                     namereg = icioIndic_namereg,
+                                     n = 10)
+        }
+        if (icioindic_chart=="tsvafd") {
+            p <- icioIndic_plot_fig6(data,
+                                     n = 11)
+        }
+
+
+        return(p)
+    }
+}
+
+
+icioIndic_plot_fig1 <- function(data,
+                                     data.ref,
+                                     cou
+                                     )
+{
+    ## data1 <- data2009[data2009$cou%in%namereg$cou & data2009$indic=='EXGRDVA_EX' & data2009$ind=='Total',]
+    ## data1a <- data1995[data1995$cou%in%namereg$cou & data1995$indic=='EXGRDVA_EX' & data1995$ind=='Total',]
+
+    data1 <- data
+    data1a <- data.ref
+    data1$cou <- factor(data1$cou, levels = data1$cou[order(data1$value)])
+    data1$col <- 1
+    data1$col[data1$cou==cou] <- 0
+    data1a$cou <- factor(data1a$cou, levels = data1a$cou[order(data1a$value)])
+    data1a$col <- 1
+    data1a$col[data1a$cou==cou] <- 0
+
+    .perc1 <- round(data1$value[data1$cou==cou])
+    avrg1 <- round(mean(data1$value[data1$cou%in%icioIndic_reg[["oecd"]]]))
+    ## if(.perc1 >= (avrg1 + 5)) .rel1 <- 'above' else if(.perc1 < (avrg1 - 5)) .rel1 <- 'below' else .rel1 <- 'around'
+
+    f1 <- qplot(cou,
+                value,
+                data = data1,
+                geom = "bar",
+                stat = "identity",
+                fill = as.factor(col),
+                width=0.4,
+                position = position_dodge(width=0.5)) +
+                    scale_fill_brewer(guide = "none",
+                                      palette = 'Set1') +
+                                          geom_hline(yintercept = avrg1, colour = "grey50", size = 0.5, linetype = 2) +
+                                              geom_point(data = data1a, aes(x = as.factor(cou), y = value, colour  = as.factor(col)), size = 3, shape = 18) +
+                                                  geom_point(data = data1a, aes(x = as.factor(cou), y = value), colour  = "white", size = 2.5, shape = 18) +
+                                                      scale_colour_brewer(
+                                                          guide = "none",
+                                                          ## guide = guide_legend(keyheight=.2),
+                                                          palette = 'Set1',
+                                                          name="",
+                                                          labels=c("", "1995")) +
+                                                              theme(axis.title.x=element_blank(),
+                                                                    axis.title.y=element_blank(),
+                                                                    axis.text.x = element_text(angle=90, hjust=1, vjust=.4),
+                                                                    axis.text.y = element_text(size=axis.text.size),
+                                                                    axis.ticks=element_line(linetype=0),
+                                                                    legend.position="top")
+    return(f1)
+}
+
+## fig9b: column chart with one reference year
+icioIndic_plot_fig9 <- function(data,
+                                   data.ref,
+                                   nameind)
+{
+    data9 <- data
+    data9a <- data.ref
+    data9$share <- data9$value / data9$value[data9$ind=='Total'] * 100
+    data9 <- merge(data9, nameind)
+    industry_wrap <- NULL
+    for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+    data9$industry <- factor(data9$industry, levels=nameind$industry, labels=industry_wrap)
+    data9$col <- 1
+    ## data9 <- data9[!data9$ind%in%c('Total','40T41','45'),] # drop on request
+    data9 <- data9[!data9$ind%in%c('Total'),] # drop on request
+    data9a$share <- data9a$value / data9a$value[data9a$ind=='Total'] * 100
+    data9a <- merge(data9a, nameind)
+    industry_wrap <- NULL
+    for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+    data9a$industry <- factor(data9a$industry, levels=nameind$industry, labels=industry_wrap)
+    data9a$col <- 1
+    ## data9a <- data9a[!data9a$ind%in%c('Total','40T41','45'),] # drop on request
+    data9a <- data9a[!data9a$ind%in%c('Total'),] # drop on request
+    f9 <- qplot(industry,
+                share,
+                data = data9,
+                geom = "bar",
+                stat = "identity",
+                fill = as.factor(-col),
+                width = 0.6,
+                position = "stack") +
+                    scale_fill_manual(guide = "none",
+                                      values = '#377EB8',
+                                      name="",
+                                      labels=c("", "1995")) +
+                                          geom_point(data = data9a, aes(x = as.factor(industry), y = share, colour = as.factor(col)), size = 4, shape = 18) +
+                                              geom_point(data = data9a, aes(x = as.factor(industry), y = share), colour = "white", size = 3.5, shape = 18) +
+                                                  scale_colour_manual(
+                                                      values=c("black"),
+                                                      guide = "none",
+                                                      name="",
+                                                      labels=c("1995")) +
+                                                          theme(axis.title.x=element_blank(),
+                                                                axis.title.y=element_blank(),
+                                                                axis.text.x = element_text(angle=90, hjust=1, vjust=.4, size=axis.text.size),
+                                                                axis.text.y = element_text(size=axis.text.size),
+                                                                axis.ticks=element_line(linetype=0),
+                                                                legend.position="top")
+    return(f9)
+}
+
+icioIndic_plot_fig2 <- function(data,
+                                data.ref,
+                                cou,
+                                nameind)
+{
+
+    data21 <- data[data$indic=='EXGR_FVASH',]
+    data22 <- data[data$indic%in%c('EXGR_DDCSH','EXGR_IDCSH','EXGR_RIMSH'),]
+    data21a <- data.ref[data.ref$indic=='EXGR_FVASH',]
+    data22a <- data.ref[data.ref$indic%in%c('EXGR_DDCSH','EXGR_IDCSH','EXGR_RIMSH'),]
+
+    ## data21 <- data2009[data2009$cou==cou & data2009$indic=='EXGR_FVASH',]
+    ## data22 <- data2009[data2009$cou==cou & data2009$indic%in%c('EXGR_DDCSH','EXGR_IDCSH','EXGR_RIMSH'),]
+    ## data21a <- data1995[data1995$cou==cou & data1995$indic=='EXGR_FVASH',]
+    ## data22a <- data1995[data1995$cou==cou & data1995$indic%in%c('EXGR_DDCSH','EXGR_IDCSH','EXGR_RIMSH'),]
+
+    data2 <- NULL
+    for (inds in unique(data$ind)) {
+        data2tmp <- cbind.data.frame(cou, inds, sum(data21$value[data21$ind==inds]), sum(data22$value[data22$ind==inds]))
+        names(data2tmp) <- c('cou','ind','EXGR_F','EXGR_D')
+        data2 <- rbind(data2,data2tmp)
+    }
+    data2m <- melt(data2, id.vars=c('cou','ind'))
+    data2m <- merge(data2m, nameind)
+    industry_wrap <- NULL
+    for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+    data2m$industry <- factor(data2m$industry, levels=nameind$industry, labels=industry_wrap)
+    data2m$variable <- factor(data2m$variable, levels=rev(levels(data2m$variable)))
+    data2m$col <- 1
+    data2m$col[data2m$variable=='EXGR_D'] <- 2
+    data2m$col[data2m$ind=='Total'] <- 3
+    data2m$col[data2m$variable=='EXGR_D' & data2m$ind=='Total'] <- 4
+    data2m <- data2m[!data2m$ind%in%c('40T41','45'),] # drop on request
+
+    data2a <- NULL
+    for (inds in unique(data.ref$ind)) {
+        data2atmp <- cbind.data.frame(cou, inds, sum(data21a$value[data21a$ind==inds]), sum(data22a$value[data22a$ind==inds]))
+        names(data2atmp) <- c('cou','ind','EXGR_F','EXGR_D')
+        data2a <- rbind(data2a,data2atmp)
+    }
+    data2am <- melt(data2a, id.vars=c('cou','ind'))
+    data2am <- merge(data2am, nameind)
+    industry_wrap <- NULL
+    for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+    data2am$industry <- factor(data2am$industry, levels=nameind$industry, labels=industry_wrap)
+    data2am$variable <- factor(data2am$variable, levels=rev(levels(data2am$variable)))
+    data2am$col <- 1
+    ## data2am$col[data2am$variable=='EXGR_D'] <- 2
+    ## data2am$col[data2am$ind=='Total'] <- 3
+    ## data2am$col[data2am$variable=='EXGR_D' & data2am$ind=='Total'] <- 4
+    data2am <- data2am[!data2am$ind%in%c('40T41','45'),] # drop on request
+
+    f2 <- qplot(industry,
+                value,
+                ## data = data2m,
+                data = data2m[data2m$variable=='EXGR_F',],
+                geom = "bar",
+                stat = "identity",
+                ## fill = as.factor(col),
+                fill = as.factor(-col),
+                width = 0.4,
+                order = variable,
+                position = "stack") +
+                    scale_fill_brewer(guide = "none",
+                                      ## palette = 'Paired',
+                                      palette = 'Set1',
+                                      name="",
+                                      labels=c("", "1995")) +
+                                          geom_point(data = data2am[data2am$variable=='EXGR_F',], aes(x = as.factor(industry), y = value, colour = as.factor(col)), size = 3, shape = 18) +
+                                              geom_point(data = data2am[data2am$variable=='EXGR_F',], aes(x = as.factor(industry), y = value), colour = "white", size = 2.5, shape = 18) +
+                                                  scale_colour_manual(
+                                                      values=c("black"),
+                                                      guide = "none",
+                                                      ## guide = guide_legend(keyheight=.2),
+                                                      name="",
+                                                      labels=c("1995")) +
+                                                          theme(axis.title.x=element_blank(),
+                                                                axis.title.y=element_blank(),
+                                                                axis.text.x = element_text(angle=90, hjust=1, vjust=.4, size=axis.text.size),
+                                                                axis.text.y = element_text(size=axis.text.size),
+                                                                axis.ticks=element_line(linetype=0),
+                                                                legend.position="top")
+    return(f2)
+}
+
+icioIndic_plot_fig3 <- function(data,
+                                data.ref,
+                                nameind)
+{
+
+    ## data3 <- data2009[data2009$cou==cou & data2009$par=='Total' & data2009$indic=='REI',]
+    ## data3a <- data1995[data1995$cou==cou & data1995$par=='Total' & data1995$indic=='REI',]
+    data3 <- data
+    data3a <- data.ref
+
+    data3 <- merge(data3, nameind)
+    industry_wrap <- NULL
+    for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+    data3$industry <- factor(data3$industry, levels=nameind$industry, labels=industry_wrap)
+    data3$col <- 2
+    data3$col[data3$ind=='Total'] <- 1
+    data3 <- data3[!data3$ind=='45',] # removed upon request
+
+    data3a <- merge(data3a, nameind)
+    industry_wrap <- NULL
+    for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+    data3a$industry <- factor(data3a$industry, levels=nameind$industry, labels=industry_wrap)
+    data3a$col <- 1
+    data3a$col[data3a$ind=='Total'] <- 1
+    data3a <- data3a[!data3a$ind=='45',] # removed upon request
+
+    f3 <- qplot(industry,
+                value,
+                data = data3,
+                geom = "bar",
+                stat = "identity",
+                fill = as.factor(col),
+                width=0.4) +
+                    scale_fill_brewer(guide = "none",
+                                      palette = 'Set1') +
+                                          geom_point(data = data3a, aes(x = industry, y = value, colour = as.factor(col)), size = 3, shape = 18) +
+                                              geom_point(data = data3a, aes(x = industry, y = value), size = 2.5, shape = 18, colour = "white") +
+                                                  scale_colour_manual(values = c("black"),
+                                                                      guide = "none",
+                                                                      ## guide = guide_legend(keiheight=.2),
+                                                                      name = "",
+                                                                      labels = c("1995")) +
+                                                                          theme(axis.title.x = element_blank(),
+                                                                                axis.title.y = element_blank(),
+                                                                                axis.text.x = element_text(angle=90, hjust=1, vjust=.4, size=axis.text.size),
+                                                                                axis.text.y = element_text(size=axis.text.size),
+                                                                                axis.ticks = element_line(linetype=0), legend.position="top")
+    return(f3)
+
+}
+
+icioIndic_plot_fig4 <- function(data,
+                                data.ref,
+                                nameind)
+    {
+
+        ## data4 <- EXGR_VA_BSCI_ind
+        ## names(data4) <- tolower(names(data4))
+        ## names(data4) <- sub("value", "share", names(data4)) # for data from OECD.Stat
+        ## data4 <- data4[data4$cou==cou & !data4$srcindgrp1=='Total',]
+        data4 <- rbind(data, data.ref)
+
+        data4 <- merge(data4, nameind, by.x='srcindgrp1', by.y="ind")
+        industry_wrap <- NULL
+        for(i in seq(along=nameind$industry)) industry_wrap[i] <- sub('_', '\n', nameind$industry[i])
+        data4$industry <- factor(data4$industry, levels=nameind$industry[order(nameind$ind)], labels=industry_wrap)
+
+        ## ## cat(paste0(unique(EXGR_VA_BSCI$srcreg4), '\n'))
+        ## ## "ASEAN8", "EU15", "EU27", "E_ASIA", "NAFTA", "OECD", "Z_ASIA", "Z_EUR", "Z_OTH", "Z_SAM"
+        ## data4 <- data4[data4$srcreg4%in%c("ASEAN8", "EU27", "E_ASIA", "NAFTA", "Z_OTH", "Z_SAM"),]
+
+        regions <- levels(data4$srcreg4)
+        ## regions <- sub('Asia','S.E.Asia & E.Asia',regions)
+        ## regions <- sub('Europe','EU27',regions)
+        ## regions <- sub('NorthAmerica','North America',regions)
+        ## regions <- sub('RestofTheWorld','Rest of the World',regions)
+        ## regions <- sub('SouthAmerica','South America',regions)
+
+        f4 <- qplot(data = data4,
+                    x = as.factor(year),
+                    y = share,
+                    fill = srcreg4,
+                    order = srcreg4,
+                    position = "stack",
+                    facets = . ~ industry,
+                    geom = "bar",
+                    stat = "identity", width=0.4) +
+                        scale_fill_brewer(guide = guide_legend(keyheight=.2),
+                                          palette = "Set1",
+                                          name = ""
+                                          ,
+                                          labels = regions
+                                          ) +
+                                              theme(axis.title.x = element_blank(),
+                                                    axis.title.y = element_blank(),
+                                                    axis.text.x = element_text(angle=90, hjust=1, vjust=1.1, size=axis.text.size),
+                                                    axis.text.y = element_text(size=axis.text.size),
+                                                    axis.ticks=element_line(linetype=0),
+                                                    strip.text.x = element_text(size = 8),
+                                                    legend.position="top",
+                                                    legend.text = element_text(size=legend.text.size))
+        return(f4)
+
+    }
+
+icioIndic_plot_fig5 <- function(data,
+                                namereg,
+                                n)
+    {
+        ## n <- 10
+
+        ## data51 <- data2009[data2009$cou==cou & data2009$ind=='Total' & !data2009$par=='ROW' & data2009$indic%in%c('FDFVASH','FDDVASH'),]
+        ## ## Gross exports
+        ## data53 <- data2009[data2009$cou==cou & data2009$ind=='Total' & !data2009$par%in%c('Total','ROW') & data2009$indic=='EXGRSH',]
+        ## ## Gross import share by partner
+        ## data54 <- data2009[data2009$cou==cou & data2009$ind=='Total' & !data2009$par%in%c('Total','ROW') & data2009$indic=='IMGRSH',]
+        data51 <- data[data$indic%in%c("FDFVASH", "FDDVASH"),]
+        ## Gross exports
+        data53 <- data[data$par!="Total" & data$indic=='EXGRSH',]
+        ## Gross import share by partner
+        data54 <- data[data$par!="Total" & data$indic=="IMGRSH",]
+
+        data51 <- merge(data51, namereg, by.x='par')
+        names(data51) <- sub('country','partner',names(data51))
+        ## share of VA imports
+        data511 <- data51[data51$indic=='FDFVASH',]
+        data511$partner <- factor(data511$partner, levels=data511$partner[order(data511$value)])
+        data511 <- data511[order(-data511$value),]
+        ## Share of VA exports
+        data512 <- data51[data51$indic=='FDDVASH',]
+        data512$partner <- factor(data512$partner, levels=data512$partner[order(data512$value)])
+        data512 <- data512[order(-data512$value),]
+
+        data53 <- merge(data53, namereg, by.x='par')
+        names(data53) <- sub('country','partner',names(data53))
+        data53$partner <- factor(data53$partner, levels=data53$partner[order(data53$value)])
+        data53 <- data53[order(-data53$value),]
+
+        data54 <- merge(data54, namereg, by.x='par')
+        names(data54) <- sub('country','partner',names(data54))
+        data54$partner <- factor(data54$partner, levels=data54$partner[order(data54$value)])
+        data54 <- data54[order(-data54$value),]
+
+        ylim <- max(max(data54$value),max(data53$value),max(data511$value),max(data512$value))
+
+        data55 <- rbind(data512[1:n,], data53[data53$par%in%data512$par[1:n],])
+        data55$par <- factor(data55$par, levels=data55$par[order(-data55$value[data55$indic=='FDDVASH'])])
+        data55$indic <- factor(data55$indic, levels=rev(levels(data55$indic)))
+
+        data56 <- rbind(data511[1:n,], data54[data54$par%in%data511$par[1:n],])
+        data56$par <- factor(data56$par, levels=data56$par[order(-data56$value[data56$indic=='FDFVASH'])])
+
+        graph1 <- qplot(par, value, data = data55, geom = "bar", fill = indic, stat = "identity", position = "dodge", width = .65) +
+            scale_fill_brewer(palette = "Set1",
+                              guide = guide_legend(keyheight=.2),
+                              name = "",
+                              labels = c("Share of VA exports","Share of gross exports")) +
+                                  theme(axis.title.x = element_blank(),
+                                        axis.title.y = element_blank(),
+                                        axis.text.x = element_text(angle=90, hjust=1, vjust=.4, size=axis.text.size),
+                                        axis.text.y = element_text(size=axis.text.size),
+                                        axis.ticks = element_line(linetype = 0),
+                                        legend.position="top",
+                                        legend.text = element_text(size=legend.text.size)
+                                        ) +
+                                            scale_y_continuous(limits = c(0, ylim))
+
+        graph2 <-
+            qplot(par, value, data = data56, geom = "bar", fill = indic, stat = "identity", position = "dodge", width = .65) +
+                scale_fill_brewer(palette = "Set1",
+                                  guide = guide_legend(keyheight=.2),
+                                  name = "",
+                                  labels = c("Share of VA imports","Share of gross imports")) +
+                                      theme(axis.title.x = element_blank(),
+                                            axis.title.y = element_blank(),
+                                            axis.text.x = element_text(angle=90, hjust=1, vjust=.4, size=axis.text.size),
+                                            axis.text.y = element_text(size=axis.text.size),
+                                            axis.ticks = element_line(linetype = 0),
+                                            legend.position="top",
+                                            legend.text = element_text(size=legend.text.size)
+                                            ) +
+                                                scale_y_continuous(limits = c(0, ylim))
+
+        return(grid.arrange(graph1, graph2, nrow=1))
+
+    }
+
+icioIndic_plot_fig6 <- function(data,
+                                n)
+    {
+        ## n <- 11
+
+        ## data61 <- data2009[data2009$cou==cou & !data2009$par%in%c('Total','ROW') & data2009$ind=='Total' & data2009$indic=='TSVAFD',]
+        ## data62 <- data2009[data2009$cou==cou & !data2009$par%in%c('Total','ROW') & data2009$ind=='Total' & data2009$indic=='TSGR',]
+
+        data61 <- data[data$indic=="TSVAFD",]
+        data62 <- data[data$indic=="TSGR",]
+
+        data62 <- data62[order(-data62$value),]
+        range <- c(1:round(n/2),(nrow(data62)-round((n-1)/2)):nrow(data62))
+        data6 <- rbind(data62[range,], data61[data61$par%in%data62$par[range],])
+        data6$par <- factor(data6$par, levels=data6$par[order(-data6$value[data6$indic=='TSGR'])])
+
+        f6 <- qplot(par, value, data = data6, fill = indic, geom = "bar", position = "dodge", stat = "identity", width = 0.65) +
+            scale_fill_brewer(palette = 'Paired',
+                              guide = guide_legend(keyheight=.2),
+                              name = "",
+                              labels = c("Gross Trade surplus/deficit (TSGR)","Value Added surplus/deficit (TSVAFD)")) +
+                                  theme(axis.title.x = element_blank(),
+                                        axis.title.y = element_blank(),
+                                        axis.text.x = element_text(size=axis.text.size),
+                                        axis.text.y = element_text(size=axis.text.size),
+                                        axis.ticks = element_line(linetype=0),
+                                        legend.position = "top",
+                                        legend.text = element_text(size=legend.text.size)
+                                        )
+        return(f6)
+    }

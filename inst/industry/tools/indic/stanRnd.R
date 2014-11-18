@@ -1,6 +1,7 @@
 data(stanDim)
 ##
-ui.stanRnd.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
+## ui.stanRnd.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
+ui.stanRnd.col <- isolate(values$colors)
 
 ui.stanRnd.couoecd <- STAN.COU[["OECD"]]
 ui.stanRnd.counonoecd <- c("CHN")
@@ -182,7 +183,7 @@ stanRnd_plot_line <- function(data.calc,
     data.plot.m <- melt(data.plot, id.vars=c("ind", "cou", "cur", "year", "group.no", "group.label"), variable.name="var")
     ##
     ncol <- length(unique(data.plot.m$cou))
-    color.fill <- colorRampPalette(ui.sdmxBrowser.col)(ncol)
+    color.fill <- colorRampPalette(ui.stanRnd.col)(ncol)
     ## Ratio plot
     p.ratio <- ggplot(data.plot.m[data.plot.m$var%in%c("ratio"),], aes(x = year, y = value, label = cou)) +
         geom_line(aes(colour = cou)) +
@@ -440,31 +441,34 @@ stanRnd <- function(
 
     nameyear <- c(stanrnd_time[1]:stanrnd_time[2])
 
-    ## dat <- isolate(values[["STANNAi4"]])
     dat <- values[["STANNAi4"]]
 
+    data.anberd <- dat$DATA.ANBERDi4[## dat$DATA.ANBERDi4$cur==stanrnd_cur &
+                                   dat$DATA.ANBERDi4$cou%in%namecou &
+                                   dat$DATA.ANBERDi4$ind%in%ui.stanRnd.nameind &
+                                   dat$DATA.ANBERDi4$year%in%nameyear,]
+
+    data.stan <- dat$DATA.STANi4[dat$DATA.STANi4$var==stanrnd_var &
+                               ## dat$DATA.STANi4$cur==stanrnd_cur &
+                               dat$DATA.STANi4$cou%in%namecou &
+                               dat$DATA.STANi4$ind%in%ui.stanRnd.nameind &
+                               dat$DATA.STANi4$year%in%nameyear,]
+
+    ## dat <- isolate(values[["STANNAi0"]])
+    ## names(dat)
+    ## h(dat$DATA.XRATES)
+    dat <- values[["STANNAi0"]]
     names(dat$DATA.XRATES) <- sub("var", "cur", names(dat$DATA.XRATES))
 
     data.xrates <- dat$DATA.XRATES[dat$DATA.XRATES$cur==stanrnd_cur &
                                    dat$DATA.XRATES$cou%in%namecou &
                                    dat$DATA.XRATES$year%in%nameyear,]
 
-    data.anberd <- dat$DATA.ANBERD[## dat$DATA.ANBERD$cur==stanrnd_cur &
-                                   dat$DATA.ANBERD$cou%in%namecou &
-                                   dat$DATA.ANBERD$ind%in%ui.stanRnd.nameind &
-                                   dat$DATA.ANBERD$year%in%nameyear,]
-
-    data.stan <- dat$DATA.STAN[dat$DATA.STAN$var==stanrnd_var &
-                               ## dat$DATA.STAN$cur==stanrnd_cur &
-                               dat$DATA.STAN$cou%in%namecou &
-                               dat$DATA.STAN$ind%in%ui.stanRnd.nameind &
-                               dat$DATA.STAN$year%in%nameyear,]
-
     data.anberd <- merge(data.anberd, data.xrates, by = c("cou", "year"))
     data.anberd$value <- data.anberd$value.x / data.anberd$value.y
     data.anberd <- subset(data.anberd, select = c("cou", "var", "ind", "year", "value", "cur"))
 
-    ## ui.stanRnd.stan <- dat$DATA.STAN[dat$DATA.STAN$var%in%c("VALU", "PROD"),]
+    ## ui.stanRnd.stan <- dat$DATA.STANi4[dat$DATA.STANi4$var%in%c("VALU", "PROD"),]
     data.stan <- merge(data.stan, data.xrates, by = c("cou", "year"))
     data.stan$value <- data.stan$value.x / data.stan$value.y
     data.stan <- subset(data.stan, select = c("cou", "var", "ind", "year", "value", "cur"))

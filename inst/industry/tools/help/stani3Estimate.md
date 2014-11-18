@@ -9,22 +9,8 @@
 
 A short tutorial can be found at the end of this helpfile
 
-## Data Dimensions
 
-__Country__ 3-digit ISO code
-
-__Variable__ STAN variable code
-
-__Industry__ STAN ISIC Rev. 3 industry code(s)
-
-
-## Data Representation
-
-### Units
-
-__Monetary variables__ million US Dollars
-
-__EMP__ persons
+## Interface Controls
 
 ### Tables
 
@@ -49,6 +35,57 @@ __Lines__ Line plot: multiple sources, one industry
 __Bars__ Bar plot: one source, multiple industries
 
 
+## Data
+
+### Dimensions
+
+__Country__ 3-digit ISO code
+
+__Variable__ STAN variable code
+
+__Industry__ STAN ISIC Rev. 3 industry code(s)
+
+### Units
+
+__Monetary variables__ million US Dollars
+
+__EMP__ persons
+
+### Sources
+
+__EUNAMA__ Eurostat Annual National Accounts detailed breakdowns NACE Rev. 1.1 and NACE Rev. 2 (nama\_nace, nama\_nace2)
+
+__EUNAIOR1__ Eurostat National Accounts IO tables in NACE Rev. 1 http://epp.eurostat.ec.europa.eu/portal/page/portal/esa95_supply_use_input_tables/introduction
+
+__ICIO052013__ 1995, 2000, 2005, 2008 and 2009 values from OECD ICIO
+
+__INDSTAT32__ UNIDO INDSTAT ISIC Rev. 3 2-digit business survey data http://stat.unido.org/home
+
+__NSONAPATCH__ Data collected and harmonised from National Accounts published by National Statistical Offices not included in STAN
+
+__OECDSUT__ Data from MATLAB procedure converted to ISIC Rev. 3 from respective national industry classification (conversions developed by external consultants)
+
+__STANandBTD__ Variables from National Accounts by detailed industry
+in ISIC Rev. 3 (latest year: 2009) (`IMPO` and `EXPO` from __Bilateral
+Trade Database ISIC Rev. 3 (BTD)__)
+
+__STANandBTDi4__ Variables from National Accounts by detailed industry
+in ISIC Rev. 4, roughly converted to ISIC Rev. 3 (see ISIC 4 to ISIC 3 conversion table below, `IMPO` and `EXPO` from __Bilateral
+Trade Database ISIC Rev. 4 (BTD)__)
+
+__UNDATA203100-500__ UNSD Main Aggregates and Detailed Tables (MADT) http://data.un.org/Data.aspx?d=SNA&f=group_code%3a203
+
+__UNDATA203CON__ combined MADT (linking backwards across revisions, starting with latest year)
+
+__UNSDSNA2013__ UNSD Main Aggregates https://unstats.un.org/unsd/snaama
+
+__WIOT__ World Input-Output Tables, released 04/2012 and 11/2013 http://www.wiod.org/new_site/database/wiots.htm
+
+### Edits
+
+__Min and max year__ Data points to be removed from sources (by country and variable) can be specified in the init file `stani3Estimate_drop.csv`
+
+
 ## Estimation
 
 ### Preview
@@ -56,25 +93,50 @@ __Bars__ Bar plot: one source, multiple industries
 The preview is limited in a way that it only allows to perform
 estimations for one industry at a time. Therefore, the results in the
 preview are not adjusted. Source information is read from and save in
-the array `stani3Estimate.rda`.
+the array `stani3Estimate_srcarray.rda`.
 
 __Extend__ Extend main source with growth rates from secondary source
 
 __Detail__ Apply distribution from secondary source to main source, preserving
 existing detail in the main source
 
-
 ### Export
 
 By default, the export function performs *Extend* and *Detail*
-estimation for all industries and adjusts the results. Depending on
+estimation for __all industries__ and adjusts the results. Depending on
 the number of secondary sources for each combination of dimensions,
 the procedure can take considerable time to finish (one minute per
 country).
 
-__Countries__ Select the regions or countries for generation of estimates
+__Export countries__ Select the regions or countries to include in results
 
-__Variables__ Select variables for generation of estimates
+__Export variables__ Select variables to include in results
+
+__Update results__ Check to run estimations and save updated results to
+disk. Henceforth, latest results can be exported from object without
+re-running the estimation procedure.
+
+__Export flat file (csv)__ create long form table including results for all
+available combinations selected for export
+
+__Export Excel file(s)__ create Excel file for each selected country
+with one sheet per variable
+
+__Include calculations__ perform calculations with exported
+variables. Currently defined are:
+
+  - `VALUshPROD` = `VALU / PROD * 100`
+  - `LABRshVALU` = `LABR / VALU * 100`
+  - `VALUperEMPN` = `VALU / EMPN * 10^6`
+  - `VALUshCTOTAL` = `VALU / VALU_CTOTAL * 100`
+
+---
+
+## Application Architecture
+
+![](figures/stani3Estimate_architecture.svg)
+
+---
 
 ## Tutorial
 

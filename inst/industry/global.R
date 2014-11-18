@@ -1,22 +1,30 @@
 
-## if (exists("reload.global")==FALSE) reload.global <- TRUE
-## if (reload.global==TRUE)
-## {
+if (exists("testingRadiant")==FALSE) testingRadiant <- FALSE
 
-app.status.df <- rbind.data.frame(c("active", "ICIO", "Foreign Demand Domestic Value Added", "icioFddva"),
-                                  c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
-                                  c("active", "STAN", "STAN Indicators", "stanIndic"),
-                                  c("active", "STAN", "R&D Intensity", "stanRnd"),
-                                  c("active", "SKILL", "LFS Share", "lfsShare"),
-                                  c("active", "SMDX", "SDMX Browser", "sdmxBrowser")
-                                  )
-names(app.status.df) <- c("status", "menuTitle", "panelTitle", "outputID")
+app.menu <- list()
 
-for (outputID in app.status.df$outputID) {
-    ## if (paste0('active.', outputID)%in%ls()) {
-    ##     eval(parse(text = paste0('rm("active.', outputID, '")')))
-    ## }
-    if (app.status.df$status[app.status.df$outputID==outputID]=="active") {
+app.menu$disclaimer <- TRUE
+app.menu$about <- TRUE
+
+app.menu$panel.df <- rbind.data.frame(
+    c("inactive", "ICIO", "Foreign Demand Domestic Value Added", "icioFddva"),
+    c("inactive", "ICIO", "TiVA Indicators", "icioIndic"),
+    c("inactive", "ICIO", "ICIO Networks", "icioNet"),
+    c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
+    c("inactive", "STAN", "STAN Indicators", "stanIndic"),
+    c("inactive", "STAN", "R&D Intensity", "stanRnd"),
+    c("inactive", "SKILL", "LFS Share", "lfsShare"),
+    c("inactive", "SDMX", "SDMX Browser", "sdmxBrowser")
+    )
+names(app.menu$panel.df) <- c("status", "menuTitle", "panelTitle", "outputID")
+## ## for server update
+## if (testingRadiant==FALSE) {
+app.menu$panel.df$status <- "active"
+## }
+
+
+for (outputID in app.menu$panel.df$outputID) {
+    if (app.menu$panel.df$status[app.menu$panel.df$outputID==outputID]=="active") {
         eval(parse(text = paste0('active.', outputID, ' <- TRUE')))
     } else {
         eval(parse(text = paste0('active.', outputID, ' <- FALSE')))
@@ -24,10 +32,11 @@ for (outputID in app.status.df$outputID) {
 }
 
 command.ui <- NULL
-for (menuTitle in unique(app.status.df$menuTitle[app.status.df$status=="active"])) {
+menuTitle <- "STAN"
+for (menuTitle in unique(app.menu$panel.df$menuTitle[app.menu$panel.df$status=="active"])) {
     command.ui <- paste0(command.ui, 'navbarMenu("', menuTitle, '",\n')
-    for (outputID in app.status.df$outputID[app.status.df$menuTitle==menuTitle]) {
-        panelTitle <- app.status.df$panelTitle[app.status.df$outputID==outputID]
+    for (outputID in app.menu$panel.df$outputID[app.menu$panel.df$menuTitle==menuTitle & app.menu$panel.df$status == "active"]) {
+        panelTitle <- app.menu$panel.df$panelTitle[app.menu$panel.df$outputID==outputID]
         command.ui <- paste0(command.ui, '\ttabPanel("', panelTitle, '", uiOutput("', outputID, '")),\n')
     }
     command.ui <- paste0(command.ui, '),\n')
@@ -50,14 +59,10 @@ if(file.exists("~\\LocalData\\Dropbox\\GitHub\\desk"))
     vimKeyBinding <- FALSE
   }
 
-if (exists("testingRadiant")==FALSE) testingRadiant <- FALSE
-## testingRadiant <- FALSE
-
 options(digits = 3)
 
 ## allowing anyfile size when run locally
-if(Sys.getenv('SHINY_PORT') == "")
-  {
+if(Sys.getenv('SHINY_PORT') == "") {
     ## no limit to filesize locally
     options(shiny.maxRequestSize=-1)
     running_local <<- TRUE
@@ -65,19 +70,18 @@ if(Sys.getenv('SHINY_PORT') == "")
     running_local <<- FALSE
   }
 
-setInitValues <- function()
-  {
+setInitValues <- function() {
     ## initialize state list and reactive values
-    if(testingRadiant)
-      {
+    if(testingRadiant) {
         ## load previous state for testing
-      } else {
+    } else {
         state_list <<- list()
         values <<- reactiveValues()
 
         ## initial plot height and width
         values$plotHeight <- 650
         values$plotWidth <- 650
+        values$colors <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
 
         ## ## Datasets can change over time (i.e. the changedata function). Therefore,
         ## ## the data need to be a reactive value so the other reactive functions
@@ -87,13 +91,18 @@ setInitValues <- function()
         ## df <- mget(robj)
         ## df <- get(robj)
 
+        ## test
+        values$datasetlist <- NULL
+        ##
+
         if (active.icioFddva==TRUE) {
             env <- new.env()
             data("ICIO5837APP", package = "icioData", envir = env)
             df <- mget(ls(envir = env), envir = env)
             values[["ICIO5837APP"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
             values[["ICIO5837APP_descr"]] <- attr(df,"description")
-            values$datasetlist <- c("ICIO5837APP")
+            ## values$datasetlist <- c("ICIO5837APP")
+            values$datasetlist <- c(isolate(values$datasetlist), "ICIO5837APP")
         }
 
         if (active.stani3Estimate==TRUE | active.stanIndic==TRUE | active.stanRnd==TRUE) {
@@ -110,13 +119,15 @@ setInitValues <- function()
             df$DATA.BTD$ind <- sub("D31T32", "D31T33", df$DATA.BTD$ind)
             require(reshape2)
             require(stan)
+            data(stanDim)
             df$DATA.BTD <- dcast(df$DATA.BTD, cou + var + year ~ ind, value.var = "value")
             df$DATA.BTD <- indAggregate(df$DATA.BTD, isic = 4)
             df$DATA.BTD <- melt(df$DATA.BTD, id.vars = c("cou", "var", "year"), variable.name = "ind")
             ##
             values[["STANNAi4"]] <- df
             values[["STANNAi4_descr"]] <- attr(df,"description")
-            values$datasetlist <- c("STANNAi4")
+            ## values$datasetlist <- c("STANNAi4")
+            values$datasetlist <- c(isolate(values$datasetlist), "STANNAi4")
 
             if (active.stani3Estimate==TRUE) {
                 env <- new.env()
@@ -124,7 +135,19 @@ setInitValues <- function()
                 df <- mget(ls(envir = env), envir = env)
                 values[["STANNAi3"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
                 values[["STANNAi3_descr"]] <- attr(df,"description")
-                values$datasetlist <- c("STANNAi3")
+                ## values$datasetlist <- c("STANNAi3")
+                values$datasetlist <- c(isolate(values$datasetlist), "STANNAi3")
+            }
+
+            ## Exchange rates and other data without industry classification
+            if (active.stani3Estimate==TRUE | active.stanRnd==TRUE) {
+                env <- new.env()
+                data("STANNAi0", package = "stanData", envir = env)
+                df <- mget(ls(envir = env), envir = env)
+                values[["STANNAi0"]] <- df
+                values[["STANNAi0_descr"]] <- attr(df,"description")
+                ## values$datasetlist <- c("STANNAi0")
+                values$datasetlist <- c(isolate(values$datasetlist), "STANNAi0")
             }
 
         }
@@ -142,20 +165,21 @@ setInitValues <- function()
             ## namesou <- setdiff(names(df), paste0('DATA.', sou))
             ## for (sou in sub("DATA.", "", namesou))
             for (lfssou in sub("DATA.", "", names(df)))
-            {
-                if (!lfssou%in%c("LFSEU", "LFSILO")) sou <- "LFSNSO" else sou <- lfssou
-                eval(parse(text = paste0('DATA.', sou, ' <- df$DATA.', lfssou)))
-                eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
-                eval(parse(text = paste0('DATA.', sou, ' <- subset(DATA.', sou, ', select = c("sou", "cou", "var", "ind", "ocu", "year", "value"))')))
-                eval(parse(text = paste0('df.rbind <- rbind(df.rbind, DATA.', sou, ')')))
-            }
+                {
+                    if (!lfssou%in%c("LFSEU", "LFSILO")) sou <- "LFSNSO" else sou <- lfssou
+                    eval(parse(text = paste0('DATA.', sou, ' <- df$DATA.', lfssou)))
+                    eval(parse(text = paste0('DATA.', sou, '$sou <- "', sou, '"')))
+                    eval(parse(text = paste0('DATA.', sou, ' <- subset(DATA.', sou, ', select = c("sou", "cou", "var", "ind", "ocu", "year", "value"))')))
+                    eval(parse(text = paste0('df.rbind <- rbind(df.rbind, DATA.', sou, ')')))
+                }
             values[["LFSi4"]] <- df.rbind
             values[["LFSi4_descr"]] <- attr(df,"description")
-            values$datasetlist <- c("LFSi4")
+            ## values$datasetlist <- c("LFSi4")
+            values$datasetlist <- c(isolate(values$datasetlist), "LFSi4")
         }
 
     }
-  }
+}
 
 setInitValues() # using a function here so it can also be called from state.R to reset the app
 
@@ -167,28 +191,27 @@ options(repos = c(CRAN = "http://cran.rstudio.com"))
 
 libs <- c("AlgDesign",
           "car",
+          "d3Network",
           "digest",
           "ggplot2",
+          "ggvis",
           "grDevices",
           "gridExtra",
-          ## "icioData", ## own package, icioFddva
           "knitr",
           "lubridate",
           "markdown",
           "MASS",
+          ## "pander",
           "plyr",
           "psych",
           "R.utils",
+          "RJSDMX",
           "rCharts", # github
-          ## "rMaps", # github (own)
           "RColorBrewer",
           "reshape2",
           "shiny",
           "shinyAce",
           "shinyExt", # github
-          ## "skillData", # dropbox
-          ## "stan", # github (own)
-          ## "stanData", # dropbox
           "vegan",
           "wordcloud",
           "XLConnect",
@@ -197,13 +220,17 @@ libs <- c("AlgDesign",
           )
 
 ## install.packages(file.path(dbpath, "CRAN", "src", "contrib", "RJSDMX_0.1.tar.gz"), repos = NULL, type = "source")
-libs.dev.remote <- c("stan",
-                     ## "RJSDMX",
-                     "rMaps",
-                     ## "rCharts",
-                     ## "R-Websockets",
-                     "shinyExt",
-                     "shinysky")
+libs.dev.remote <- c(
+    "ggthemes"
+    ,
+    "rMaps"
+    ,
+    "shinyExt"
+    ,
+    "shinysky"
+    ,
+    "stan"
+    )                                  # rCharts, RJSDMX, R-Websockets
 available.dev <- suppressWarnings(sapply(libs.dev.remote, require, character.only=TRUE))
 inst.libs.dev.remote <- libs.dev.remote[available.dev == FALSE]
 if(length(inst.libs.dev.remote) != 0) {
@@ -212,18 +239,21 @@ if(length(inst.libs.dev.remote) != 0) {
     require(httr)
     set_config(config(ssl.verifypeer = 0L))
     for (lib in inst.libs.dev.remote) {
-        ## if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
-        ## if (lib == "R-Websockets") install_github("R-Websockets", username = "rstudio")
+        ## if (lib == "ggthemes") install_github("ggthemes", username = "jrnold")
+        if (lib == "ggthemes") install_github("ggthemes", username = "bowerth")
+        if (lib == "rMaps") install_github("rMaps", username = "bowerth")
         if (lib == "shinyExt") install_github("shinyExt", username = "marcionicolau")
         if (lib == "shinysky") install_github("shinysky", username = "AnalytixWare")
         if (lib == "stan") install_github("stan", username = "bowerth")
-        if (lib == "rMaps") install_github("rMaps", username = "bowerth")
+        ## if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
         ## if (lib == "RJSDMX") install_github("RJSDMX", username = "bowerth")
+        ## if (lib == "R-Websockets") install_github("R-Websockets", username = "rstudio")
     }
     ## suppressWarnings(sapply("stan", "rMaps"), install_github, username = "bowerth"))
     ## suppressWarnings(sapply(file.path(dbpath, "GitHub", libs.dev.remote), load_all))
     detach("package:devtools", unload = TRUE)
 }
+
 
 ## libs.dev.local <- c(
 ##     ## "rCharts",
@@ -256,63 +286,58 @@ if (Sys.info()["sysname"]=="Linux") {
 available <- suppressWarnings(sapply(libs, require, character.only=TRUE))
 inst.libs <- libs[available == FALSE]
 if(length(inst.libs) != 0)
-  {
-    install.packages(inst.libs, dependencies = TRUE)
-    ## suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
-    sapply(inst.libs, require, character.only=TRUE)
-  }
+    {
+        install.packages(inst.libs, dependencies = TRUE)
+        ## suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
+        sapply(inst.libs, require, character.only=TRUE)
+    }
 
 ## binding for a text input that updates when the return key is pressed
-returnTextInput <- function(inputId, label, value = "")
-  {
+returnTextInput <- function(inputId, label, value = "") {
     tagList(
-      singleton(tags$head(tags$script(src = "js/returnTextInputBinding.js"))),
-      tags$label(label, `for` = inputId),
-      tags$input(id = inputId, type = "text", value = value, class = "returnTextInput")
-      )
-  }
+        singleton(tags$head(tags$script(src = "js/returnTextInputBinding.js"))),
+        tags$label(label, `for` = inputId),
+        tags$input(id = inputId, type = "text", value = value, class = "returnTextInput")
+        )
+}
 
 ## binding for a sortable list of variables or factor levels
-html_list <- function(vars, id)
-  {
+html_list <- function(vars, id) {
     hl <- paste0("<ul id=\'",id,"\' class='stab'>")
     for(i in vars) hl <- paste0(hl, "<li class='ui-state-default stab'><span class='label'>",i,"</span></li>")
     paste0(hl, "</ul>")
-  }
+}
 
 ## binding for a sortable list of variables or factor levels
-returnOrder <- function(inputId, vars)
-  {
+returnOrder <- function(inputId, vars) {
     tagList(
-      singleton(tags$head(tags$script(src = 'js/sort.js'))),
-      singleton(includeCSS("www/sort.css")),
-      HTML(html_list(vars, inputId)),
-      tags$script(paste0("$(function() {$( '#",inputId,"' ).sortable({placeholder: 'ui-state-highlight'}); $( '#",inputId,"' ).disableSelection(); });"))
-      )
-  }
+        singleton(tags$head(tags$script(src = 'js/sort.js'))),
+        singleton(includeCSS("www/sort.css")),
+        HTML(html_list(vars, inputId)),
+        tags$script(paste0("$(function() {$( '#",inputId,"' ).sortable({placeholder: 'ui-state-highlight'}); $( '#",inputId,"' ).disableSelection(); });"))
+        )
+}
 
 ## function to render .Rmd files to html on-the-fly
-includeRmd <- function(path)
-  {
+includeRmd <- function(path) {
     ## shiny:::dependsOnFile(path)
     contents <- paste(readLines(path, warn = FALSE), collapse = '\n')
     ## do not embed image or add css
     html <- knit2html(text = contents, fragment.only = TRUE, options = "", stylesheet = "www/empty.css")
     Encoding(html) <- 'UTF-8'
     HTML(html)
-  }
+}
 
 ## binding to a bootstrap popover, function by Joe Cheng https://gist.github.com/jcheng5/5913297
 helpPopup <- function(title, content, placement=c('right', 'top', 'left', 'bottom'),
-                      trigger=c('click', 'hover', 'focus', 'manual'))
-  {
+                      trigger=c('click', 'hover', 'focus', 'manual')) {
     tagList(
-      singleton(tags$head(tags$script("$(function() { $(\"[data-toggle='popover']\").popover(); })"))),
-      tags$a(href = "#", `data-toggle` = "popover", title = title, `data-content` = content,
-             `data-placement` = match.arg(placement, several.ok=TRUE)[1],
-             `data-trigger` = match.arg(trigger, several.ok=TRUE)[1], tags$i(class="icon-question-sign"))
-      )
-  }
+        singleton(tags$head(tags$script("$(function() { $(\"[data-toggle='popover']\").popover(); })"))),
+        tags$a(href = "#", `data-toggle` = "popover", title = title, `data-content` = content,
+               `data-placement` = match.arg(placement, several.ok=TRUE)[1],
+               `data-trigger` = match.arg(trigger, several.ok=TRUE)[1], tags$i(class="icon-question-sign"))
+        )
+}
 
 ## adding the figures path to avoid making a copy of all figures in www/figures
 addResourcePath("figures", "tools/help/figures/")
@@ -320,8 +345,7 @@ addResourcePath("figures", "tools/help/figures/")
 ## addResourcePath("tools", "../base/tools/")
 
 ## binding to a bootstrap modal
-helpModal <- function(title, link, content)
-  {
+helpModal <- function(title, link, content) {
     html <- sprintf("<div id='%s' class='modal hide fade in' style='display: none; '>
                      <div class='modal-header'><a class='close' data-dismiss='modal' href='#'>&times;</a>
                        <h3>%s</h3>
@@ -331,10 +355,9 @@ helpModal <- function(title, link, content)
                    <a title='Help' data-toggle='modal' href='#%s' class='icon-question-sign'></a>", link, title, content, link)
     Encoding(html) <- 'UTF-8'
     HTML(html)
-  }
+}
 
-helpAndReport <- function(title, link, content)
-  {
+helpAndReport <- function(title, link, content) {
     html <- sprintf("<div id='%sHelp' class='modal hide fade in' style='display: none; '>
                      <div class='modal-header'><a class='close' data-dismiss='modal' href='#'>&times;</a>
                        <h3>%s</h3>
@@ -349,7 +372,7 @@ helpAndReport <- function(title, link, content)
                    ", link, title, content, link, link, link)
     Encoding(html) <- 'UTF-8'
     HTML(html)
-  }
+}
 
 ## inclMD <- function(file) return(includeHTML(file))
 inclMD <- function(file) return(markdownToHTML(file, options = c(""), stylesheet="www/empty.css"))

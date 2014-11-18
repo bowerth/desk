@@ -1,0 +1,7 @@
+indic,description
+EXGR,Total gross exports
+IMGR,Total gross imports
+EXGR\_DVAIND,Domestic value-added embodied in gross exports
+EXGR\_FVA,Foreign value-added embodied in gross exports
+FDDVA,Total domestic value-added embodied in foreign final demand
+FDFVA,Total imported value-added for domestic final demand

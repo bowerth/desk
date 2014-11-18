@@ -1,11 +1,10 @@
 #######################################
-## Shiny interface for SDMX retrieval
+## Shiny interface for SDMX
 ## naming conventions
-## UI variables: ui.sdmxBroser.[] -> all possible choices
-## rendered UIs: output$uiSb_[]
+## UI variables: ui.sdmxBrowser.[] -> all possible choices
+## rendered UIs: output$uisB_[]
 #######################################
 
-## ui.sdmxBrowser.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646", "#95B3D7", "#DA9694", "#C4D79B", "#FABF8F", "#B1A0C7", "#92CDDC")
 ui.sdmxBrowser.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
 ui.sdmxBrowser.year <- c(1970, as.numeric(as.character((format(Sys.time(), "%Y")))) + 2)
 
@@ -43,27 +42,20 @@ load("data/data_init/sdmxBrowser.rda")
 output$uisB_provider <- renderUI({
     ui.sdmxbrowser_provider <- getProviders()
     selectInput("sdmxbrowser_provider", "Provider:", ui.sdmxbrowser_provider,
-                ## selected = state_init_list("sdmxbrowser_provider","ECB", ui.sdmxbrowser_provider),
-                selected = state_init_list("sdmxbrowser_provider","EUROSTAT", ui.sdmxbrowser_provider),
+                ## selected = state_init_list("sdmxbrowser_provider","EUROSTAT", ui.sdmxbrowser_provider),
+                selected = "OECD",
                 multiple = FALSE)
 })
 ##
 output$uisB_flow <- renderUI({
 
     sdmxbrowser_provider <- input$sdmxbrowser_provider
-    ## ## sdmxbrowser_provider <- "ECB"
-    ## ui.sdmxbrowser_flow <- names(getFlows(sdmxbrowser_provider))
-
     if (input$sdmxbrowser_flow_updateButton != 0) {
         load("data/data_init/sdmxBrowser.rda")
     }
     ui.sdmxbrowser_flow <- ui.sdmxBrowser.flows.list[[sdmxbrowser_provider]]
-
     selectInput("sdmxbrowser_flow", "Flow:", c("", ui.sdmxbrowser_flow),
-                ## selected = state_init_list("sdmxbrowser_flow","EXR", ui.sdmxbrowser_flow),
-                ## selected = state_init_list("sdmxbrowser_flow","nama_nace64_c", ui.sdmxbrowser_flow),
-                selected = "",
-                multiple = FALSE)
+                selected = "", multiple = FALSE)
 })
 ##
 .sdmxbrowser_dimensions_all <- reactive({
@@ -73,9 +65,9 @@ output$uisB_flow <- renderUI({
 })
 ##
 output$uisB_dimensions <- renderUI({
-  
+
     if (input$sdmxbrowser_flow=="") return()
-  
+
     sdmxbrowser_dimensions_all <- .sdmxbrowser_dimensions_all()
     selectInput("sdmxbrowser_dimensions", "Filter Dimensions:", sdmxbrowser_dimensions_all,
                 ## selected = state_multvar("sdmxbrowser_dimensions", sdmxbrowser_dimensions_all),
@@ -284,7 +276,7 @@ sdmxBrowser <- function(
 {
 
   if (sdmxbrowser_flow=="") return(list(sdmxbrowser_flow = sdmxbrowser_flow))
-  
+
     sdmxbrowser_dimensions_all <- .sdmxbrowser_dimensions_all()
 
     yearStart <- as.character(sdmxbrowser_yearStartEnd[1])
@@ -345,13 +337,13 @@ sdmxBrowser <- function(
 ##                                         )))
 ##     ##
 ##     getTimeSeries("EUROSTAT", paste0("DS-016890.", query))
-##   }  
+##   }
 
   ## ######################
   ## end testing
   ## ######################
 
-  
+
     queryDataFreq <- frequency(queryData[[1]])
 
     queryData <- as.data.frame(queryData)
@@ -395,7 +387,7 @@ summary_sdmxBrowser <- function(result = .sdmxBrowser())
   queryData <- result$queryData
 
   if (sdmxbrowser_flow=="") return(cat("Please select data flow and submit query"))
-  
+
   blurb <- paste(paste('Provider =', sdmxbrowser_provider),
                  paste('Flow =', sdmxbrowser_flow),
                  paste('Dimensions =', toString(sdmxbrowser_dimensions_all)),
@@ -463,7 +455,7 @@ plots_sdmxBrowser <- function(result = .sdmxBrowser())
     queryData <- result$queryData
 
     data.plots <- queryData
-    
+
     if (sdmxbrowser_flow=="") return()
 
     if (queryDataFreq==12) {
@@ -479,7 +471,7 @@ plots_sdmxBrowser <- function(result = .sdmxBrowser())
     ncol <- length(unique(data.plots$variable))
     color.fill <- colorRampPalette(ui.sdmxBrowser.col)(ncol)
 
-    p1 <- ggplot(data = data.plots, aes(x = time, y = value, group = variable)) + 
+    p1 <- ggplot(data = data.plots, aes(x = time, y = value, group = variable)) +
       geom_line(aes(color = variable)) +
         ylab(label = NULL) +
           xlab(label = NULL) +

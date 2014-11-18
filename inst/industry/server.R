@@ -16,10 +16,16 @@ shinyServer(function(input, output, session) {
 	R.utils::sourceDirectory('tools/analysis', recursive = TRUE)
 	R.utils::sourceDirectory('tools/data', recursive = TRUE)
 	R.utils::sourceDirectory('tools/app', recursive = TRUE)
- 
+
 	## R.utils::sourceDirectory('tools/indic', recursive = TRUE)
         if (active.icioFddva==TRUE) {
             source("tools/indic/icioFddva.R", local = TRUE)
+        }
+        if (active.icioIndic==TRUE) {
+            source("tools/indic/icioIndic.R", local = TRUE)
+        }
+        if (active.icioNet==TRUE) {
+            source("tools/indic/icioNet.R", local = TRUE)
         }
         if (active.stanIndic==TRUE) {
             source("tools/indic/stanIndic.R", local = TRUE)

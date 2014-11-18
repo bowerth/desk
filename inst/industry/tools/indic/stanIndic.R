@@ -1,13 +1,57 @@
 data(stanDim)
 
+## testing
+## require(devtools)
+## require(ggplot2)
+## load_all(file.path(dbpath, "GitHub", "ggthemes"))
+## devtools::document(file.path(dbpath, "GitHub", "ggthemes"))
+## devtools::install(file.path(dbpath, "GitHub", "ggthemes"))
+
+## ########
+
 dat <- isolate(values[["STANNAi4"]])
 ##
+ui.stanIndic.namevar.btd <- unique(dat$DATA.BTDi4$var)
+ui.stanIndic.namevar.stan <- unique(dat$DATA.STANi4$var)
+ui.stanIndic.namevar.anberd <- as.factor(unique(dat$DATA.ANBERDi4$var))
+
+dat <- isolate(values[["STANNAi0"]])
+
 ui.stanIndic.xrates <- dat$DATA.XRATES
+## ui.stanIndic.xrates <- dat$DATACONVCUR[["UNSDMA"]]
 names(ui.stanIndic.xrates) <- sub("var", "cur", names(ui.stanIndic.xrates))
 
-ui.stanIndic.namevar.btd <- unique(dat$DATA.BTD$var)
-ui.stanIndic.namevar.stan <- unique(dat$DATA.STAN$var)
-ui.stanIndic.namevar.anberd <- as.factor(unique(dat$DATA.ANBERD$var))
+
+
+ui.stanIndic.col <- isolate(values$colors)
+## ############################################
+## load themes and colors from ggthemes package
+## ############################################
+## add theme_oecdpac, theme_oecdeco
+## require(ggthemes)
+funname_all <- ls(as.environment("package:ggthemes"))
+funname_theme <- funname_all[substr(funname_all, 1, nchar("theme_"))=="theme_"]
+ui.stanIndic.ggtheme <- sub("theme_", "", funname_theme)
+funname_scale <- funname_all[substr(funname_all, 1, nchar("scale_color_"))=="scale_color_"]
+ui.stanIndic.ggcolor <- sub("scale_color_", "", funname_scale)
+
+## file <- tempfile(fileext = ".txt")
+## filecon <- file(file)
+## theme_all_str <- NULL
+## for (theme in funname_theme) {
+##     themename <- paste0('theme_', theme)
+##     ## themename <- "theme_economist"
+##     if (exists(themename)) {
+##         theme_all_str <- paste(theme_all_str, themename, sep = '\n')
+
+##         themestring <- eval(parse(text = themename))
+
+##         theme_all_str <- paste(theme_all_str, themestring, sep = '\n')
+##         ## print(themename)
+##         ## print(eval(parse(text = themename)))
+##     }
+## }
+
 
 ui.stanIndic.group <- list(
   "cou: by Country" = "cou",
@@ -15,6 +59,7 @@ ui.stanIndic.group <- list(
   )
 
 ui.stanIndic.indic <- list(
+    ## "Select indicator" = "",
   "VSHT: Value added share relative to total economy" = "VSHT",
   ## "custom: Custom formula" = "custom",
   "VSHM: Value added shares relative to manufacturing" = "VSHM",
@@ -49,41 +94,44 @@ ui.stanIndic.indic <- list(
   "XSHP: Export share of production" = "XSHP",
   "MPEN: Import penetration" = "MPEN"
   )
+ui.stanIndic.indic <- unname(unlist(ui.stanIndic.indic))
+
 
 ui.stanIndic.formula.indic.init <- rbind.data.frame(
-  c("VSHT", "VALU / VALU_DTOTAL"),
-  c("VSHM", "VALU / VALU_D10T33"),
-  c("ESHT", "EMPN / EMPN_DTOTAL"),
-  c("ESHM", "EMPN / EMPN_D10T33"),
-  c("LBNT", "LABR / LABR_DTOTAL"),
-  c("LBNM", "LABR / LABR_D10T33"),
-  c("LBET", "LABR / EMPE_DTOTAL"),
-  c("LBEM", "LABR / EMPE_D10T33"),
-  c("LBVA", "LABR / VALU"),
-  c("IPYE", "VALK / EMPN / (VALK_2005 / EMPN_2005)"),
-  c("IPYH", "VALK / HRSN / (VALK_2005 / HRSN_2005)"),
-  c("IULC", "EMPN / EMPE * LABR / VALK / (EMPN_2005 / EMPE_2005 * LABR_2005 / VALK_2005)"),
-  c("LULC", "EMPN / EMPE * LABR / VALK"),
-  c("AVHW", "HRSN / EMPN"),
-  c("VAPR", "VALU / PROD"),
-  c("INPR", "INTI / PROD"),
-  c("INVV", "GFCF / VALU"),
-  c("INVT", "GFCF / GFCF_DTOTAL"),
-  c("INVM", "GFCF / GFCF_D10T33"),
-  c("RDST", "RDNC / RDNC_DTOTAL"),
-  c("RDSM", "RDNC / RDNC_D10T33"),
-  c("RDIV", "RDNC / VALU"),
-  c("RDIP", "RDNC / PROD"),
-  c("CMTB", "((EXPO - IMPO) - (EXPO_D10T33 - IMPO_D10T33) * (EXPO + IMPO) / (EXPO_D10T33 + IMPO_D10T33)) / (EXPO_D10T33 + IMPO_D10T33)"),
-  c("EXIM", "EXPO / IMPO"),
-  c("TBAL", "EXPO - IMPO"),
-  c("XSHT", "EXPO / EXPO_DTOTAL"),
-  c("XSHM", "EXPO / EXPO_D10T33"),
-  c("MSHT", "IMPO / IMPO_DTOTAL"),
-  c("MSHM", "IMPO / IMPO_D10T33"),
-  c("XSHP", "EXPO / PROD"),
-  c("MPEN", "IMPO / (PROD - EXPO + IMPO)"))
-names(ui.stanIndic.formula.indic.init) <- c("indic", "formula")
+    c("VSHT", "PC", "VALU / VALU_DTOTAL"),
+    c("VSHM", "PC", "VALU / VALU_D10T33"),
+    c("ESHT", "PC", "EMPN / EMPN_DTOTAL"),
+    c("ESHM", "PC", "EMPN / EMPN_D10T33"),
+    c("LBNT", "PC", "LABR / LABR_DTOTAL"),
+    c("LBNM", "PC", "LABR / LABR_D10T33"),
+    c("LBET", "PC", "LABR / EMPE_DTOTAL"),
+    c("LBEM", "PC", "LABR / EMPE_D10T33"),
+    c("LBVA", "RATIO", "LABR / VALU"),
+    c("IPYE", "IDX", "VALK / EMPN / (VALK_2005 / EMPN_2005)"),
+    c("IPYH", "IDX", "VALK / HRSN / (VALK_2005 / HRSN_2005)"),
+    c("IULC", "IDX", "EMPN / EMPE * LABR / VALK / (EMPN_2005 / EMPE_2005 * LABR_2005 / VALK_2005)"),
+    c("LULC", "RATIO", "EMPN / EMPE * LABR / VALK"),
+    c("AVHW", "RATIO", "HRSN / EMPN"),
+    c("VAPR", "RATIO", "VALU / PROD"),
+    c("INPR", "RATIO", "INTI / PROD"),
+    c("INVV", "RATIO", "GFCF / VALU"),
+    c("INVT", "PC", "GFCF / GFCF_DTOTAL"),
+    c("INVM", "PC", "GFCF / GFCF_D10T33"),
+    c("RDST", "PC", "RDNC / RDNC_DTOTAL"),
+    c("RDSM", "PC", "RDNC / RDNC_D10T33"),
+    c("RDIV", "RATIO", "RDNC / VALU"),
+    c("RDIP", "RATIO", "RDNC / PROD"),
+    ## IITR missing
+    c("CMTB", "PC", "((EXPO - IMPO) - (EXPO_D10T33 - IMPO_D10T33) * (EXPO + IMPO) / (EXPO_D10T33 + IMPO_D10T33)) / (EXPO_D10T33 + IMPO_D10T33)"),
+    c("EXIM", "RATIO", "EXPO / IMPO"),
+    c("TBAL", "USD", "EXPO - IMPO"),
+    c("XSHT", "PC", "EXPO / EXPO_DTOTAL"),
+    c("XSHM", "PC", "EXPO / EXPO_D10T33"),
+    c("MSHT", "PC", "IMPO / IMPO_DTOTAL"),
+    c("MSHM", "PC", "IMPO / IMPO_D10T33"),
+    c("XSHP", "RATIO", "EXPO / PROD"),
+    c("MPEN", "RATIO", "IMPO / (PROD - EXPO + IMPO)"))
+names(ui.stanIndic.formula.indic.init) <- c("indic", "type", "formula")
 
 ## function for table output and download to avoid repetition
 pivottable_stanIndic <- function(data.calc,
@@ -119,37 +167,43 @@ pivottable_stanIndic <- function(data.calc,
 ## ########################
 
 ## ui.stanIndic.rchartlib <- c("highcharts", "polycharts", "nvd3", "morris")
-## ui.stanIndic.charttype <- c("Bar", "Scatter", "Bubble", "Line")
+## ui.stanIndic.plottype <- c("Bar", "Scatter", "Bubble", "Line")
 
-output$uiSi_charttype <- renderUI({
+output$uiSi_plottype <- renderUI({
+    if (input$tabs_stanIndic=="Plots") {
+            ui.stanIndic.plottype <- c("MultiBar", "Scatter", "Line") # "Scatter"
+            ui.stanIndic.plottype.selected <- "Scatter"
+        }
     if (input$tabs_stanIndic=="PolyCharts") {
-            ui.stanIndic.charttype <- c("Bar") # "Scatter"
-            ui.stanIndic.charttype.selected <- "Bar"
+            ui.stanIndic.plottype <- c("Bar") # "Scatter"
+            ui.stanIndic.plottype.selected <- "Bar"
         }
     if (input$tabs_stanIndic=="HighCharts") {
-            ui.stanIndic.charttype <- c("Bubble") # "Bar", "Scatter"
-            ui.stanIndic.charttype.selected <- "Bubble"
+            ui.stanIndic.plottype <- c("Bubble") # "Bar", "Scatter"
+            ui.stanIndic.plottype.selected <- "Bubble"
         }
     if (input$tabs_stanIndic=="NVD3Charts") {
-            ui.stanIndic.charttype <- c("Bar") # "Scatter"
-            ui.stanIndic.charttype.selected <- "Bar"
+            ui.stanIndic.plottype <- c("Bar") # "Scatter"
+            ui.stanIndic.plottype.selected <- "Bar"
         }
     if (input$tabs_stanIndic=="MorrisCharts") {
-            ui.stanIndic.charttype <- c("Bar", "Line", "Area")
-            ui.stanIndic.charttype.selected <- "Line"
+            ui.stanIndic.plottype <- c("Bar", "Line", "Area")
+            ui.stanIndic.plottype.selected <- "Line"
         }
+    else
+        ui.stanIndic.plottype <- ui.stanIndic.plottype.selected <- "Scatter"
 
-    ## selectInput("stanindic_charttype", "Select chart type:", state_init_list("stanindic_charttype", "Bar", ui.stanIndic.charttype))
-    selectInput("stanindic_charttype", "Select chart type:",
-                choices = ui.stanIndic.charttype,
-                selected = ui.stanIndic.charttype.selected)
+    ## selectInput("stanindic_plottype", "Select chart type:", state_init_list("stanindic_plottype", "Bar", ui.stanIndic.plottype))
+    selectInput("stanindic_plottype", "Select chart type:",
+                choices = ui.stanIndic.plottype,
+                selected = ui.stanIndic.plottype.selected)
 
 })
 
 
 output$uiSi_nameyear <- renderUI({
-    if (input$tabs_stanIndic%in%c("PolyCharts", "HighCharts", "NVD3Charts", "MorrisCharts")) {
-        if (input$stanindic_charttype%in%c("Bar", "Scatter", "Bubble")) {
+    if (input$tabs_stanIndic%in%c("Plots", "PolyCharts", "HighCharts", "NVD3Charts", "MorrisCharts")) {
+        if (input$stanindic_plottype%in%c("Bar", "MultiBar", "Scatter", "Bubble")) {
             selectInput("stanindic_nameyear", "Year:", as.list(c(2012:1970)), selected = 2011, multiple = FALSE)
         } else {
             sliderInput("stanindic_nameyear",
@@ -171,6 +225,23 @@ output$uiSi_nameyear <- renderUI({
     }
 })
 
+output$uiSi_indic <- renderUI({
+
+    if (input$stanindic_plottype%in%c("MultiBar")) {
+        list(
+            selectInput("stanindic_indic", "Select bar indicator(s):", choices = ui.stanIndic.indic, selected = "VSHT", multiple = TRUE),
+            selectInput("stanindic_indic2", "Select point indicator(s):", choices = ui.stanIndic.indic, selected = "ESHT", multiple = TRUE)
+            )
+    } else if (input$stanindic_plottype%in%c("Scatter")) {
+        list(
+            selectInput("stanindic_indic", "Select x-axis indicator:", choices = ui.stanIndic.indic, selected = "VSHT", multiple = FALSE),
+            selectInput("stanindic_indic2", "Select y-axis indicator:", choices = ui.stanIndic.indic, selected = "ESHT", multiple = FALSE)
+            )
+    } else if (input$stanindic_plottype%in%c("Line")) {
+        selectInput("stanindic_indic", "Select indicator:", choices = ui.stanIndic.indic, selected = "VSHT", multiple = FALSE)
+    }
+
+})
 
 output$ui_stanIndic <- renderUI({
 
@@ -178,22 +249,47 @@ output$ui_stanIndic <- renderUI({
   ## if (loginData$LoggedIn) {
 
     list(
-        conditionalPanel(condition="input.tabs_stanIndic=='PolyCharts' | input.tabs_stanIndic=='HighCharts' | input.tabs_stanIndic=='NVD3Charts' | input.tabs_stanIndic=='MorrisCharts'",
-                         uiOutput("uiSi_charttype")
+        conditionalPanel(condition = "input.tabs_stanIndic!='DataTables'",
+                         wellPanel(
+                             checkboxInput("stanIndic_viz_plot_controls", "Plot options", FALSE),
+                             conditionalPanel(condition = "input.stanIndic_viz_plot_controls==true",
+                                              sliderInput(inputId = "stanIndic_viz_plot_height", label = "Height:", min = 400, max = 1000,
+                                                          value = 400, step = 50)
+                                              ,
+                                              sliderInput(inputId = "stanIndic_viz_plot_width", label = "Width:", min = 400, max = 1200,
+                                                          value = 800, step = 50)
+                                              ## ,
+                                              ## checkboxInput("stanindic_xrotate", "Rotate x-axis labels", FALSE)
+                                              ,
+                                              conditionalPanel(condition = "input.tabs_stanIndic=='Plots'",
+                                                               selectInput("stanindic_ggtheme", "Select plot theme", ui.stanIndic.ggtheme, selected = "oecdcpi")
+                                                               ,
+                                                               selectInput("stanindic_ggcolor", "Select color scheme", ui.stanIndic.ggcolor, selected = "oecdcpi")
+                                                               )
+                                              )
+                             )
                          ),
+
+        ## conditionalPanel(condition="input.tabs_stanIndic=='Plots' | input.tabs_stanIndic=='PolyCharts' | input.tabs_stanIndic=='HighCharts' | input.tabs_stanIndic=='NVD3Charts' | input.tabs_stanIndic=='MorrisCharts'",
+                         uiOutput("uiSi_plottype")
+                         ## )
+       ,
         wellPanel(
             helpText("Click '?' button below for indicator calculation formula"),
-            selectInput("stanindic_indic", "Indicator:", ui.stanIndic.indic),
-            conditionalPanel(condition="input.tabs_stanIndic=='PolyCharts' | input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
-                             conditionalPanel(condition="input.stanindic_charttype=='Scatter' | input.stanindic_charttype=='Bubble'",
-                                              selectInput("stanindic_indic2", "Indicator 2 (y-axis):", ui.stanIndic.indic, selected = "ESHT"),
-                                              conditionalPanel(condition="input.stanindic_charttype=='Bubble'",
-                                                               selectInput("stanindic_indic3", "Indicator 3 (size):", ui.stanIndic.indic, selected = "LBNT")
-                                                               )
-                                              ),
-                             selectInput("stanindic_group", "Group by:", ui.stanIndic.group, selected = "cou")
+            uiOutput("uiSi_indic"),
+            ## selectInput("stanindic_indic", "Select bar indicator(s):", choices = ui.stanIndic.indic, selected = "VSHT", multiple = TRUE),
+            ## selectInput("stanindic_indic2", "Select point indicator(s):", choices = ui.stanIndic.indic, selected = "LBNT", multiple = TRUE),
+                             selectInput("stanindic_group", "Group by:", ui.stanIndic.group,
+                                         ## selected = "cou"
+                                         selected = "ind"
+                                         )
+                             ,
+                             conditionalPanel(condition="input.tabs_stanIndic=='Plots'",
+                                              checkboxInput("stanindic_facethoriz", "Facet horizontally", FALSE),
+                                              checkboxInput("stanindic_stack", "Stacked values", FALSE)
+                                              )
                              )
-            )
+            ## )
         ,
         ## conditionalPanel(condition="input.tabs_stanIndic=='Tables'",
         conditionalPanel(condition="input.tabs_stanIndic=='DataTables'",
@@ -204,7 +300,7 @@ output$ui_stanIndic <- renderUI({
                                        selected = c("var", "cou", "ind"), multiple = TRUE)
                            ),
           actionButton("stanindic_recalcButton", "Recalculate with selection"),
-          selectInput("stanindic_namecou", "Country:", as.list(STAN.COU[["OECD"]]), selected = sample(STAN.COU[["OECD"]], 15), multiple = TRUE),
+          selectInput("stanindic_namecou", "Country:", as.list(STAN.COU[["OECD"]]), selected = sample(STAN.COU[["OECD"]], 10), multiple = TRUE),
           selectInput("stanindic_nameind", "Industries:", c(list("A10"), as.list(STANi4.INDALL)), selected = "D10T33", multiple = TRUE),
           uiOutput("uiSi_nameyear"),
           selectInput("stanindic_cur", "Currency:",
@@ -231,7 +327,7 @@ output$ui_stanIndic <- renderUI({
 })
 
 stanIndic_widthSize <- reactive({
-    ifelse(is.null(input$stanIndic_stanIndic_viz_plot_width), return(values$plotWidth), return(input$stanIndic_stanIndic_viz_plot_width))
+    ifelse(is.null(input$stanIndic_viz_plot_width), return(values$plotWidth), return(input$stanIndic_viz_plot_width))
 })
 stanIndic_heightSize <- reactive({
     ifelse(is.null(input$stanIndic_viz_plot_height), return(values$plotHeight), return(input$stanIndic_viz_plot_height))
@@ -244,7 +340,8 @@ output$stanIndic <- renderUI({
                fun_label = "stanIndic",
                widthFun = "stanIndic_widthSize",
                heightFun = "stanIndic_heightSize",
-               fun_tabs = c("DataTables", "PolyCharts", "HighCharts", "NVD3Charts") # "Tables"
+               ## fun_tabs = c("DataTables", "Plots", "HighCharts", "NVD3Charts", "PolyCharts") # "Tables"
+               fun_tabs = c("DataTables", "Plots") # , "PolyCharts")
                )
 })
 
@@ -267,7 +364,7 @@ output$stanIndic <- renderUI({
 ##     stanindic_nameind = c("D01T03", "D10T33"),
 ##     ## stanindic_nameyear = c(1970, 2012),
 ##     stanindic_nameyear = 2006,
-##     stanindic_charttype = "Scatter",
+##     stanindic_plottype = "Scatter",
 ##     stanindic_cur = "EXCH",
 ##     stanindic_rounddec = 4,
 ##     stanindic_downloadData = 0,
@@ -288,7 +385,7 @@ output$stanIndic <- renderUI({
 ## stanindic_nameind = input$stanindic_nameind
 ## stanindic_nameyear = input$stanindic_nameyear
 ## ## stanindic_year = input$stanindic_year
-## stanindic_charttype = input$stanindic_charttype
+## stanindic_plottype = input$stanindic_plottype
 ## stanindic_cur = input$stanindic_cur
 ## stanindic_rounddec = input$stanindic_rounddec
 ## stanindic_downloadData = input$stanindic_downloadData
@@ -313,8 +410,12 @@ output$stanIndic <- renderUI({
         stanindic_cur = input$stanindic_cur,
         stanindic_rounddec = input$stanindic_rounddec,
         stanindic_downloadData = input$stanindic_downloadData,
-        stanindic_charttype = input$stanindic_charttype,
+        stanindic_plottype = input$stanindic_plottype,
         stanindic_tabs_stanIndic = input$tabs_stanIndic,
+        stanindic_facethoriz = input$stanindic_facethoriz,
+        stanindic_stack = input$stanindic_stack,
+        stanindic_ggtheme = input$stanindic_ggtheme,
+        stanindic_ggcolor = input$stanindic_ggcolor,
         stanIndic_viz_plot_height = input$stanIndic_viz_plot_height,
         stanIndic_viz_plot_width = input$stanIndic_viz_plot_width
         )
@@ -355,10 +456,14 @@ stanIndic <- function(
     stanindic_cur = stanindic_cur,
     stanindic_rounddec = stanindic_rounddec,
     stanindic_downloadData = stanindic_downloadData,
-    stanindic_charttype = stanindic_charttype,
+    stanindic_plottype = stanindic_plottype,
+    stanindic_tabs_stanIndic = stanindic_tabs_stanIndic,
+    stanindic_facethoriz = stanindic_facethoriz,
+    stanindic_stack = stanindic_stack,
+    stanindic_ggtheme = stanindic_ggtheme,
+    stanindic_ggcolor = stanindic_ggcolor,
     stanIndic_viz_plot_height = stanIndic_viz_plot_height,
-    stanIndic_viz_plot_width = stanIndic_viz_plot_width,
-    stanindic_tabs_stanIndic = stanindic_tabs_stanIndic
+    stanIndic_viz_plot_width = stanIndic_viz_plot_width
     )
 {
 
@@ -375,10 +480,11 @@ stanIndic <- function(
     }
   ## nameindic
   nameindic <- stanindic_indic
-  if (stanindic_tabs_stanIndic%in%c("PolyCharts", "HighCharts", "NVD3Charts")) {
-      if (stanindic_charttype%in%c("Scatter", "Bubble")) nameindic <- union(nameindic, stanindic_indic2)
-      if (stanindic_charttype%in%c("Bubble")) nameindic <- union(nameindic, stanindic_indic3)
-    }
+  ## if (stanindic_tabs_stanIndic%in%c("Plots", "PolyCharts", "HighCharts", "NVD3Charts")) {
+      ## if (stanindic_plottype%in%c("MultiBar", "Scatter", "Bubble")) nameindic <- union(nameindic, stanindic_indic2)
+  nameindic <- union(nameindic, stanindic_indic2)
+  ##     if (stanindic_plottype%in%c("Bubble")) nameindic <- union(nameindic, stanindic_indic3)
+  ##   }
   ## namedim
   namedim <- NULL
   for (indic in nameindic) {
@@ -388,11 +494,14 @@ stanIndic <- function(
       namedim <- union(namedim, dim.indic)
     }
   ## string.formula
-  string.formula <- NULL
-  for (indic in nameindic) {
-      formula <- formula.indic$formula[formula.indic$indic==indic]
-      string.formula <- toString(paste(string.formula, formula))
-    }
+  ## string.formula <- NULL
+  ## for (indic in nameindic) {
+  ##     formula <- formula.indic$formula[formula.indic$indic==indic]
+  ##     string.formula <- toString(paste(string.formula, formula))
+  ##   }
+
+  string.formula <- toString(paste0(nameindic, ' = ', formula.indic$formula[formula.indic$indic%in%nameindic], collapse = '; '))
+
   ## nameind
   if(is.null(stanindic_recalcButton) || stanindic_recalcButton == 0) {
         isolate({
@@ -464,16 +573,33 @@ stanIndic <- function(
       eval(parse(text = paste0('data.calc$', indic, ' <- ', formula.indic$formula[formula.indic$indic==indic])))
   }
   detach(data.calc)
-  data.calc <- data.calc[,!sapply(strsplit(colnames(data.calc), "_"), "[[", 1)%in%namevar] # remove variables from data frame
+  ## ###############
+  ## Data for output
+  ## ###############
+  ## in flat format for pivot table
+  ## remove variables from data frame
+  data.calc <- data.calc[,!sapply(strsplit(colnames(data.calc), "_"), "[[", 1)%in%namevar]
+  ## remove industries from data frame
+  data.calc <- data.calc[data.calc$ind%in%nameind,]
+  ## remove years from data frame
+  data.calc <- data.calc[data.calc$year%in%nameyear,]
+
   data.calc$ind <- factor(data.calc$ind, levels = STANi4.INDALL)
   data.calc <- melt(data.calc, id.vars = c("cou", "ind", "year"), variable.name = "indic", na.rm = TRUE)
   data.calc <- transform(data.calc, value = round(value, stanindic_rounddec))
+
   ## sort values for plotting
-  data.calc.indic <- dcast(data.calc, cou + ind + year ~ indic, value.var = "value")
-  ## sort data according to largest industry in selection
-  ind.top <- data.calc.indic$ind[order(-data.calc.indic[,stanindic_indic])][1]
-  data.calc.indic.ind.top <- data.calc.indic[data.calc.indic$ind==ind.top,]
-  data.calc.indic$cou <- factor(data.calc.indic$cou, levels = unique(data.calc.indic.ind.top$cou[order(-data.calc.indic.ind.top[,stanindic_indic])])) # added: 'unique' if more than one year
+  ## ## sort countries in data according to highest industry value in stanindic_indic
+  data.calc.order <- data.calc
+
+  ind.top <- data.calc.order$ind[order(-data.calc.order[,"value"])][1] # data.calc.order$indic==stanindic_indic,
+  data.calc.order.ind.top <- data.calc.order[data.calc.order$ind==ind.top,]
+  data.calc.order$cou <- factor(data.calc.order$cou, levels = unique(data.calc.order.ind.top$cou[order(-data.calc.order.ind.top[,"value"])])) # data.calc.order$indic==stanindic_indic,
+
+  data.calc <- data.calc.order
+
+  ## in pivoted format for d3 charts
+  data.calc.indic <- dcast(data.calc.order, cou + ind + year ~ indic, value.var = "value")
   data.calc.indic <- data.calc.indic[order(data.calc.indic$cou),]
 
   return(list(namecou = namecou,
@@ -488,7 +614,7 @@ stanIndic <- function(
               data.set = data.set,
               data.calc = data.calc,
               data.calc.indic = data.calc.indic,
-              stanindic_charttype = stanindic_charttype,
+              stanindic_plottype = stanindic_plottype,
               stanindic_indic = stanindic_indic,
               stanindic_indic2 = stanindic_indic2,
               stanindic_indic3 = stanindic_indic3,
@@ -497,6 +623,10 @@ stanIndic <- function(
               stanindic_showData = stanindic_showData,
               stanindic_showIndic = stanindic_showIndic,
               stanindic_pivotRow = stanindic_pivotRow,
+              stanindic_facethoriz = stanindic_facethoriz,
+              stanindic_stack = stanindic_stack,
+              stanindic_ggtheme = stanindic_ggtheme,
+              stanindic_ggcolor = stanindic_ggcolor,
               stanIndic_viz_plot_height = stanIndic_viz_plot_height,
               stanIndic_viz_plot_width = stanIndic_viz_plot_width
               )
@@ -506,8 +636,16 @@ stanIndic <- function(
 summary_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
 
+  data.calc.indic <- result$data.calc.indic
   string.formula <-  result$string.formula
-  string.formula
+
+  list.print <- list(
+    Formula = string.formula
+    ## Formula = toString(string.formula)
+    ,
+    Data = data.calc.indic)
+
+  return(list.print)
 
 }}
 
@@ -525,58 +663,13 @@ datatables_stanIndic <- function(result = .stanIndic())
 
 }}
 
-polycharts_stanIndic <- function(result = .stanIndic())
-{ if (length(result) > 0) {
-
-    data.calc.indic <- result$data.calc.indic
-    string.formula <-  result$string.formula
-    namecou <- result$namecou
-    stanindic_charttype <- result$stanindic_charttype
-    stanindic_indic <- result$stanindic_indic
-    stanindic_indic2 <- result$stanindic_indic2
-    stanindic_indic3 <- result$stanindic_indic3
-    stanindic_rounddec <- result$stanindic_rounddec
-    stanindic_group <- result$stanindic_group
-    stanindic_group <- result$stanindic_group
-    stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
-    stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
-
-  if (stanindic_charttype == "Bar") {
-
-      xValue <- stanindic_group
-      facet <- setdiff(c("cou", "ind"), xValue) # complementary
-
-      p1 <- rPlot(x = list(var = xValue, sort = stanindic_indic),
-                  y = stanindic_indic,
-                  facet = facet,
-                  color = xValue,
-                  data = data.calc.indic,
-                  type = 'bar')
-      p1$guides(x = list(title = "", ticks = levels(data.calc.indic[[xValue]])))
-      ## print(p1)
-
-  } else if (stanindic_charttype == "Scatter") {
-      color <- setdiff(c("ind", "cou"), stanindic_group)
-      p1 <- rPlot(VSHT ~ ESHT, data = data.calc.indic, color = color, type = "point")
-      p1$facet(var = stanindic_group, type = "wrap", cols = 2)
-  }
-
-  p1$addParams(height = 500,
-               ## height = stanIndic_viz_plot_height,
-               ## width = stanIndic_viz_plot_width,
-               ## dom = "polycharts_stanIndic", # capial "Indic", see radiant.R
-               title = string.formula)
-  return(p1)
-
-}}
-
 highcharts_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
 
   data.calc.indic <- result$data.calc.indic
   string.formula <-  result$string.formula
   namecou <- result$namecou
-  stanindic_charttype <- result$stanindic_charttype
+  stanindic_plottype <- result$stanindic_plottype
   stanindic_indic <- result$stanindic_indic
   stanindic_indic2 <- result$stanindic_indic2
   stanindic_indic3 <- result$stanindic_indic3
@@ -585,12 +678,12 @@ highcharts_stanIndic <- function(result = .stanIndic())
   stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
   stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
 
-  if (stanindic_charttype == "Bar") {
+  if (stanindic_plottype == "Bar") {
       eval(parse(text = paste0('h1 <- hPlot(', stanindic_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "column", title = string.formula)')))
       h1$xAxis(categories = levels(data.calc.indic$cou), title = list(text = ""))
-  } else if (stanindic_charttype == "Scatter") {
+  } else if (stanindic_plottype == "Scatter") {
       eval(parse(text = paste0('h1 <- hPlot(', stanindic_indic2, ' ~ ', stanindic_indic, ', group = "', stanindic_group,'", data = data.calc.indic, type = "scatter")')))
-  } else if (stanindic_charttype == "Bubble") {
+  } else if (stanindic_plottype == "Bubble") {
       eval(parse(text = paste0('h1 <- hPlot(', stanindic_indic2, ' ~ ', stanindic_indic, ', group = "', stanindic_group,'", size = "', stanindic_indic3, '", data = data.calc.indic, type = "bubble")')))
   }
   h1$addParams(height = 500,
@@ -607,7 +700,7 @@ nvd3charts_stanIndic <- function(result = .stanIndic())
   data.calc.indic <- result$data.calc.indic
   string.formula <-  result$string.formula
   namecou <- result$namecou
-  stanindic_charttype <- result$stanindic_charttype
+  stanindic_plottype <- result$stanindic_plottype
   stanindic_indic <- result$stanindic_indic
   stanindic_indic2 <- result$stanindic_indic2
   stanindic_indic3 <- result$stanindic_indic3
@@ -616,13 +709,13 @@ nvd3charts_stanIndic <- function(result = .stanIndic())
   stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
   stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
 
-  if (stanindic_charttype == "Bar") {
+  if (stanindic_plottype == "Bar") {
       eval(parse(text = paste0('n1 <- nPlot(', stanindic_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "multiBarChart")')))
       n1$chart(reduceXTicks = FALSE)
       n1$xAxis(ticks = levels(data.calc.indic$cou))
       eval(parse(text = paste0('n1$yAxis(tickFormat = "#!function(x) { return (x).toFixed(', as.numeric(stanindic_rounddec),') }!#")')))
 
-  } else if (stanindic_charttype == "Scatter") {
+  } else if (stanindic_plottype == "Scatter") {
       eval(parse(text = paste0('n1 <- nPlot(', stanindic_indic2, ' ~ ', stanindic_indic, ', group = "cou", data = data.calc.indic, type = "scatterChart")')))
       n1$xAxis(axisLabel = stanindic_indic)
       n1$yAxis(axisLabel = stanindic_indic2)
@@ -635,13 +728,57 @@ nvd3charts_stanIndic <- function(result = .stanIndic())
 
 }}
 
+polycharts_stanIndic <- function(result = .stanIndic())
+{ if (length(result) > 0) {
+
+    data.calc.indic <- result$data.calc.indic
+    string.formula <-  result$string.formula
+    namecou <- result$namecou
+    stanindic_plottype <- result$stanindic_plottype
+    stanindic_indic <- result$stanindic_indic
+    stanindic_indic2 <- result$stanindic_indic2
+    stanindic_indic3 <- result$stanindic_indic3
+    stanindic_rounddec <- result$stanindic_rounddec
+    stanindic_group <- result$stanindic_group
+    stanIndic_viz_plot_height <- result$stanIndic_viz_plot_height
+    stanIndic_viz_plot_width <- result$stanIndic_viz_plot_width
+
+  if (stanindic_plottype == "Bar") {
+
+      xValue <- stanindic_group
+      facet <- setdiff(c("cou", "ind"), xValue) # complementary
+
+      p1 <- rPlot(x = list(var = xValue, sort = stanindic_indic),
+                  y = stanindic_indic,
+                  facet = facet,
+                  color = xValue,
+                  data = data.calc.indic,
+                  type = 'bar')
+      p1$guides(x = list(title = "", ticks = levels(data.calc.indic[[xValue]])))
+      ## print(p1)
+
+  } else if (stanindic_plottype == "Scatter") {
+      color <- setdiff(c("ind", "cou"), stanindic_group)
+      p1 <- rPlot(VSHT ~ ESHT, data = data.calc.indic, color = color, type = "point")
+      p1$facet(var = stanindic_group, type = "wrap", cols = 2)
+  }
+
+  p1$addParams(height = 500,
+               ## height = stanIndic_viz_plot_height,
+               ## width = stanIndic_viz_plot_width,
+               ## dom = "polycharts_stanIndic", # capial "Indic", see radiant.R
+               title = string.formula)
+  return(p1)
+
+}}
+
 morrischarts_stanIndic <- function(result = .stanIndic())
 { if (length(result) > 0) {
 
   data.calc.indic <- result$data.calc.indic
   string.formula <-  result$string.formula
   namecou <- result$namecou
-  stanindic_charttype <- result$stanindic_charttype
+  stanindic_plottype <- result$stanindic_plottype
   stanindic_indic <- result$stanindic_indic
   stanindic_indic2 <- result$stanindic_indic2
   stanindic_indic3 <- result$stanindic_indic3
@@ -649,10 +786,10 @@ morrischarts_stanIndic <- function(result = .stanIndic())
   stanindic_group <- result$stanindic_group
 
 
-  if (stanindic_charttype == "Bar")
+  if (stanindic_plottype == "Bar")
   {
       eval(parse(text = paste0('m1 <- mPlot(', stanindic_indic, ' ~ cou, group = "ind", data = data.calc.indic, type = "Bar")'))) # , labels = unique(data.calc.indic$ind))')))
-  } else if (stanindic_charttype%in%c("Line", "Area"))
+  } else if (stanindic_plottype%in%c("Line", "Area"))
   {
       eval(parse(text = paste0('data.calc.morris <- transform(data.calc.indic, year = as.character(year), ', stanindic_indic, ' = round(', stanindic_indic, ', stanindic_rounddec))')))
       data.calc.morris.d <- dcast(data.calc.morris, year ~ cou + ind, value.var = stanindic_indic)
@@ -660,7 +797,7 @@ morrischarts_stanIndic <- function(result = .stanIndic())
       m1$set(pointSize = 0, lineWidth = 1
              ## ,xLabelFormat = "#! function (x) { return x.toString(); } !#"
              )
-      if (stanindic_charttype=="Area")
+      if (stanindic_plottype=="Area")
       {
           m1$set(type = 'Area')
       }
@@ -701,4 +838,207 @@ download_stanIndic <- function(result = .stanIndic(), zipfile = fname)
     zip(zipfile = zipfile, files = tempdir, extras = "-j")
 
 }}
+
+plots_stanIndic <- function(result = .stanIndic())
+{ if (length(result) > 0) {
+
+    ## result
+    data.calc.indic <- result$data.calc.indic
+    data.calc <- result$data.calc
+    ## data.calc <- read.csv(file.path("C:\\", "Users", "werth_b", "Downloads", "data_calc.csv"))
+    ## data.scatter <- read.csv(file.path("C:\\", "Users", "werth_b", "Downloads", "data_calc2.csv"))
+    ##
+    nameyear <- result$nameyear
+    nameind <- result$nameind
+    nameindic <- result$nameindic
+    ##
+    stanindic_plottype <- result$stanindic_plottype
+    stanindic_indic <- result$stanindic_indic
+    stanindic_indic2 <- result$stanindic_indic2
+    stanindic_indic3 <- result$stanindic_indic3
+    stanindic_group <- result$stanindic_group
+    ##
+    stanindic_facethoriz <- result$stanindic_facethoriz
+    stanindic_stack <- result$stanindic_stack
+    ##
+    stanindic_ggtheme <- result$stanindic_ggtheme
+    stanindic_ggcolor <- result$stanindic_ggcolor
+
+    ## result transforms
+    facet <- stanindic_group
+    xValue <- setdiff(c("cou", "ind"), facet) # complementary
+    facet.formula <- ifelse(stanindic_facethoriz==TRUE, paste('. ~', facet), paste(facet, '~ .'))
+    ##
+    theme_select <- eval(parse(text = paste0('theme_', stanindic_ggtheme)))
+    scale_fill_select <- eval(parse(text = paste0('scale_fill_', stanindic_ggcolor)))
+    scale_color_select <- eval(parse(text = paste0('scale_color_', stanindic_ggcolor)))
+    scale_shape_select <- eval(parse(text = paste0('scale_shape_', stanindic_ggcolor)))
+
+    if (stanindic_plottype=="MultiBar") {
+        p <- ggplot(data = data.calc)
+        x <- xValue
+        y <- "value"
+        fill <- shape <- "factor(indic)"
+        ##
+        p <- p + geom_bar(data = subset(data.calc, indic%in%stanindic_indic),
+                          aes_string(x = x, y = y, fill = fill),
+                          color = "black",
+                          position = ifelse(stanindic_stack, "stack", "dodge"),
+                          width = 0.4,
+                          stat = "identity"
+                          )
+        p <- p + geom_point(data = subset(data.calc, indic%in%stanindic_indic2),
+                            aes_string(x = x, y = y, shape = shape),
+                            color = "black",
+                            size = 4
+                            )
+        p <- p +
+            xlab(NULL) +
+                ylab(NULL)
+
+    } else if (stanindic_plottype=="Scatter") {
+        data.scatter <- data.calc
+        data.scatter <- dcast(data.scatter, cou + ind + year ~ indic, value.var = "value")
+        ##
+        p <- ggplot(data = data.scatter)
+        x <- stanindic_indic
+        y <- stanindic_indic2
+        ##
+        p <- p + geom_point(aes_string(x = x, y = y, shape = "factor(0)"),
+                            color = "black",
+                            size = 4
+                            )
+        p <- p + geom_smooth(aes_string(x = x, y = y), method="lm", se = F)
+        p <- p + geom_text(aes_string(x = x, y = y, label = "cou"),
+                           size = 4,
+                           vjust = .55,
+                           hjust = -.25)
+
+    } else if (stanindic_plottype=="Line") {
+        data.line <- subset(data.calc, indic == stanindic_indic)
+        p <- ggplot(data = data.line)
+        ##
+        x <- "year"
+        y <- "value"
+        ##
+        p <- p + geom_line(aes_string(x = x, y = y, group = xValue,
+                                      linetype = paste0('factor(', xValue, ')'),
+                                      color = paste0('factor(', xValue, ')')
+                                      ))
+
+        row <- sapply(unique(data.line$cou), function(x) sample(which(data.line$cou==x), 1))
+        data.text <- data.line[row,]
+
+        p <- p + geom_text(data = data.text,
+                           aes_string(x = x, y = y, label = xValue),
+                           size = 4,
+                           vjust = -.5,
+                           hjust = .5)
+        p <- p +
+            xlab(NULL) +
+                ylab(NULL)
+        }
+
+    p <- p +
+        facet_grid(facet.formula) +
+            scale_fill_select() +
+                scale_shape_select() +
+                    scale_color_select() +
+                        theme_select() +
+                            ggtitle(paste0(toString(nameindic), ', ',
+                                           toString(nameind), ', ',
+                                           ifelse(length(nameyear)>1, paste0(min(nameyear),'-',max(nameyear)), nameyear)))
+    return(p)
+}}
+
+## stanIndic_plots_multibar <- function(p,
+##                                      x,
+##                                      y,
+##                                      stack,
+##                                      fill,
+##                                      data
+##                                      ) {
+##     position <- ifelse(stack, "stack", "dodge")
+##     p <- p + geom_bar(data = data,
+##                       aes_string(x = x, y = y, fill = fill),
+##                       color = "black",
+##                       position = position,
+##                       width = 0.4,
+##                       stat = "identity"
+##                       )
+##     return(p)
+## }
+
+## stanIndic_plots_point <- function(p,
+##                                   x,
+##                                   y,
+##                                   shape,
+##                                   data
+##                                   ) {
+##     p <- p + geom_point(data = data,
+##                         aes_string(x = x, y = y, shape = shape),
+##                         color = "black",
+##                         size = 4
+##                         )
+##     return(p)
+## }
+
+## stanIndic_plots_line <- function(p,
+##                                  x,
+##                                  y,
+##                                  linetype,
+##                                  color,
+##                                  data,
+##                                  group
+##                                  ) {
+##   p <- p + geom_line(aes_string(x = x, y = y, group = group, linetype = linetype, color = color))
+
+##   return(p)
+## }
+
+
+    ## require(grid)
+    ## install.packages("extrafont")
+    ## library(extrafont)
+    ## font_import()
+    ## loadfonts(device="win")
+
+    ## padding.pre <- gsub(", ", "", toString(rep(" ", 4)))
+    ## padding.post <- gsub(", ", "", toString(rep(" ", 20)))
+
+    ## labels.color <- c("Unit labour cost")
+    ## labels.color <- paste0(padding.pre, labels.color, padding.post)
+    ## labels.fill <- c("Labour productivity", "Labour compensation per hour worked")
+    ## labels.fill <- paste0(padding.pre, labels.fill, padding.post)
+
+    ## ## sort data by point/color variable
+    ## ## p <- ggplot(data = data.calc.indic.m, aes(x = cou)) +
+    ## p <- ggplot(data = data.calc.indic.m, aes_string(x = xValue)) +
+    ##     geom_bar(
+    ##         aes(y = value, fill = factor(var)),
+    ##         color = "black",
+    ##         stat = "identity",
+    ##         position = "dodge",
+    ##         width = .6) +
+    ##             geom_point(
+    ##                 ## aes(y = LULC, colour = factor(0)),
+    ##                 aes_string(y = stanIndic, colour = factor(0)),
+    ##                 size = 3,
+    ##                 shape = 18) +
+    ##                     scale_fill_manual(
+    ##                         guide_legend(title = ""),
+    ##                         values = c("#4F81BD", "#FFFFFF"),
+    ##                         labels = labels.fill) +
+    ##                             scale_color_manual(
+    ##                                 guide_legend(title = ""),
+    ##                                 values = c("#000000"),
+    ##                                 labels = labels.color) +
+    ##                                     scale_y_continuous(
+    ##                                         breaks=number_ticks(10),
+    ##                                         limits = c(-4, 14)) +
+    ##                                             geom_hline(yintercept = 0) +
+    ##                                                 ggtitle("2001-2012") +
+    ##                                                     theme_oecdcpi()
+
+
 
