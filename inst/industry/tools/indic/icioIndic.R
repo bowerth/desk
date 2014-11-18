@@ -94,6 +94,7 @@ output$ui_icioIndic <- renderUI({
         selectInput("icioindic_chart", "Chart:", ui.icioIndic.chart, selected = "chart1", multiple = FALSE, selectize = TRUE),
         selectInput("icioindic_year", "Year:", ui.icioIndic.year, selected = 2009, multiple = FALSE, selectize = TRUE),
         selectInput("icioindic_refyear", "Reference Year:", ui.icioIndic.year, selected = 1995, multiple = FALSE, selectize = TRUE),
+        sliderInput("icioindic_span", "Span:", min = 0.2, max = 1, value = 0.5, step = 0.1),
         ## uiOutput("icioIndic_ggvis_ui"),
         helpAndReport("TiVA Indicators", "icioIndic", inclMD(file.path("tools", "help", "icioIndic.md")))
         ) # list(...
@@ -139,7 +140,8 @@ output$icioIndic <- renderUI({
         icioindic_cou = input$icioindic_cou,
         icioindic_chart = input$icioindic_chart,
         icioindic_year = input$icioindic_year,
-        icioindic_refyear = input$icioindic_refyear
+        icioindic_refyear = input$icioindic_refyear,
+        icioindic_span = input$icioindic_span
         )
 })
 
@@ -148,7 +150,8 @@ icioIndic <- function(
     icioindic_cou = icioindic_cou,
     icioindic_chart = icioindic_chart,
     icioindic_year = icioindic_year,
-    icioindic_refyear = icioindic_refyear
+    icioindic_refyear = icioindic_refyear,
+    icioindic_span = icioindic_span
     ) {
 
     nameindic <- ui.icioIndic.indic[[icioindic_chart]]
@@ -464,6 +467,7 @@ icioIndic <- function(
                 icioindic_chart = icioindic_chart,
                 icioindic_year = icioindic_year,
                 icioindic_refyear = icioindic_refyear,
+                icioindic_span = icioindic_span,
                 data.plot = data.plot,
                 data.summary = data.summary,
                 nameindic = nameindic))
@@ -599,10 +603,12 @@ plots_icioIndic <- function(result = .icioIndic()) {
 html_icioIndic <- function(result = .icioIndic()) {
     if (length(result) > 0) {
 
+        icioindic_span = result$icioindic_span
+
         p <- print(mtcars %>%
                        ggvis(~wt, ~mpg) %>%
                            layer_points() %>%
-                               layer_smooths(span = 0.5) # %>%
+                               layer_smooths(span = icioindic_span) # %>%
                   ,
                    dynamic = FALSE, launch = FALSE)
 

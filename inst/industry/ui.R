@@ -11,7 +11,7 @@ command.ui.prefix <- paste('title = "stan-icio indicators",',
                            ## d3Network:
                            '<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>',
                            ## ggvis:
-                           '<script type="text/javascript" src="ggvis/jquery.min.js"></script>',
+                           ## '<script type="text/javascript" src="ggvis/jquery.min.js"></script>',
                            '<script type="text/javascript" src="ggvis/jquery-ui-1.10.4.custom.min.js"></script>',
                            '<script type="text/javascript" src="ggvis/d3.min.js"></script>',
                            '<script type="text/javascript" src="ggvis/vega.min.js"></script>',
