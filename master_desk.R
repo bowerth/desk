@@ -1,4 +1,6 @@
 ## source(file.path(dbpath, "GitHub", "desk", "master_desk.R"))
+## source(file.path("C:", "Users", "werth_b", "LocalData", "Dropbox", "GitHub", "desk", "master_desk.R"))
+
 
 ###################################
 ##  Master File                  ##
@@ -11,15 +13,11 @@
 ## set_config(use_proxy(url = "wsg-proxy.oecd.org", port = 80))
 
 ## sudo yum install cairo-devel libXt-devel
-## install.packages("httpuv")
 ## install.packages("devtools")
 ## install.packages("Cairo")
 ## install.packages("RJSONIO")
-# detach('package:shiny', unload=TRUE)
-# library(devtools); install_github("shiny", username = "rstudio")
-# library(devtools); load_all(file.path(dbpath, "GitHub", "shiny"))
-## require(shiny)
-## install.packages("shiny")
+## devtools::install(file.path(dbpath, "GitHub", "httpuv"))
+## devtools::install(file.path(dbpath, "GitHub", "shiny"))
 
 ## library(devtools)
 ## install_github("R-Websockets", username = "rstudio")
@@ -30,7 +28,12 @@
 ## devtools::install(file.path(dbpath, "GitHub", "ggvis"))
 
 ## devtools::install(file.path(dbpath, "GitHub", "shiny-incubator"))
-## devtools::install(file.path(dbpath, "GitHub", "d3Network"))
+## devtools::install(file.path(dbpath, "GitHub", "htmlwidgets"))
+## devtools::install(file.path(dbpath, "GitHub", "rjson", "rjson"))
+## devtools::document(file.path(dbpath, "GitHub", "networkD3"))
+## devtools::install(file.path(dbpath, "GitHub", "networkD3"))
+## require(networkD3)
+## clusterNetwork
 
 ## library(markdown)
 ## setwd(file.path(dbpath, "GitHub", "stan", "inst", "doc"))
@@ -46,6 +49,7 @@
 
 library(shiny)
 path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
+## path <- file.path("C:", "Users", "werth_b", "LocalData", "Dropbox", "GitHub", "desk", "inst", "industry")
 setwd(path)
 
 testingRadiant <- FALSE
@@ -151,6 +155,14 @@ runApp(path)
 ##             , # namecou,
 ##             namevar = namevar,
 ##             nameind = STANi3.INDA60All,
+##             isic = 3,
+##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi3.rda"),
+##             replace = FALSE)
+
+## packageData(list = c("WIOT042012", "WIOT112013"),
+##             namecou = STAN.COU[["ICIO"]]
+##             , # namecou,
+##             namevar = namevar,
 ##             isic = 3,
 ##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi3.rda"),
 ##             replace = FALSE)

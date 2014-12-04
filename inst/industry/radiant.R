@@ -82,6 +82,12 @@ statPanel <- function(fun_name, rfun_label, fun_label,
     download_name <- paste0("download_", fun_label)
     ## ace_name <- paste0("ace_", fun_label)
     html_name <- paste0("html_", fun_label)
+    forcenetwork_name <- paste0("forcenetwork_", fun_label)
+    sankeynetwork_name <- paste0("sankeynetwork_", fun_label)
+    simplenetwork_name <- paste0("simplenetwork_", fun_label)
+    treenetwork_name <- paste0("treenetwork_", fun_label)
+    clusternetwork_name <- paste0("clusternetwork_", fun_label)
+    treemapnetwork_name <- paste0("treemapnetwork_", fun_label)
     ## Generate output for the summary tab
     output[[sum_name]] <- renderPrint({
         result <- get(rfun_label)()
@@ -172,6 +178,7 @@ statPanel <- function(fun_name, rfun_label, fun_label,
         }
         ## isolate(get(download_name)(file="test.xls"))
         )
+
     output[[html_name]] <- renderPrint({
         result <- get(rfun_label)()
         ## w    n no analysis was conducted (e.g., no variables selected)
@@ -179,6 +186,51 @@ statPanel <- function(fun_name, rfun_label, fun_label,
         if(is.character(result)) return()
         get(html_name)()
     })
+
+    output[[forcenetwork_name]] <- renderForceNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(forcenetwork_name)()
+    })
+    output[[sankeynetwork_name]] <- renderSankeyNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(sankeynetwork_name)()
+    })
+    output[[simplenetwork_name]] <- renderSimpleNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(simplenetwork_name)()
+    })
+    output[[treenetwork_name]] <- renderTreeNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(treenetwork_name)()
+    })
+
+    output[[clusternetwork_name]] <- renderClusterNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(clusternetwork_name)()
+    })
+    output[[treemapnetwork_name]] <- renderTreemapNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(treemapnetwork_name)()
+    })
+
 
     string.tabsetPanel <- NULL
     if ("Tables"%in%fun_tabs) {
@@ -222,15 +274,65 @@ statPanel <- function(fun_name, rfun_label, fun_label,
     }
     if ("Maps"%in%fun_tabs) {
         string.tabPanel <- paste0('tabPanel("Maps",\n',
-                                  'div(id = "myplot", style = "display:inline;position:absolute",\n',
-                                  'showOutput(map_name, "datamaps")))')
+                                    'div(id = "rMaps", style = "display:inline;position:absolute",\n',
+                                      'showOutput(map_name, "datamaps")',
+                                    ')',
+                                  ')')
         string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
     }
+
     if ("HTML"%in%fun_tabs) {
         string.tabPanel <- paste0('tabPanel("HTML", \n',
-                                  'htmlOutput(html_name))')
+                                  'htmlOutput(html_name) \n',
+                                  ')')
         string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
     }
+
+    if ("forceNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("forceNetwork", \n',
+                                  'forceNetworkOutput(forcenetwork_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("sankeyNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("sankeyNetwork", \n',
+                                  'sankeyNetworkOutput(sankeynetwork_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("simpleNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("simpleNetwork", \n',
+                                  'simpleNetworkOutput(simplenetwork_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("treeNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("treeNetwork", \n',
+                                  'treeNetworkOutput(treenetwork_name, height = 650) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("clusterNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("clusterNetwork", \n',
+                                  ## 'div(id = "cluster2", style = "display:inline;position:absolute",\n',
+                                    'clusterNetworkOutput(clusternetwork_name, height = 650) \n',
+                                  ## 'clusterNetworkOutput(clusternetwork_name, width = ', get(widthFun)(), ', height = ', get(heightFun)(), ') \n',
+                                  ## ')',
+                                  ',includeCSS(system.file("htmlwidgets", "lib", "css-0", "clusterNetwork.css", package = "networkD3")) \n',
+                                  ',verbatimTextOutput(sum_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("treemapNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("treemapNetwork", \n',
+                                    ## 'div(id = "treemap", style = "display:inline;position:absolute",\n',
+                                      'treemapNetworkOutput(treemapnetwork_name, width = 850, height = 550) \n',
+                                    ## ')',
+                                  ',verbatimTextOutput(sum_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+
 
     string.tabsetPanel <- substring(string.tabsetPanel, 1, nchar(string.tabsetPanel)-2)
 

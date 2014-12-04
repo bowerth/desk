@@ -115,7 +115,8 @@ output$icioIndic <- renderUI({
                fun_name = "TiVA Indicators",           # fun_name
                rfun_label = ".icioIndic",         # rfun_label
                fun_label = "icioIndic"           # fun_label
-               ,fun_tabs = c("Plots", "HTML") # , "NVD3Charts") #, "ggVis") # , "Tables", "Maps")
+               ,fun_tabs = c("Plots")
+               ## ,fun_tabs = c("Plots", "HTML") # , "NVD3Charts") #, "ggVis") # , "Tables", "Maps")
                ,widthFun = "icioIndic_widthSize"
                ,heightFun = "icioIndic_heightSize"
                )
@@ -600,22 +601,20 @@ plots_icioIndic <- function(result = .icioIndic()) {
 
 ## }}
 
-html_icioIndic <- function(result = .icioIndic()) {
-    if (length(result) > 0) {
-
-        icioindic_span = result$icioindic_span
-
-        p <- print(mtcars %>%
-                       ggvis(~wt, ~mpg) %>%
-                           layer_points() %>%
-                               layer_smooths(span = icioindic_span) # %>%
-                  ,
-                   dynamic = FALSE, launch = FALSE)
-
-        return(cat(paste0(p[[1]], p[[2]])))
-
-    }
-}
+## html_icioIndic <- function(result = .icioIndic()) {
+##     if (length(result) > 0) {
+##         icioindic_span = result$icioindic_span
+##         ## icioindic_span <- 0.5
+##         ##library(ggvis)
+##         p <- print(mtcars %>%
+##                        ggvis(~wt, ~mpg) %>%
+##                            layer_points() %>%
+##                                layer_smooths(span = icioindic_span) # %>%
+##                   ,
+##                    dynamic = FALSE, launch = FALSE)
+##         return(cat(paste0(p[[1]], p[[2]])))
+##     }
+## }
 
 icioIndic_plot_exgrdvaex <- function(data.plot,
                                      data.summary) {

@@ -191,10 +191,13 @@ options(repos = c(CRAN = "http://cran.rstudio.com"))
 
 libs <- c("AlgDesign",
           "car",
-          "d3Network",
+          ## "d3Network",
+          "networkD3", # using various render* functions - cumbersome with radiant...
+          "htmlwidgets",
+          "data.table",
           "digest",
           "ggplot2",
-          "ggvis",
+          ## "ggvis", # need dependencies
           "grDevices",
           "gridExtra",
           "knitr",
