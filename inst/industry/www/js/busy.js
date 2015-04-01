@@ -17,4 +17,4 @@ setInterval(function(){
   } else {
     $('div.busy').hide()
   }
-},10)
+},2000) // value in milliseconds after which activates

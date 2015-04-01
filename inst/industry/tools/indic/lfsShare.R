@@ -246,42 +246,6 @@ output$lfsShare <- renderUI({
 })
 
 
-## ######################
-## Input test
-## ######################
-
-## require(reshape2)
-## require(rCharts)
-## input <- list(
-##     lfsShare_xaxis="cou",
-##     ## lfsShare_namesou=c("LFSNSO", "LFSEU", "LFSILO"),
-##     lfsShare_namesou=c("LFSNSO"),
-##     lfsShare_namecou=c("OECD"),
-##     lfsShare_namevar="EMPN",
-##     lfsShare_nameind=c("DTOTAL"),
-##     lfsShare_nameyear=c(2011),
-##     lfsShare_rounddec=2,
-##     lfsShare_labelocu=FALSE,
-##     lfsShare_recalcButton=0,
-##     lfsShare_calcshare=TRUE,
-##     lfsShare_xrotate=FALSE,
-##     lfsShare_viz_plot_height=600,
-##     lfsShare_viz_plot_width=800
-##     )
-## lfsShare_xaxis <- input$lfsShare_xaxis
-## lfsShare_namesou <- input$lfsShare_namesou
-## lfsShare_namecou <- input$lfsShare_namecou
-## lfsShare_namevar <- input$lfsShare_namevar
-## lfsShare_nameind <- input$lfsShare_nameind
-## lfsShare_nameyear <- input$lfsShare_nameyear
-## lfsShare_rounddec <- input$lfsShare_rounddec
-## lfsShare_labelocu <- input$lfsShare_labelocu
-## lfsShare_recalcButton <- input$lfsShare_recalcButton
-## lfsShare_calcshare <- input$lfsShare_calcshare
-## lfsShare_xrotate <- input$lfsShare_xrotate
-## lfsShare_viz_plot_height <- input$lfsShare_viz_plot_height
-## lfsShare_viz_plot_width <- input$lfsShare_viz_plot_width
-
 .lfsShare <- reactive({
     ## reactive that calls the function for main analysis
     ## . used to indicate this is an 'internal' function
@@ -349,7 +313,7 @@ lfsShare <- function(
   ##   } else {
   ##       isolate({ namecou <- lfsShare_namecou })
   ##   } ## namecou
-    if ("OECD"%in%namecou) namecou <- union(namecou[!namecou%in%"OECD"], STAN.COU)
+    if ("OECD"%in%namecou) namecou <- union(namecou[!namecou%in%"OECD"], STAN.COU[["OECD"]])
     ## print(namecou)
 
 
@@ -371,14 +335,20 @@ lfsShare <- function(
 
   nameyear <- lfsShare_nameyear
 
+    ## data(LFSi4)
     dat <- values[["LFSi4"]]
     ## dat <- isolate(values[["LFSi4"]])
+    ## dat <- DATA.LFSEU
 
     data.calc.indic <- dat[dat$sou%in%namesou &
                            dat$cou%in%namecou &
                            dat$var%in%namevar &
                            dat$ind%in%nameind &
                            dat$year%in%nameyear,]
+
+    ## test <- subset(dat, cou%in%namecou & var%in%namevar & ind%in%nameind & year%in%nameyear)
+    ## nrow(test)
+    ## unique(test$ind)
 
     if (lfsShare_calcshare==TRUE)
     {
@@ -442,18 +412,6 @@ tables_lfsShare <- function(result = .lfsShare())
     ##
 }}
 
-plots_lfsShare <- function(result = .lfsShare())
-{ if (length(result) > 0) {
-}}
-polycharts_lfsShare <- function(result = .lfsShare())
-{ if (length(result) > 0) {
-}}
-## polycharts_lfsShare(result = isolate(.lfsShare()))
-highcharts_lfsShare <- function(result = .lfsShare())
-{ if (length(result) > 0) {
-}}
-## highcharts_lfsShare(result = isolate(.lfsShare()))
-
 nvd3charts_lfsShare <- function(result = .lfsShare())
 { if (length(result) > 0) {
 
@@ -514,13 +472,58 @@ nvd3charts_lfsShare <- function(result = .lfsShare())
 }}
 ## nvd3charts_lfsShare(result = isolate(.lfsShare()))
 
-morrischarts_lfsShare <- function(result = .lfsShare())
-{ if (length(result) > 0) {
 
-}}
-## morrischarts_lfsShare(result = isolate(.lfsShare()))
+## ##################################### ##
+## create dynamic charts for jekyll page ##
+## ##################################### ##
 
-maps_lfsShare <- function(result = .lfsShare())
-{ if (length(result) > 0) {
+## input <- list(
+##     lfsShare_xaxis="cou",
+##     ## lfsShare_namesou=c("LFSNSO", "LFSEU", "LFSILO"),
+##     lfsShare_namesou=c("LFSEU"),
+##     lfsShare_namecou=c("OECD"),
+##     lfsShare_namevar="EMPN",
+##     lfsShare_nameind=c("DTOTAL"),
+##     lfsShare_nameyear=c(2011),
+##     lfsShare_rounddec=2,
+##     lfsShare_labelocu=FALSE,
+##     lfsShare_recalcButton=0,
+##     lfsShare_calcshare=TRUE,
+##     lfsShare_xrotate=FALSE,
+##     lfsShare_viz_plot_height=600,
+##     lfsShare_viz_plot_width=800
+##     )
+## lfsShare_xaxis <- input$lfsShare_xaxis
+## lfsShare_namesou <- input$lfsShare_namesou
+## lfsShare_namecou <- input$lfsShare_namecou
+## lfsShare_namevar <- input$lfsShare_namevar
+## lfsShare_nameind <- input$lfsShare_nameind
+## lfsShare_nameyear <- input$lfsShare_nameyear
+## lfsShare_rounddec <- input$lfsShare_rounddec
+## lfsShare_labelocu <- input$lfsShare_labelocu
+## lfsShare_recalcButton <- input$lfsShare_recalcButton
+## lfsShare_calcshare <- input$lfsShare_calcshare
+## lfsShare_xrotate <- input$lfsShare_xrotate
+## lfsShare_viz_plot_height <- input$lfsShare_viz_plot_height
+## lfsShare_viz_plot_width <- input$lfsShare_viz_plot_width
 
-}}
+## n1 <- nvd3charts_lfsShare(result = isolate(.lfsShare()))
+## ##
+## outpath <- file.path(dbpath, "GitHub", "jekyll", "industry", "figures", "app_lfsShare")
+## if (file.exists(outpath)==FALSE) dir.create(path = outpath)
+## ##
+## htmlfile <- file.path(outpath, "lfseu_dtotal_2011", "index.html")
+## if (file.exists(dirname(htmlfile))==FALSE) dir.create(path = dirname(htmlfile))
+## ## n1
+## n1$save(htmlfile, cdn = FALSE)
+
+## fileCon <- file(htmlfile)
+## text.body <- readLines(fileCon)
+## ## replace js libraries location
+## lib <- system.file('libraries', package = "rCharts")
+## text.body <- sub(lib, "/www/rCharts", text.body)
+## ## replace css location
+## text.body <- sub("./index_files", "/www/rCharts", text.body)
+## ##
+## writeLines(text = text.body, con = fileCon)
+## close(fileCon)

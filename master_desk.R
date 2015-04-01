@@ -27,13 +27,32 @@
 ## install.packages("dplyr")
 ## devtools::install(file.path(dbpath, "GitHub", "ggvis"))
 
-## devtools::install(file.path(dbpath, "GitHub", "shiny-incubator"))
+## devtools::install(file.path(dbpath, "GitHub", "ggthemes"))
+## devtools::install(file.path(dbpath, "GitHub", "rCharts"))
+## devtools::install(file.path(dbpath, "GitHub", "rMaps"))
+
+## devtools::install(file.path(dbpath, "GitHub", "httpuv"))
+## devtools::install(file.path(dbpath, "GitHub", "shinyExt"))
+## devtools::install(file.path(dbpath, "GitHub", "shinysky"))
+
+## devtools::install(file.path(dbpath, "GitHub", "icioData"))
+
+
+## devtools::install(file.path(dbpath, "GitHub", "htmltools"))
+## require(htmltools)
 ## devtools::install(file.path(dbpath, "GitHub", "htmlwidgets"))
+## require(htmlwidgets)
+
 ## devtools::install(file.path(dbpath, "GitHub", "rjson", "rjson"))
-## devtools::document(file.path(dbpath, "GitHub", "networkD3"))
 ## devtools::install(file.path(dbpath, "GitHub", "networkD3"))
-## require(networkD3)
-## clusterNetwork
+
+## devtools::install(file.path(dbpath, "GitHub", "xts"))
+## devtools::install(file.path(dbpath, "GitHub", "dygraphs"))
+## devtools::install(file.path(dbpath, "GitHub", "stanApi"))
+
+
+## devtools::install(file.path(dbpath, "GitHub", "shiny-incubator"))
+
 
 ## library(markdown)
 ## setwd(file.path(dbpath, "GitHub", "stan", "inst", "doc"))
@@ -49,7 +68,7 @@
 
 library(shiny)
 path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
-## path <- file.path("C:", "Users", "werth_b", "LocalData", "Dropbox", "GitHub", "desk", "inst", "industry")
+## path <- file.path(dbpath.server, "GitHub", "desk", "inst", "industry")
 setwd(path)
 
 testingRadiant <- FALSE
@@ -57,62 +76,36 @@ source(file.path(path, "global.R"))
 
 ## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
 
+
 input <- NULL
 output <- NULL
 source(file.path(path, "tools", "app", "state.R"))
 ## source(file.path(path, "tools", "app", "tab_ui.R"))
 ## source(file.path(path, "tools", "indic", "stanIndic.R"))
 ## source(file.path(path, "tools", "indic", "stani3Estimate.R"))
+## source(file.path(path, "tools", "indic", "stani4Estimate.R"))
 ## source(file.path(path, "tools", "indic", "icioFddva.R"))
-source(file.path(path, "tools", "indic", "icioIndic.R"))
+## source(file.path(path, "tools", "indic", "icioIndic.R"))
+## source(file.path(path, "tools", "indic", "icioNet.R"))
 ## source(file.path(path, "tools", "indic", "lfsShare.R"))
+## source(file.path(path, "tools", "indic", "apiBEA.R"))
 source(file.path(path, "radiant.R"))
 testingRadiant <- TRUE
 ## source(file.path(path, "tools", "indic", "sdmxBrowser.R"))
 ## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
 ## library(devtools); load_all(file.path(dbpath, "GitHub", "stanData"))
 
-runApp(path)
+# runApp(path)
+runApp(path, launch.browser = TRUE)
+
+## ############## ##
+## Data Packaging ##
+## ############## ##
+
+## ~/LocalData/Dropbox/GitHub/stanData/data-raw/
+##   - package_STANNAi4.R
 
 
-## system('g++ -v')
-## system('where make')
-
-## ## https://github.com/ramnathv/rChartsShiny
-## library(shiny)
-## path <- "~/Downloads/rChartsShiny-gh-pages/rChartsShiny-gh-pages"
-## runApp(file.path(path, "rChartOECD"))
-## devtools::install(file.path(dbpath, "GitHub", "rCharts"))
-
-## DEBUG:
-## global.R : testingRadiant <- TRUE
-## ui.R : comment "Disclaimer" and "Login"
-## server.R : loginData <- list(LoggedIn = TRUE)
-## copy to Linux server: radiant.R + "tools" folder
-## shiny::runGitHub('radyant','mostly-harmless', subdir = 'inst/marketing')
-## runApp(paste0(path, 'radiant\\inst\\marketing'))
-
-
-## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "stanData_0.1.tar.gz"), repos = NULL, type = "source")
-
-## library(devtools); load_all(file.path(dbpath, "GitHub", "stan"))
-
-## detach("package:stanData", unload=TRUE)
-## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "stanData_0.1.tar.gz"), repos=NULL, type = "source")
-
-## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "icioData_0.1.tar.gz"), repos=NULL, type = "source")
-## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "skillData_0.1.tar.gz"), repos=NULL, type = "source")
-
-
-## ####################
-## ICIO
-## ####################
-## install.packages(file.path(dbpath, "CRAN_Data", "src", "contrib", "icioData_0.1.tar.gz"), repos = NULL, type = "source")
-## packageData(list = c("ICIO5837VB"),
-##             isic = 3,
-##             nameyear=c(1995:2009),
-##             file = paste0(PATH.REPO, "icioData\\data\\ICIO5837APP.rda"),
-##             replace = TRUE)
 
 
 ## #################
@@ -129,8 +122,6 @@ runApp(path)
 
 ## env <- new.env()
 ## load(file.path(PATH.REPO, "stanData", "data", "STANNAi0.rda"), envir = env)
-## ls(env)
-## load(file.path(PATH.REPO, "stanData", "data", "STANNA.rda"))
 
 ## #################
 ## ## ISIC Rev. 3 ##
@@ -225,94 +216,6 @@ runApp(path)
 ## save(list = list, file = file.path(PATH.REPO, "stanData", "data", "STANNAi3.rda"), envir = env)
 
 
-## #################
-## ## ISIC Rev. 4 ##
-## #################
-## sourcesSTANNAi4 <- c("STAN", "BTD", "ANBERD", "XRATES")
-## packageData(list=sourcesSTANNAi4,
-##             namecou = STAN.COU[["ICIO"]], # unique(union(STAN.COU, STAN.COUKPC))
-##             namevar = c("EMPN", "EMPE", "GFCF", "HRSE", "HRSN", "INTI", "LABR", "PROD", "VALU", "VALK", "EXPO", "IMPO", "RDNC", "EXCH", "PPPS")
-##             , # MA, PF
-##             isic = 4,
-##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda"),
-##             replace = TRUE)
-
-## packageData(list=c("STANi4")
-##             ,
-##             namecou = STAN.COU[["ICIO"]]
-##             ,
-##             namevar = c("EMPN", "EMPE", "GFCF", "HRSE", "HRSN", "INTI", "LABR", "PROD", "VALU", "VALK", "EXPO", "IMPO", "RDNC", "EXCH", "PPPS")
-##             ,
-##             isic = 4
-##             ,
-##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda")
-##             ,
-##             replace = FALSE
-##             )
-
-## packageData(list=c("STDSNAi4")
-##             ,
-##             namecou = STAN.COU[["ICIO"]]
-##             ,
-##             namevar = c("EMPN", "EMPE", "GFCF", "HRSE", "HRSN", "INTI", "LABR", "PROD", "VALU", "VALK", "EXPO", "IMPO", "RDNC", "EXCH", "PPPS")
-##             ,
-##             isic = 4
-##             ,
-##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda")
-##             ,
-##             replace = FALSE
-##             )
-
-## packageData(list=c("EUNAMAR2")
-##             ,
-##             namecou = STAN.COU[["ICIO"]]
-##             ,
-##             namevar = c("EMPN", "EMPE", "GFCF", "HRSE", "HRSN", "INTI", "LABR", "PROD", "VALU", "VALK", "EXPO", "IMPO", "RDNC", "EXCH", "PPPS")
-##             ,
-##             isic = 4
-##             ,
-##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda")
-##             ,
-##             replace = FALSE
-##             )
-
-## data <- DATA.STAN
-## data <- DATA.EUNAMAR2
-## unique(data[duplicated(data[,colnames(data)%in%c("cou", "var", "ind", "year")]),]$cou)
-
-## packageData(list = c("NSONAPATCHi4"),
-##             namecou = STAN.COU[["ICIO"]]
-##             , # namecou,
-##             namevar = c("EMPN", "EMPE", "GFCF", "HRSE", "HRSN", "INTI", "LABR", "PROD", "VALU", "VALK", "EXPO", "IMPO", "RDNC", "EXCH", "PPPS"),
-##             ## nameind = STANi3.INDA60All,
-##             isic = 4,
-##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda"),
-##             replace = FALSE)
-
-
-## sourcesSTANNAi4 <- c("XRATES")
-## packageData(list=sourcesSTANNAi4
-##             ,
-##             namecou = STAN.COU[["ICIO"]]
-##             , # unique(union(STAN.COU, STAN.COUKPC))
-##             namevar = c("EXCH", "PPPS")
-##             ,
-##             isic = 4
-##             ,
-##             file = file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda")
-##             ,
-##             replace = FALSE
-##             )
-
-## load(file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda"))
-
-
-## renameData(file = file.path(dbpath, "GitHub", "stanData", "data", "STANNAi4.rda"),
-##            from = c("DATA.ANBERD"),
-##            to = c("DATA.ANBERDi4"))
-## env <- new.env()
-## load(file.path(PATH.REPO, "stanData", "data", "STANNAi4.rda"), envir = env)
-## ls(env)
 
 ## #################################
 ## Skill data

@@ -28,157 +28,74 @@
 ## summary_random # output for summary tab
 ## plots_random # output for plots tab
 
+## description of lookup lists
+## ui.icioFddva.ind: modified for publishing - only show 18 industries and higher aggregates
+## ui.icioFddva.cou: country list and aggregation to regions
+## ui.icioFddva.year: years in app
+## ui.icioFddva.aggind
+
+## ## nameind <- read.csv(file.path(dbpath, "GitHub", "icioData", "inst", "extdata", "loadDim_ind34.csv"))
+## nameind <- read.csv(system.file("extdata", "loadDim_ind.csv", package = "stan"))
+## nameind <- paste(nameind$ind, nameind$label)
+## nameind.list <- as.list(seq(along = nameind))
+## names(nameind.list) <- nameind
+## cat(paste0('\"', names(nameind.list), '\" = ', nameind.list, ',\n'))
 ui.icioFddva.ind <- list(
-    "C01T99 TOT" = 137,
-    "C15T37 MANUF" = 320,
+    "C01T99 TOT" = 134, # different: -3
+    "C15T37 MANUF" = 318, # different: -2
     ## "C30T33 ICT" = 1417,
-    "C50T99 SERV" = 2337,
-    "C50T74 MKSERV" = 2332,
-    "C10T74 NAGMK" = 232,
+    "C50T99 SERV" = 2134,
+    "C50T74 MKSERV" = 2129, # different: -3
+    "C10T74 NAGMK" = 229, # different: -3
     "......" = 9001,
-    "C01T05 AGR" = 1,
-    "C10T14 MIN" = 2,
-    "C15T16 FOD" = 3,
-    "C17T19 TEX" = 4,
-    "C20T22 WPP" = 506,
-    ## "C20 WOD" = 5,
-    ## "C21T22 PAP" = 6,
-    "C23T26 CNM" = 710,
-    ## "C23 PET" = 7,
-    ## "C24 CHM" = 8,
-    ## "C25 RBP" = 9,
-    ## "C26 NMM" = 10,
-    "C27T28 MFM" = 1112,
-    ## "C27 MET" = 11,
-    ## "C28 FBM" = 12,
-    "C29 MEQ" = 13,
-    "C30T33 ICT" = 1417,
-    ## "C30 ITQ" = 14,
-    ## "C31 ELQ" = 15,
-    ## "C32 CMQ" = 16,
-    ## "C33 SCQ" = 17,
-    "C34T35 MTQ" = 1819,
-    "C34 MTR" = 18,
-    "C35 TRQ" = 19,
-    "C36T37 OTM" = 20,
-    "C40T41 EGW" = 21,
-    "C45 CON" = 22,
-    "C50T55 THR" = 2324,
-    ## "C50T52 WRT" = 23,
-    ## "C55 HTR" = 24,
-    "C60T64 TRT" = 2526,
-    ## "C60T63 TRN" = 25,
-    ## "C64 PTL" = 26,
-    "C65T67 FIN" = 27,
-    "C70T74 BZS" = 2832,
-    ## "C70 REA" = 28,
-    ## "C71 RMQ" = 29,
-    ## "C72 ITS" = 30,
-    ## "C73 RDS" = 31,
-    ## "C74 BZS" = 32,
-    "C75T95 OTS" = 3337
-    ## "C75 GOV" = 33,
-    ## "C80 EDU" = 34,
-    ## "C85 HTH" = 35,
-    ## "C90T93 OTS" = 36,
-    ## "C95 PVH" = 37,
+
+  "C01T05 AGR" = 1,
+  "C10T14 MIN" = 2,
+  "C15T16 FOD" = 3,
+  "C17T19 TEX" = 4,
+  "C20T22 WPP" = 506,
+  "C20 WOD" = 5,
+  "C21T22 PAP" = 6,
+  "C23T26 CNM" = 710,
+  "C23 PET" = 7,
+  "C24 CHM" = 8,
+  "C25 RBP" = 9,
+  "C26 NMM" = 10,
+  "C27T28 MFM" = 1112,
+  "C27 MET" = 11,
+  "C28 FBM" = 12,
+  "C29 MEQ" = 13,
+  "C30T33 ICT" = 1415, # different: -2
+  "C30T33X CEQ" = 14,
+  "C31 ELQ" = 15,
+  "C34T35 MTQ" = 1617,
+  "C34 MTR" = 16,
+  "C35 TRQ" = 17,
+  "C36T37 OTM" = 18,
+  "C40T41 EGW" = 19,
+  "C45 CON" = 20,
+  "C50T55 THR" = 2122,
+  "C50T52 WRT" = 21,
+  "C55 HTR" = 22,
+  "C60T64 TRT" = 2324,
+  "C60T63 TRN" = 23,
+  "C64 PTL" = 24,
+  "C65T67 FIN" = 25,
+  "C70T74 BZS" = 2639, # different: -3
+  "C70 REA" = 26,
+  "C71 RMQ" = 27,
+  "C72 ITS" = 28,
+  "C73T74 BZS" = 29,
+  "C75T95 OTS" = 3034,
+  "C75 GOV" = 30,
+  "C80 EDU" = 31,
+  "C85 HTH" = 32,
+  "C90T93 OTS" = 33,
+  "C95 PVH" = 34
+  
     ## "......" = 9002,
     ## "C29T30 OTH" = 1314
     )
-##
-ui.icioFddva.cou <- list(
-  "WOR: Total World" = 65,
-  "Total OECD" = 64,
-  "ASEAN" = 63,
-  "East Asia" = 62,
-  "NAFTA" = 61,
-  "EU27" = 60,
-  "EU15" = 59,
-  "..." = 100,
-  "AUS: Australia" = 1,
-  "AUT: Austria" = 2,
-  "BEL: Belgium" = 3,
-  "CAN: Canada" = 4,
-  "CHL: Chile" = 5,
-  "CZE: Czech Republic" = 6,
-  "DNK: Denmark" = 7,
-  "EST: Estonia" = 8,
-  "FIN: Finland" = 9,
-  "FRA: France" = 10,
-  "DEU: Germany" = 11,
-  "GRC: Greece" = 12,
-  "HUN: Hungary" = 13,
-  "ISL: Iceland" = 14,
-  "IRL: Ireland" = 15,
-  "ISR: Israel" = 16,
-  "ITA: Italy" = 17,
-  "JPN: Japan" = 18,
-  "KOR: Korea" = 19,
-  "LUX: Luxembourg" = 20,
-  "MEX: Mexico" = 21,
-  "NLD: Netherlands" = 22,
-  "NZL: New Zealand" = 23,
-  "NOR: Norway" = 24,
-  "POL: Poland" = 25,
-  "PRT: Portugal" = 26,
-  "SVK: Slovak Republic" = 27,
-  "SVN: Slovenia" = 28,
-  "ESP: Spain" = 29,
-  "SWE: Sweden" = 30,
-  "CHE: Switzerland" = 31,
-  "TUR: Turkey" = 32,
-  "GBR: United Kingdom" = 33,
-  "USA: United States" = 34,
-  "ARG: Argentina" = 35,
-  "BRA: Brazil" = 36,
-  "CHN: China" = 37,
-  "TWN: Chinese Taipei" = 38,
-  "IND: India" = 39,
-  "IDN: Indonesia" = 40,
-  "RUS: Russian Federation" = 41,
-  "SGP: Singapore" = 42,
-  "ZAF: South Africa" = 43,
-  "HKG: Hong Kong, China" = 44,
-  "MYS: Malaysia" = 45,
-  "PHL: Philippines" = 46,
-  "THA: Thailand" = 47,
-  "ROU: Romania" = 48,
-  "VNM: Viet Nam" = 49,
-  "SAU: Saudi Arabia" = 50,
-  "BRN: Brunei" = 51,
-  "BGR: Bulgaria" = 52,
-  "CYP: Cyprus" = 53,
-  "LVA: Latvia" = 54,
-  "LTU: Lithuania" = 55,
-  "MLT: Malta" = 56,
-  "KHM: Cambodia" = 57,
-  "ROW: Rest of the World" = 58
-  ## "CHN2" = 59,
-  ## "CHN3" = 60,
-  ## "CHN4" = 61
-  )
-##
-ui.icioFddva.year <- c(1995, 2000, 2005, 2008, 2009)
-##
-
-ui.icioFddva.coef <- rbind.data.frame(
-    c("vB", "Value-added")
-    ## ,
-    ## c("eB", "Employment")
-    )
-names(ui.icioFddva.coef) <- c("coef", "label")
-ui.icioFddva.coef.list <- as.list(as.character(ui.icioFddva.coef$coef))
-names(ui.icioFddva.coef.list) <- ui.icioFddva.coef$label
-
-ui.icioFddva.demand <- rbind.data.frame(
-  c("FDTTLWITHDISC", "Final demand"),
-  c("GFCF", "Capital formation"),
-  c("GRTR", "Gross trade"),
-  c("HHCP", "Household consumption")
-  )
-names(ui.icioFddva.demand) <- c("demand", "label")
-ui.icioFddva.demand.list <- as.list(as.character(ui.icioFddva.demand$demand))
-names(ui.icioFddva.demand.list) <- ui.icioFddva.demand$label
 
 ##
 ui.icioFddva.aggind <- rbind.data.frame(
@@ -195,10 +112,11 @@ ui.icioFddva.aggind <- rbind.data.frame(
     c("C27T28 MFM", "C27 MET"),
     c("C27T28 MFM", "C28 FBM"),
     c("C29 MEQ", "C29 MEQ"),
-    c("C30T33 ICT", "C30 ITQ"),
+    ## c("C30T33 ICT", "C30 ITQ"),
+    c("C30T33 ICT", "C30T33X CEQ"),
     c("C30T33 ICT", "C31 ELQ"),
-    c("C30T33 ICT", "C32 CMQ"),
-    c("C30T33 ICT", "C33 SCQ"),
+    ## c("C30T33 ICT", "C32 CMQ"),
+    ## c("C30T33 ICT", "C33 SCQ"),
     c("C34T35 MTQ", "C34 MTR"),
     c("C34T35 MTQ", "C35 TRQ"),
     c("C36T37 OTM", "C36T37 OTM"),
@@ -212,32 +130,33 @@ ui.icioFddva.aggind <- rbind.data.frame(
     c("C70T74 BZS", "C70 REA"),
     c("C70T74 BZS", "C71 RMQ"),
     c("C70T74 BZS", "C72 ITS"),
-    c("C70T74 BZS", "C73 RDS"),
-    c("C70T74 BZS", "C74 BZS"),
+    ## c("C70T74 BZS", "C73 RDS"),
+    ## c("C70T74 BZS", "C74 BZS"),
+    c("C70T74 BZS", "C73T74 BZS"),
     c("C75T95 OTS", "C75 GOV"),
     c("C75T95 OTS", "C80 EDU"),
     c("C75T95 OTS", "C85 HTH"),
     c("C75T95 OTS", "C90T93 OTS"),
     c("C75T95 OTS", "C95 PVH")
     )
-names(ui.icioFddva.aggind) <- c("ind.icio18", "ind.icio37")
+names(ui.icioFddva.aggind) <- c("ind.icio18", "ind.icio34")
 ##
 ui.icioFddva.secagg <- rbind.data.frame(
-    c(137, "C01T99 TOT", 1, 37),
-    c(320, "C15T37 MANUF", 3, 20),
+    c(134, "C01T99 TOT", 1, 34),
+    c(318, "C15T37 MANUF", 3, 18),
     c(506, "C20T22 WPP", 5, 6),
     c(710, "C23T26 CNM", 7, 10),
     c(1112, "C27T28 MFM", 11, 12),
-    c(1314, "C29T30 OTH", 13, 14),
-    c(1417, "C30T33 ICT", 14, 17),
-    c(1819, "C34T35 MTQ", 18, 19),
-    c(2324, "C50T55 THR", 23, 24),
-    c(2526, "C60T64 TRT", 25, 26),
-    c(2832, "C70T74 BZS", 28, 32),
-    c(3337, "C75T95 OTS", 33, 37),
-    c(2337, "C50T99 SERV", 23, 37),
-    c(2332, "C50T74 MKSERV", 23, 32),
-    c(232, "C10T74 NAGMK", 2, 32)
+    ## c(1314, "C29T30 OTH", 13, 14),
+    c(1415, "C30T33 ICT", 14, 15),
+    c(1617, "C34T35 MTQ", 16, 17),
+    c(2122, "C50T55 THR", 21, 22),
+    c(2324, "C60T64 TRT", 23, 24),
+    c(2639, "C70T74 BZS", 26, 39),
+    c(3034, "C75T95 OTS", 30, 34),
+    c(2134, "C50T99 SERV", 21, 34),
+    c(2129, "C50T74 MKSERV", 21, 29),
+    c(229, "C10T74 NAGMK", 2, 29)
     )
 ##
 names(ui.icioFddva.secagg) <- c("id", "agg", "start", "end")
@@ -245,7 +164,7 @@ ui.icioFddva.secagg$id <- as.numeric(as.character(ui.icioFddva.secagg$id))
 ui.icioFddva.secagg$start <- as.numeric(as.character(ui.icioFddva.secagg$start))
 ui.icioFddva.secagg$end <- as.numeric(as.character(ui.icioFddva.secagg$end))
 
-ui.icioFddva.namesec <- as.character(ui.icioFddva.aggind[,"ind.icio37"])
+ui.icioFddva.namesec <- as.character(ui.icioFddva.aggind[,"ind.icio34"])
 ui.icioFddva.namesec.agg <- union(ui.icioFddva.namesec, ui.icioFddva.secagg$agg)
 
 ##
@@ -271,10 +190,11 @@ ui.icioFddva.seclabel <- rbind.data.frame(
   c("C29T30 OTH","C29T30","Other &_ office machinery","Other and office machinery",0,0,1),
   c("C29 MEQ","C29","Other _ machinery","other machinery",1,1,0),
   c("C30T33 ICT","C30T33","Electrical _ equipment","electrical equipment",0,0,1),
-  c("C30 ITQ","C30","Office _ machinery","office machinery",1,0,0),
+  ## c("C30 ITQ","C30","Office _ machinery","office machinery",1,0,0),
+  c("C30T33X CEQ","C30T33X","Office, Communication &_ Medical equipment","OCM machinery",1,0,0),
   c("C31 ELQ","C31","Electrical _ machinery","electrical machinery",1,0,0),
-  c("C32 CMQ","C32","Communication _ equipment","communication equipment",1,0,0),
-  c("C33 SCQ","C33","Medical &_ precision","medical and precision equipment",1,0,0),
+  ## c("C32 CMQ","C32","Communication _ equipment","communication equipment",1,0,0),
+  ## c("C33 SCQ","C33","Medical &_ precision","medical and precision equipment",1,0,0),
   c("C34T35 MTQ","C34T35","Transport _ equipment","transport equipment",0,1,0),
   c("C34 MTR","C34","Motor vehicle &_ trailers","motor vehicle and trailer",1,0,0),
   c("C35 TRQ","C35","Other transport _ equipment","other transport equipment",1,0,0),
@@ -294,8 +214,9 @@ ui.icioFddva.seclabel <- rbind.data.frame(
   c("C70 REA","C70","Real _estate","real estate",1,0,0),
   c("C71 RMQ","C71","Renting","renting",1,0,0),
   c("C72 ITS","C72","Computer _ services","computer services",1,0,0),
-  c("C73 RDS","C73","Research &_ development","research and development",1,0,0),
-  c("C74 BZS","C74","Other _ business","other business",1,0,0),
+  ## c("C73 RDS","C73","Research &_ development","research and development",1,0,0),
+  ## c("C74 BZS","C74","Other _ business","other business",1,0,0),
+  c("C73T74 BZS","C73T74","Rd & Other _ business","other business",1,0,0),
   c("C75T95 OTS","C75T95","Other services","other services",0,1,0),
   c("C75 GOV","C75","Public _ administration","public administration",1,0,0),
   c("C80 EDU","C80","Education","education",1,0,0),
@@ -303,8 +224,144 @@ ui.icioFddva.seclabel <- rbind.data.frame(
   c("C90T93 OTS","C90T93","Community &_ personal","community and personal",1,0,0),
   c("C95 PVH","C95","Private _ households","private households",1,0,0)
   )
-names(ui.icioFddva.seclabel) <- c("ind", "code", "industry", "indlabel", "ind.icio37", "ind.icio18", "ind.icioagg")
+names(ui.icioFddva.seclabel) <- c("ind", "code", "industry", "indlabel", "ind.icio34", "ind.icio18", "ind.icioagg")
 ##
+
+## ## ## namecou <- read.csv(file.path(dbpath, "GitHub", "icioData", "inst", "extdata", "loadDim_cou62.csv"))
+## namecou <- read.csv(system.file("extdata", "loadDim_cou.csv", package = "stan"))
+## ## namecou.df <-  merge(namecou, STAN.COUEN, all.x = TRUE)
+## icioFddva_namereg <- read.csv(file.path("data", "data_init", "icioIndic_namereg.csv"))
+## namecou.df <-  merge(namecou, icioFddva_namereg, all.x = TRUE)
+## namecou.df$cou <- factor(namecou.df$cou, levels = namecou$cou)
+## namecou.df <- namecou.df[order(namecou.df$cou),]
+## namecou <- paste0(namecou.df$cou, ': ', namecou.df$country)
+## namecou.list <- as.list(seq(along = namecou))
+## names(namecou.list) <- namecou
+## cat(paste0('\"', names(namecou.list), '\" = ', namecou.list, ',\n'))
+
+## match("WOR", ui.icioFddva.reglabel$cou) # 69
+## match("OECD", ui.icioFddva.reglabel$cou) # 68
+## match("ASEAN", ui.icioFddva.reglabel$cou) # 67
+## match("E_ASIA", ui.icioFddva.reglabel$cou) # 66
+## match("NAFTA", ui.icioFddva.reglabel$cou) # 65
+## match("EU28", ui.icioFddva.reglabel$cou) # 64
+## match("EU15", ui.icioFddva.reglabel$cou) # 63
+
+ui.icioFddva.cou <- list(
+  "WOR: Total World" = 69,
+  "Total OECD" = 68,
+  "ASEAN" = 67,
+  "East Asia" = 66,
+  "NAFTA" = 65,
+  "EU28" = 64,
+  "EU15" = 63,
+  "..." = 100,
+
+  "AUS: Australia" = 1,
+  "AUT: Austria" = 2,
+  "BEL: Belgium" = 3,
+  "CAN: Canada" = 4,
+  "CHL: Chile" = 5,
+  "CZE: Czech Republic" = 6,
+  "DNK: Denmark" = 7,
+  "EST: Estonia" = 8,
+  "FIN: Finland" = 9,
+  "FRA: France" = 10,
+  "DEU: Germany" = 11,
+  "GRC: Greece" = 12,
+  "HUN: Hungary" = 13,
+  "ISL: Iceland" = 14,
+  "IRL: Ireland" = 15,
+  "ISR: Israel" = 16,
+  "ITA: Italy" = 17,
+  "JPN: Japan" = 18,
+  "KOR: Republic of Korea" = 19,
+  "LUX: Luxembourg" = 20,
+  "MEX: Mexico" = 21,
+  "NLD: Netherlands" = 22,
+  "NZL: New Zealand" = 23,
+  "NOR: Norway" = 24,
+  "POL: Poland" = 25,
+  "PRT: Portugal" = 26,
+  "SVK: Slovakia" = 27,
+  "SVN: Slovenia" = 28,
+  "ESP: Spain" = 29,
+  "SWE: Sweden" = 30,
+  "CHE: Switzerland" = 31,
+  "TUR: Turkey" = 32,
+  "GBR: United Kingdom" = 33,
+  "USA: United States" = 34,
+  "ARG: Argentina" = 35,
+  "BGR: Bulgaria" = 36,
+  "BRA: Brazil" = 37,
+  "BRN: Brunei Darussalam" = 38,
+  "CHN: China" = 39,
+  "COL: Colombia" = 40,
+  "CRI: Costa Rica" = 41,
+  "CYP: Cyprus" = 42,
+  "HKG: China: Hong Kong" = 43,
+  "HRV: Croatia" = 44,
+  "IDN: Indonesia" = 45,
+  "IND: India" = 46,
+  "KHM: Cambodia" = 47,
+  "LTU: Lithuania" = 48,
+  "LVA: Latvia" = 49,
+  "MLT: Malta" = 50,
+  "MYS: Malaysia" = 51,
+  "PHL: Philippines" = 52,
+  "ROU: Romania" = 53,
+  "RUS: Russian Federation" = 54,
+  "SAU: Saudi Arabia" = 55,
+  "SGP: Singapore" = 56,
+  "THA: Thailand" = 57,
+  "TUN: Tunisia" = 58,
+  "TWN: Chinese Taipei" = 59,
+  "VNM: Viet Nam" = 60,
+  "ZAF: South Africa" = 61,
+  "ROW: Rest of the World" = 62
+  ## "CHN2" = 59,
+  ## "CHN3" = 60,
+  ## "CHN4" = 61
+  )
+##
+## ui.icioFddva.year <- c(1995, 2000, 2005, 2008, 2009)
+ui.icioFddva.year <- c(1995:2011)  # 17 years
+##
+
+ui.icioFddva.coef <- rbind.data.frame(
+    c("vB", "Value-added")
+    ## ,
+    ## c("eB", "Employment")
+  ,
+  c("diag", "Direct (diag)")
+    )
+names(ui.icioFddva.coef) <- c("coef", "label")
+ui.icioFddva.coef.list <- as.list(as.character(ui.icioFddva.coef$coef))
+names(ui.icioFddva.coef.list) <- ui.icioFddva.coef$label
+
+ui.icioFddva.demand <- rbind.data.frame(
+  ## c("FDTTLWITHDISC", "Final demand"),
+  ## c("GFCF", "Capital formation"),
+  c("GRTR", "Gross trade")
+  ## ,
+  ## c("HHCP", "Household consumption")
+  )
+names(ui.icioFddva.demand) <- c("demand", "label")
+ui.icioFddva.demand.list <- as.list(as.character(ui.icioFddva.demand$demand))
+names(ui.icioFddva.demand.list) <- ui.icioFddva.demand$label
+
+
+## namereg.old <- read.csv("/home/stan/Dropbox/GitHub/desk/inst/industry/data/data_init/icioIndic_namereg.csv")
+## namereg.old$cou
+## setdiff(namecou.df$cou, namereg.old$cou)
+## setdiff(namereg.old$cou, namecou.df$cou)
+## ## [1] "COL" "CRI" "HRV" "TUN"
+## ## match position of countries with data matrix (grtr)
+## country.new <- subset(merge(ui.icioFddva.reglabel, namecou.df, by = "cou", all = TRUE), select = c("cou", "country.x", "country.y"))
+## country.new$cou <- factor(country.new$cou, levels = namecou.df$cou)
+## country.new <- country.new[order(country.new$cou),]
+## country.new
+
 ## order and number of items matters - compare with ui
 ui.icioFddva.reglabel <- rbind.data.frame(
   c("AUS","Australia","Australia","Australian",1,0,0,0,0,0,1),
@@ -342,44 +399,49 @@ ui.icioFddva.reglabel <- rbind.data.frame(
   c("GBR","United Kingdom","the United Kingdom","UK",1,1,1,0,0,0,1),
   c("USA","United States","the United States","US",1,0,0,1,0,0,1),
   c("ARG","Argentina","Argentina","Argentinian",1,0,0,0,0,0,0),
+  c("BGR","Bulgaria","Bulgaria","Bulgarian",1,0,1,0,0,0,0),
   c("BRA","Brazil","Brazil","Brazilian",1,0,0,0,0,0,0),
+  c("BRN","Brunei Darussalam","Brunei Darussalam","Bruneian",1,0,0,0,0,1,0),
   c("CHN","China","China","Chinese",1,0,0,0,1,0,0),
-  c("TWN","Chinese Taipei","Chinese Taipei","Chinese Taipei",1,0,0,0,1,0,0),
-  c("IND","India","India","Indian",1,0,0,0,0,0,0),
-  c("IDN","Indonesia","Indonesia","Indonesian",1,0,0,0,0,1,0),
-  c("RUS","Russian Fed.","the Russian Federation","Russian",1,0,0,0,0,0,0),
-  c("SGP","Singapore","Singapore","Singaporean",1,0,0,0,0,1,0),
-  c("ZAF","South Africa","South Africa","South African",1,0,0,0,0,0,0),
+  c("COL","Colombia","Colombia","Colombian",1,0,0,0,0,0,0),
+  c("CRI","Costa Rica","Costa Rica","Costa Rican",1,0,0,0,0,0,0),
+  c("CYP","Cyprus","Cyprus","Cypriot",1,0,1,0,0,0,0),
   c("HKG","Hong Kong","Hong Kong (SAR China)","Hong Kong",1,0,0,0,1,0,0),
+  c("HRV","Croatia","Croatia","Croatian",1,0,1,0,0,0,0),
+  c("IDN","Indonesia","Indonesia","Indonesian",1,0,0,0,0,1,0),
+  c("IND","India","India","Indian",1,0,0,0,0,0,0),
+  c("KHM","Cambodia","Cambodia","Cambodian",1,0,0,0,0,1,0),
+  c("LTU","Lithuania","Lithuania","Lithuanian",1,0,1,0,0,0,0),
+  c("LVA","Latvia","Latvia","Latvian",1,0,1,0,0,0,0),
+  c("MLT","Malta","Malta","Maltese",1,0,1,0,0,0,0),
   c("MYS","Malaysia","Malaysia","Malaysian",1,0,0,0,0,1,0),
   c("PHL","Philippines","Philippines","Filipino",1,0,0,0,0,1,0),
-  c("THA","Thailand","Thailand","Thai",1,0,0,0,0,1,0),
   c("ROU","Romania","Romania","Romanian",1,0,1,0,0,0,0),
-  c("VNM","Viet Nam","Viet Nam","Vietnamese",1,0,0,0,0,1,0),
+  c("RUS","Russian Fed.","the Russian Federation","Russian",1,0,0,0,0,0,0),
   c("SAU","Saudi Arabia","Saudi Arabia","Saudi Arabian",1,0,0,0,0,0,0),
-  c("BRN","Brunei Darussalam","Brunei Darussalam","Bruneian",1,0,0,0,0,1,0),
-  c("BGR","Bulgaria","Bulgaria","Bulgarian",1,0,1,0,0,0,0),
-  c("CYP","Cyprus","Cyprus","Cypriot",1,0,1,0,0,0,0),
-  c("LVA","Latvia","Latvia","Latvian",1,0,1,0,0,0,0),
-  c("LTU","Lithuania","Lithuania","Lithuanian",1,0,1,0,0,0,0),
-  c("MLT","Malta","Malta","Maltese",1,0,1,0,0,0,0),
-  c("KHM","Cambodia","Cambodia","Cambodian",1,0,0,0,0,1,0),
+  c("SGP","Singapore","Singapore","Singaporean",1,0,0,0,0,1,0),
+  c("THA","Thailand","Thailand","Thai",1,0,0,0,0,1,0),
+  c("TUN","Tunesia","Tunesia","Tunesian",1,0,0,0,0,0,0),
+  c("TWN","Chinese Taipei","Chinese Taipei","Chinese Taipei",1,0,0,0,1,0,0),
+  c("VNM","Viet Nam","Viet Nam","Vietnamese",1,0,0,0,0,1,0),
+  c("ZAF","South Africa","South Africa","South African",1,0,0,0,0,0,0),
   c("ROW","Rest_of the_World","the Rest of the World","Rest of the World's",1,0,0,0,0,0,0),
+  ##
   c("EU15","EU 15","EU 15","EU 15",0,0,0,0,0,0,0),
-  c("EU27","EU 27","EU 27","EU 27",0,0,0,0,0,0,0),
+  c("EU28","EU 28","EU 28","EU 28",0,0,0,0,0,0,0),
   c("NAFTA","NAFTA","NAFTA","NAFTA",0,0,0,0,0,0,0),
   c("E_ASIA","East Asia","East Asia","East Asia",0,0,0,0,0,0,0),
   c("ASEAN","ASEAN","ASEAN","ASEAN",0,0,0,0,0,0,0),
   c("OECD","Total OECD","Total OECD","Total OECD",0,0,0,0,0,0,0),
   c("WOR","Total World","Total World","Total World",0,0,0,0,0,0,0)
   )
-names(ui.icioFddva.reglabel) <- c("cou","country", "coulabel", "coupron", "reg.WOR", "reg.EU15", "reg.EU27", "reg.NAFTA", "reg.E_ASIA", "reg.ASEAN", "reg.OECD")
-##
+names(ui.icioFddva.reglabel) <- c("cou","country", "coulabel", "coupron", "reg.WOR", "reg.EU15", "reg.EU28", "reg.NAFTA", "reg.E_ASIA", "reg.ASEAN", "reg.OECD")
+
 ui.icioFddva.region <- sub("reg.", "", names(ui.icioFddva.reglabel)[substr(names(ui.icioFddva.reglabel), 1, 4)=="reg."])
 ##
-## create character vectors "EU15", "EU27" etc. with member country codes
+## create character vectors "EU15", "EU28" etc. with member country codes
 ui.icioFddva.namereg <- ui.icioFddva.reglabel$cou[ui.icioFddva.reglabel$reg.WOR==1]
-for (reg in ui.icioFddva.region) # c("WOR", "EU27", "NAFTA", "E_ASIA", "ASEAN", "OECD")
+for (reg in ui.icioFddva.region) # c("WOR", "EU28", "NAFTA", "E_ASIA", "ASEAN", "OECD")
 {
   eval(parse(text = paste0(reg, ' <- ui.icioFddva.reglabel$cou[ui.icioFddva.reglabel$reg.', reg, '==1]')))
 }
@@ -393,7 +455,7 @@ for (j in seq(along=ui.icioFddva.namereg))
 ##
 ##
 ui.icioFddva.namereg.agg <- list(EU15 = match(EU15, ui.icioFddva.namereg),
-                                 EU27 = match(EU27, ui.icioFddva.namereg),
+                                 EU28 = match(EU28, ui.icioFddva.namereg),
                                  NAFTA = match(NAFTA, ui.icioFddva.namereg),
                                  E_ASIA = match(E_ASIA, ui.icioFddva.namereg),
                                  ASEAN = match(ASEAN, ui.icioFddva.namereg),
@@ -407,10 +469,10 @@ ui.icioFddva.rownames<- paste(ui.icioFddva.rownames[,2], ui.icioFddva.rownames[,
 ui.icioFddva.colnames <- ui.icioFddva.namereg
 ui.icioFddva.dimnames=list(ui.icioFddva.rownames, ui.icioFddva.colnames)
 ##
-dat <- isolate(values[["ICIO5837APP"]])
+dat <- isolate(values[["ICIO6234APP"]])
 ##
-ui.icioFddva.nocou <- dim(dat$DATA.ICIO5837GRTR)[2]
-ui.icioFddva.noind <- dim(dat$DATA.ICIO5837GRTR)[1] / ui.icioFddva.nocou
+ui.icioFddva.nocou <- dim(dat$DATA.ICIO6234GRTR)[2]
+ui.icioFddva.noind <- dim(dat$DATA.ICIO6234GRTR)[1] / ui.icioFddva.nocou
 ##
 ui.icioFddva.dim_conv <- list(row=c(ui.icioFddva.nocou, ui.icioFddva.noind), col=c(ui.icioFddva.nocou))
 
@@ -449,13 +511,15 @@ output$ui_icioFddva <- renderUI({
                     choices = ui.icioFddva.coef.list,
                     selected = "vB"
                     ),
+        ## checkboxInput("fddva_ignorecoef", ),
         selectInput("fddva_time", "Year:",
                     list(
-                      "2009" = 5,
-                      "2008" = 4,
-                      "2005" = 3,
-                      "2000" = 2,
-                      "1995" = 1
+                      ## "2009" = 5,
+                      ## "2008" = 4,
+                      "2005" = 11
+                      ## ,
+                      ## "2000" = 2,
+                      ## "1995" = 1
                       )
                     ),
         ## conditionalPanel(condition="input.datatabs==3 | input.datatabs==4 | input.datatabs==5 | input.datatabs==6" ,
@@ -467,7 +531,8 @@ output$ui_icioFddva <- renderUI({
                     ##   "HHCP: Household Consumption" = "HHCP"
                     ##   ),
                     choices = ui.icioFddva.demand.list,
-                    selected = "FDTTLWITHDISC"
+                    ## selected = "FDTTLWITHDISC"
+                    selected = "GRTR"
                     )
         ## )
         ,
@@ -475,11 +540,11 @@ output$ui_icioFddva <- renderUI({
         wellPanel(
           h5("Demand data"),
           selectInput("fddva_couX", "Export Country: (couX)", ui.icioFddva.cou,
-                      selected = 62), # 62: East Asia; 65: WOR: Total World"
+                      selected = 29), # 29: ESP, 34: USA, 66: East Asia
           selectInput("fddva_indX", "Demand or Final Expenditure Industry: (indX)", ui.icioFddva.ind,
-                      selected = 320), # 39: C15T37 MANUF; 41: "C30T33 ICT"
+                      selected = 134), # 134: TOT, 318: C15T37 MANUF
           selectInput("fddva_couD", "Demand Country: (couD)", ui.icioFddva.cou,
-                      selected = 60),
+                      selected = 69), # 69: WOR, 4: CAN, 64: EU28
           checkboxInput("fddva_conv1", "Plot dimension selection", FALSE),
           conditionalPanel(condition = "input.tabs_icioFddva == 'Plots'",
                            conditionalPanel(condition = "input.fddva_dimS == 'ind'",
@@ -489,7 +554,7 @@ output$ui_icioFddva <- renderUI({
                                             checkboxInput("fddva_nocouX", "Remove 'couX' from chart", FALSE)
                                             )
                            )
-          ), # EU27
+          ), # EU28
 
         conditionalPanel(condition = "input.tabs_icioFddva == 'Plots' | input.tabs_icioFddva == 'Tables'",
                          wellPanel(
@@ -499,12 +564,12 @@ output$ui_icioFddva <- renderUI({
                                         selected = ui.icioFddva.dimS[[1]]),
                            conditionalPanel(condition = "input.fddva_dimS == 'ind'",
                                             selectInput("fddva_couS", "Source Country: (couS)", ui.icioFddva.cou,
-                                                        selected = 64) # "Total OECD"
+                                                        selected = 3) # 3: BEL, 65: NAFTA, 68: "Total OECD"
                                             )
                            ,
                            conditionalPanel(condition = "input.fddva_dimS == 'cou'",
                                             selectInput("fddva_indS", "Source Industry: (indS)", ui.icioFddva.ind,
-                                                        selected = 137) # "C01T99 TOT"
+                                                        selected = 134) # 134: "C01T99 TOT"
                                             )
                            )
                          )
@@ -519,9 +584,9 @@ output$ui_icioFddva <- renderUI({
                       ## selected = state_init_list("fddva_sortdata", "", ui.icioFddva.sortdata),
                       selected = ui.icioFddva.sortdata[[1]],
                       multiple = FALSE),
-          conditionalPanel(condition = "input.tabs_icioFddva == 'Tables'",
+          conditionalPanel(condition = "input.tabs_icioFddva == 'Tables' | input.tabs_icioFddva == 'Plots'",
                            ## conditionalPanel(condition="input.datatabs==4" ,
-                           checkboxInput("fddva_aggindS", "Add ICIO 18 industry aggregates", FALSE)
+                           checkboxInput("fddva_aggindS", "Show ICIO 18 industry aggregates", FALSE)
                            )
           )
         ## ,
@@ -561,48 +626,6 @@ output$icioFddva <- renderUI({
                ,heightFun = "icioFddva_heightSize"
                )
 })
-
-## ########################
-## old server script
-## ########################
-
-## input <- list(fddva_aggindS=FALSE,
-##               fddva_calcshare=TRUE,
-##               fddva_coef="eB",
-##               fddva_couS=64,
-##               fddva_couD=60,
-##               fddva_couX=65,
-##               fddva_datasets="ICIO5837APP",
-##               fddva_datatabs=3,
-##               fddva_demand="GRTR",
-##               fddva_dimS="ind",
-##               fddva_indS=137,
-##               fddva_indX=320,
-##               nav_radiant="Icio",
-##               fddva_nocouX=FALSE,
-##               fddva_noindX=FALSE,
-##               fddva_rounddec=4,
-##               fddva_sortdata="desc",
-##               fddva_time=4,
-##               fddva_topN=5
-##               )
-## input
-## fddva_coef = input$fddva_coef
-## fddva_time = input$fddva_time
-## fddva_demand = input$fddva_demand
-## fddva_indX = input$fddva_indX
-## fddva_dimS = input$fddva_dimS
-## fddva_indS = input$fddva_indS
-## fddva_couS = input$fddva_couS
-## fddva_couX = input$fddva_couX
-## fddva_couD = input$fddva_couD
-## fddva_couD = input$fddva_couD
-## fddva_noindX = input$fddva_noindX
-## fddva_calcshare = input$fddva_calcshare
-## fddva_rounddec = input$fddva_rounddec
-## fddva_sortdata = input$fddva_sortdata
-## fddva_topN = input$fddva_topN
-## fddva_conv1 = input$fddva_conv1
 
 .icioFddva <- reactive({
   ## reactive that calls the function for main analysis
@@ -686,7 +709,7 @@ icioFddva <- function(fddva_coef = fddva_coef,
                       )
 {
 
-    ## Part I: Text strings
+  ## Part I: Text strings
   ## Chart title
   title <- list(coef = fddva_coef,
                 year = ui.icioFddva.year[as.numeric(fddva_time)],
@@ -706,26 +729,25 @@ icioFddva <- function(fddva_coef = fddva_coef,
                 couD = names(ui.icioFddva.namereg.agg)[as.numeric(fddva_couD)]
                 ## couD = input$couD
                 )
-  if (fddva_dimS == "ind")
-    {
-      title <- title[!names(title)%in%c("indS")]
-    } else if (fddva_dimS == "cou")
-      {
-        title <- title[!names(title)%in%c("couS")]
-      }
+
+  if (fddva_dimS == "ind") {
+    title <- title[!names(title)%in%c("indS")]
+  } else if (fddva_dimS == "cou") {
+    title <- title[!names(title)%in%c("couS")]
+  }
   title.string <- NULL
-  for (i in seq(along=title))
-    {
-      if (is.null(title.string))
-        {
-          title.string <- paste(toString(names(title[i])), toString(title[[i]]), sep = ": ")
-        }
-      else
-        {
-          title.string <- paste(title.string, paste(toString(names(title[i])), toString(title[[i]]), sep = ": "), sep = ", ")
-        }
+
+  for (i in seq(along=title)) {
+    if (is.null(title.string)) {
+      title.string <- paste(toString(names(title[i])), toString(title[[i]]), sep = ": ")
     }
+    else {
+      title.string <- paste(title.string, paste(toString(names(title[i])), toString(title[[i]]), sep = ": "), sep = ", ")
+    }
+  }
+
   if (fddva_calcshare==TRUE) unit.string <- "share in total" else unit.string <- "in USD"
+
   title.string <- paste(title.string, unit.string, sep = ", ")
   ## Result interpretation
   blurb <- list(
@@ -738,97 +760,93 @@ icioFddva <- function(fddva_coef = fddva_coef,
     couX2 = ui.icioFddva.reglabel$country[ui.icioFddva.reglabel$cou==title$couX],
     couD = ui.icioFddva.reglabel$coupron[ui.icioFddva.reglabel$cou==title$couD]
     )
-  if (fddva_dimS == "ind")
-    {
-      blurb <- c(blurb, couS = as.character(ui.icioFddva.reglabel$coupron[ui.icioFddva.reglabel$cou==title$couS]))
-    } else if (fddva_dimS == "cou")
-      {
-        blurb <- c(blurb, indS = as.character(paste0(ui.icioFddva.seclabel$indlabel[ui.icioFddva.seclabel$ind==title$indS]," industries (", ui.icioFddva.seclabel$code[ui.icioFddva.seclabel$ind==title$indS], ")")))
-      }
-  if (fddva_dimS == "ind")
-    {
-      blurb.string <- paste0(
-        as.character(blurb$couS), ' ', tolower(blurb$coef), ', in source industry, \n', # \t\t\t\t <coef>, in source industry\n',
-        'generated by ', blurb$couD, ' ', tolower(blurb$demand), ' of \n',
-        blurb$couX1, ' exports of ', blurb$indX, ', \n',
-        blurb$year, '.'
-        )
-      blurb.string.template <- paste0('<couS><coef>, in source industry,\n',
-                                      'generated by <couD><demand> of \n',
-                                      '<couX> exports of <indX>, \n',
-                                      '<year>.')
-      ## blurb.string <- paste0(blurb.string, '\n\n', blurb.string.template)
-    } else if (fddva_dimS == "cou")
-      {
-        blurb.string <- paste0(
-          blurb$coef, ' in ', blurb$indS, ' within each country,\n',
-          'supported by ', blurb$couD, ' ', tolower(blurb$demand), ' of\n',
-          blurb$couX1, ' exports of ', blurb$indX, ',\n',
-          blurb$year, '\n',
-          '(includes ', tolower(blurb$coef), ' in ', blurb$couX2, ').')
-        blurb.string.template <- paste0('<coef> in <indS>, within each country,\n',
-                                        'supported by <couD><demand> of\n',
-                                        '<couX> exports of <indX>,\n',
-                                        '<year>\n',
-                                        '(includes <coef> in <couX>).')
-      }
+
+  if (fddva_dimS == "ind") {
+    blurb <- c(blurb, couS = as.character(ui.icioFddva.reglabel$coupron[ui.icioFddva.reglabel$cou==title$couS]))
+  } else if (fddva_dimS == "cou") {
+    blurb <- c(blurb, indS = as.character(paste0(ui.icioFddva.seclabel$indlabel[ui.icioFddva.seclabel$ind==title$indS]," industries (", ui.icioFddva.seclabel$code[ui.icioFddva.seclabel$ind==title$indS], ")")))
+  }
+  if (fddva_dimS == "ind") {
+    blurb.string <- paste0(
+      as.character(blurb$couS), ' ', tolower(blurb$coef), ', in source industry, \n', # \t\t\t\t <coef>, in source industry\n',
+      'generated by ', blurb$couD, ' ', tolower(blurb$demand), ' of \n',
+      blurb$couX1, ' exports of ', blurb$indX, ', \n',
+      blurb$year, '.'
+      )
+    blurb.string.template <- paste0('<couS><coef>, in source industry,\n',
+                                    'generated by <couD><demand> of \n',
+                                    '<couX> exports of <indX>, \n',
+                                    '<year>.')
+    ## blurb.string <- paste0(blurb.string, '\n\n', blurb.string.template)
+  } else if (fddva_dimS == "cou") {
+    blurb.string <- paste0(
+      blurb$coef, ' in ', blurb$indS, ' within each country,\n',
+      'supported by ', blurb$couD, ' ', tolower(blurb$demand), ' of\n',
+      blurb$couX1, ' exports of ', blurb$indX, ',\n',
+      blurb$year, '\n',
+      '(includes ', tolower(blurb$coef), ' in ', blurb$couX2, ').')
+    blurb.string.template <- paste0('<coef> in <indS>, within each country,\n',
+                                    'supported by <couD><demand> of\n',
+                                    '<couX> exports of <indX>,\n',
+                                    '<year>\n',
+                                    '(includes <coef> in <couX>).')
+  }
+  
   blurb.string <- paste0(blurb.string, '\n\n', blurb.string.template)
   ## Country labels for region selection
   string.label.couX <- NULL
   string.label.couD <- NULL
   string.label.couS <- NULL
   ##
-  if (title$couX%in%ui.icioFddva.region)
-    {
-      label.couX <- isolate(eval(parse(text = title$couX)))
-      string.label.couX <- paste0('couX: ', title$couX, '\n\t', toString(sort(label.couX)), '\n')
+  if (title$couX%in%ui.icioFddva.region) {
+    label.couX <- isolate(eval(parse(text = title$couX)))
+    string.label.couX <- paste0('couX: ', title$couX, '\n\t', toString(sort(label.couX)), '\n')
+  }
+  if (title$couD%in%ui.icioFddva.region) {
+    label.couD <- isolate(eval(parse(text = title$couD)))
+    string.label.couD <- paste0('couD: ', title$couD, '\n\t', toString(sort(label.couD)), '\n')
+  }
+  if (fddva_dimS == "ind") {
+    if (title$couS%in%ui.icioFddva.region) {
+      label.couS <- isolate(eval(parse(text = title$couS)))
+      string.label.couS <- paste0('couS: ', title$couS, '\n\t', toString(sort(label.couS)), '\n')
     }
-  if (title$couD%in%ui.icioFddva.region)
-    {
-      label.couD <- isolate(eval(parse(text = title$couD)))
-      string.label.couD <- paste0('couD: ', title$couD, '\n\t', toString(sort(label.couD)), '\n')
-    }
-  if (fddva_dimS == "ind")
-    {
-      if (title$couS%in%ui.icioFddva.region)
-        {
-          label.couS <- isolate(eval(parse(text = title$couS)))
-          string.label.couS <- paste0('couS: ', title$couS, '\n\t', toString(sort(label.couS)), '\n')
-        }
-    }
+  }
+
   label_cou <- paste0(string.label.couX,
                       string.label.couD,
                       string.label.couS)
   ## Part II: Calculation
   ## Data selection
 
-  dat <- values[["ICIO5837APP"]]
-  ## dat <- isolate(values[["ICIO5837APP"]])
+  dat <- values[["ICIO6234APP"]]
+  ## dat <- isolate(values[["ICIO6234APP"]])
 
   ## Coefficient matrix
-  if (fddva_coef=="eB")
-    {
-      xB <- array(dat$DATA.ICIO5837EB[,,as.numeric(fddva_time)],
-                  dim = dim(dat$DATA.ICIO5837EB[,,as.numeric(fddva_time)])[1:2])
-    } else if (fddva_coef=="vB")
-      {
-        xB <- array(dat$DATA.ICIO5837VB[,,as.numeric(fddva_time)],
-                    dim = dim(dat$DATA.ICIO5837VB[,,as.numeric(fddva_time)])[1:2])
-      }
+  if (fddva_coef=="eB") {
+    xB <- array(dat$DATA.ICIO6234EB[,,as.numeric(fddva_time)],
+                dim = dim(dat$DATA.ICIO6234EB[,,as.numeric(fddva_time)])[1:2])
+  } else if (fddva_coef=="vB") {
+    xB <- array(dat$DATA.ICIO6234VB[,,as.numeric(fddva_time)],
+                dim = dim(dat$DATA.ICIO6234VB[,,as.numeric(fddva_time)])[1:2])
+  } else if (fddva_coef=="diag") {
+    xB <- diag(ui.icioFddva.nocou * ui.icioFddva.noind)
+  }
+
   ## Demand matrix
-  data.demand <- eval(parse(text = paste0('array(dat$DATA.ICIO5837', fddva_demand, '[,,as.numeric(', fddva_time, ')], dim = dim(dat$DATA.ICIO5837', fddva_demand, '[,,as.numeric(', fddva_time, ')])[1:2])')))
+  data.demand <- eval(parse(text = paste0('array(dat$DATA.ICIO6234', fddva_demand, '[,,as.numeric(', fddva_time, ')], dim = dim(dat$DATA.ICIO6234', fddva_demand, '[,,as.numeric(', fddva_time, ')])[1:2])')))
+
   ## Binary selection matrix
   if (as.numeric(fddva_couX) <= ui.icioFddva.nocou) agg.couX <- as.numeric(fddva_couX) else if (as.numeric(fddva_couX) > ui.icioFddva.nocou) agg.couX <- ui.icioFddva.namereg.agg[[as.numeric(fddva_couX)]]
   if (as.numeric(fddva_couD) <= ui.icioFddva.nocou) agg.couD <- as.numeric(fddva_couD) else if (as.numeric(fddva_couD) > ui.icioFddva.nocou) agg.couD <- ui.icioFddva.namereg.agg[[as.numeric(fddva_couD)]]
-  ##
-  if (as.numeric(fddva_indX) <= ui.icioFddva.noind)
-    {
-      agg.indX <- c(as.numeric(fddva_indX), as.numeric(fddva_indX))
-    } else if (as.numeric(fddva_indX) > ui.icioFddva.noind)
-      {
-        agg.indX <- ui.icioFddva.secagg[ui.icioFddva.secagg$id==fddva_indX,3:4]
-        agg.indX <- c(agg.indX[[1]] : agg.indX[[2]])
-      }
+  
+  if (as.numeric(fddva_indX) <= ui.icioFddva.noind) {
+    agg.indX <- c(as.numeric(fddva_indX), as.numeric(fddva_indX))
+  } else if (as.numeric(fddva_indX) > ui.icioFddva.noind) {
+    agg.indX <- ui.icioFddva.secagg[ui.icioFddva.secagg$id==fddva_indX,3:4]
+    agg.indX <- c(agg.indX[[1]] : agg.indX[[2]])
+  }
+
   data.conv1 <- convCreate(dim = ui.icioFddva.dim_conv,
                            agg.row1 = agg.couD,
                            agg.row2 = agg.indX,
@@ -840,51 +858,37 @@ icioFddva <- function(fddva_coef = fddva_coef,
   data.couX.indX <- data.conv1 * data.demand
   aaa <- xB %*% data.couX.indX
   aaa <- apply(aaa, 1, sum)
-  ## Results by source industry
-  ## if (fddva_dimS == "ind")
-  ##   {
+
   conv.cou <- array(0, dim = c(ui.icioFddva.noind, ui.icioFddva.nocou * ui.icioFddva.noind)) # 37 x 2146
-  for (i in c(1:ui.icioFddva.noind))
-    {
-      if (as.numeric(fddva_couS) <= ui.icioFddva.nocou)
-        {
-          conv.cou[i, (as.numeric(fddva_couS)-1)*ui.icioFddva.noind + i] <- 1
-        } else if (as.numeric(fddva_couS) >= 59)
-          {
-            ## agg.ind <- ui.icioFddva.secagg[ui.icioFddva.secagg$id==fddva_indS,3:4]
-            agg.couS <- ui.icioFddva.namereg.agg[[as.numeric(fddva_couS)]]
-            for (j in seq(along=agg.couS))
-              {
-                conv.cou[i, (agg.couS[j]-1)*ui.icioFddva.noind + i] <- 1
-              }
-          }
+  for (i in c(1:ui.icioFddva.noind)) {
+    if (as.numeric(fddva_couS) <= ui.icioFddva.nocou) {
+      conv.cou[i, (as.numeric(fddva_couS)-1)*ui.icioFddva.noind + i] <- 1
+    } else if (as.numeric(fddva_couS) >= 59) {
+      agg.couS <- ui.icioFddva.namereg.agg[[as.numeric(fddva_couS)]]
+      for (j in seq(along=agg.couS)) {
+        conv.cou[i, (agg.couS[j]-1)*ui.icioFddva.noind + i] <- 1
+      }
     }
-  ## data.by.dimS <- conv.cou %*% aaa
-  ## if (fddva_calcshare==TRUE) data.by.dimS <- data.by.dimS / sum(data.by.dimS)
+  }
+  
   data.by.ind <- conv.cou %*% aaa
   if (fddva_calcshare==TRUE) data.by.ind <- data.by.ind / sum(data.by.ind)
-  ## } else if (fddva_dimS == "cou")
-  ##   {
+
   conv.ind <- array(0, dim = c(ui.icioFddva.nocou, ui.icioFddva.nocou * ui.icioFddva.noind)) # 58 x 2146
-  for (j in c(1:ui.icioFddva.nocou))
-    {
-      if (as.numeric(fddva_indS) <= ui.icioFddva.noind)
-        {
-          conv.ind[j, (j-1)*ui.icioFddva.noind + as.numeric(fddva_indS)] <- 1
-        } else if (as.numeric(fddva_indS) > ui.icioFddva.noind)
-          {
-            agg.ind <- ui.icioFddva.secagg[ui.icioFddva.secagg$id==fddva_indS,3:4]
-            conv.ind[j, ((j-1)*ui.icioFddva.noind + as.numeric(agg.ind[1])) : ((j-1)*ui.icioFddva.noind + as.numeric(agg.ind[2]))] <- 1
-          }
+  for (j in c(1:ui.icioFddva.nocou)) {
+    if (as.numeric(fddva_indS) <= ui.icioFddva.noind) {
+      conv.ind[j, (j-1)*ui.icioFddva.noind + as.numeric(fddva_indS)] <- 1
+    } else if (as.numeric(fddva_indS) > ui.icioFddva.noind) {
+      agg.ind <- ui.icioFddva.secagg[ui.icioFddva.secagg$id==fddva_indS,3:4]
+      conv.ind[j, ((j-1)*ui.icioFddva.noind + as.numeric(agg.ind[1])) : ((j-1)*ui.icioFddva.noind + as.numeric(agg.ind[2]))] <- 1
     }
+  }
+
   ## structure: [0 0 1 1 1 0 : 0 0 0 0 0 0 : 0 0 0 0 0 0 : ... ]
   ##            [0 0 0 0 0 0 : 0 0 1 1 1 0 : 0 0 0 0 0 0 : ... ]
   ##            [0 0 0 0 0 0 : 0 0 0 0 0 0 : 0 0 1 1 1 0 : ... ]
-  ## data.by.dimS <- conv.ind %*% aaa
-  ## if (fddva_calcshare==TRUE) data.by.dimS <- data.by.dimS / sum(data.by.dimS)
   data.by.cou <- conv.ind %*% aaa
   if (fddva_calcshare==TRUE) data.by.cou <- data.by.cou / sum(data.by.cou)
-  ## }
 
   return(list(unit.string = unit.string,
               title.string = title.string,
@@ -961,8 +965,7 @@ tables_icioFddva <- function(result = .icioFddva())
           {
             data.table <- data.table[order(data),]
           }
-      ## if (fddva_aggindS==TRUE)
-      ##   {
+      if (fddva_aggindS==TRUE) {
           data.ind18 <- data.by.ind
           data.ind18.1 <- cbind.data.frame(Industry = as.character(ui.icioFddva.aggind[,"ind.icio18"]),
                                            Value = data.ind18)
@@ -970,10 +973,10 @@ tables_icioFddva <- function(result = .icioFddva())
                                     by = list(data.ind18.1$Industry),
                                     FUN = "sum")
           names(data.ind18.2) <- c("Industry", "Value")
-      ## data.table <- rbind(data.ind18.2, data.table)
+          data.table <- rbind(data.ind18.2, data.table)
       ## show only 18 industries
-      data.table <- data.ind18.2
-      ## }
+      ## data.table <- data.ind18.2
+      }
 
       data.sum <- cbind.data.frame(Industry = "Total", Value = sum(data)) # calculate Total
 
@@ -1049,14 +1052,19 @@ plots_icioFddva <- function(result = .icioFddva())
 
         if (fddva_dimS == "ind")
           {
-            ## data.plot <- data.by.ind
-            ## data.plot <- cbind.data.frame(ui.icioFddva.namesec, data.by.ind)
-            data.plot <- cbind.data.frame(Industry = as.character(ui.icioFddva.aggind[,"ind.icio18"]),
-                                             Value = data.by.ind)
-            data.plot <- aggregate(data.plot[,"Value"],
-                                      by = list(data.plot$Industry),
-                                      FUN = "sum")
-            names(data.plot) <- c("names", "value")
+
+            if (fddva_aggindS==TRUE) {
+              data.plot <- cbind.data.frame(Industry = as.character(ui.icioFddva.aggind[,"ind.icio18"]),
+                                            Value = data.by.ind)
+              data.plot <- aggregate(data.plot[,"Value"],
+                                     by = list(data.plot$Industry),
+                                     FUN = "sum")
+            } else {
+              ## data.plot <- data.by.ind
+              data.plot <- cbind.data.frame(ui.icioFddva.namesec, data.by.ind)
+            }
+              names(data.plot) <- c("names", "value")
+            
             if (fddva_noindX==TRUE)
             {
                 data.plot <- data.plot[!data.plot$names==title$indX,]
@@ -1146,9 +1154,11 @@ maps_icioFddva <- function(result = .icioFddva())
   ## d <- choropleth(value ~ cou, data = data.plot[1:9,], map = "world", pal = "PuRd")
   ## m1 <- ichoropleth(value ~ cou, data = data.plot, map = "world", ncuts = 9)
   m1 <- ichoropleth(value ~ cou, data = data.plot, map = "world", ncuts = fddva_viz_plot_ncut)
+
   m1$set(width = icioFddva_viz_plot_width,
          height = .5 * icioFddva_viz_plot_width,
          ## height = "100%",
+         labels = FALSE,
          slider = TRUE
          )
   return(m1)
@@ -1159,18 +1169,74 @@ maps_icioFddva <- function(result = .icioFddva())
 
 }}
 
-## saveTreatmentAssign <- function(result = .icioFddva()) {
-## ## radiant.R
-##     changedata(data.frame(as.factor(result$dat$treatment)),
-##                "treatment") # addColName: return(values[[input$datasets]][,addColName] <- addCol)
-## }
+## ##################################### ##
+## create dynamic charts for jekyll page ##
+## ##################################### ##
 
-## observe({
-##   ## rnd_save_treatment: actionButton
-##     if(is.null(input$rnd_save_treatment) || input$rnd_save_treatment == 0) return()
-##     isolate({
-##         result <- .icioFddva()
-##         if(is.character(result)) return()
-##         saveTreatmentAssign(result)
-##     })
-## })
+## input <- list(fddva_aggindS=FALSE,
+##               fddva_calcshare=FALSE,
+##               fddva_coef="vB",
+##               fddva_couS=64, # Total OECD
+##               fddva_couD=60, # EU28
+##               fddva_couX=62, # East Asia
+##               fddva_datasets="ICIO6234APP",
+##               fddva_datatabs=3,
+##               fddva_demand="FDTTLWITHDISC",
+##               fddva_dimS="ind",
+##               fddva_indS=137,
+##               fddva_indX=320, # C15T37
+##               fddva_nocouX=FALSE,
+##               fddva_noindX=FALSE,
+##               fddva_rounddec=4,
+##               fddva_sortdata="indicio",
+##               fddva_time=4,
+##               fddva_topN=5,
+##               fddva_viz_plot_ncut = 5,
+##               icioFddva_viz_plot_height = 400,
+##               icioFddva_viz_plot_width = 800
+##               )
+## fddva_coef = input$fddva_coef
+## fddva_time = input$fddva_time
+## fddva_demand = input$fddva_demand
+## fddva_indX = input$fddva_indX
+## fddva_dimS = input$fddva_dimS
+## fddva_indS = input$fddva_indS
+## fddva_couS = input$fddva_couS
+## fddva_couX = input$fddva_couX
+## fddva_couD = input$fddva_couD
+## fddva_couD = input$fddva_couD
+## fddva_noindX = input$fddva_noindX
+## fddva_calcshare = input$fddva_calcshare
+## fddva_rounddec = input$fddva_rounddec
+## fddva_sortdata = input$fddva_sortdata
+## fddva_topN = input$fddva_topN
+## fddva_conv1 = input$fddva_conv1
+## fddva_viz_plot_ncut = input$fddva_viz_plot_ncut
+## icioFddva_viz_plot_height = input$icioFddva_viz_plot_height
+## icioFddva_viz_plot_width = input$icioFddva_viz_plot_width
+
+## m1 <- maps_icioFddva(result = isolate(.icioFddva()))
+## ##
+## outpath <- file.path(dbpath, "GitHub", "jekyll", "industry", "figures", "app_icioFddva")
+## if (file.exists(outpath)==FALSE) dir.create(path = outpath)
+## ##
+## htmlfile <- file.path(outpath, "fddva_map", "index.html")
+## if (file.exists(dirname(htmlfile))==FALSE) dir.create(path = dirname(htmlfile))
+## ## n1
+## m1$save(htmlfile, cdn = FALSE)
+
+## fileCon <- file(htmlfile)
+## text.body <- readLines(fileCon)
+## ## replace js libraries location
+## ## lib <- system.file('libraries', package = "rCharts")
+## lib <- system.file('libraries', package = "rMaps")
+## lib <- paste0(lib, "/")
+## lib <- gsub("/", "\\\\\\\\", lib)
+## ## D:\\R\\R-3.1.1\\library\\rMaps\\libraries\\datamaps
+## ## D:/R/R-3.1.1/library/rMaps/libraries
+## text.body <- sub(lib, "/www/rMaps/", text.body)
+## ## replace css location
+## text.body <- sub("./index_files", "/www/rMaps", text.body)
+## ##
+## writeLines(text = text.body, con = fileCon)
+## close(fileCon)

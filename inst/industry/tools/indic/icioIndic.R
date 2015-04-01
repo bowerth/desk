@@ -1,3 +1,18 @@
+
+#' #######
+#' CHECK
+#' #######
+#' Can not match keys in x and y to automatically determine appropriate `by` parameter. Please set `by` value explicitly.
+#'
+#' exgrdva
+#' rei
+#' fddvash
+#'
+#' #######
+
+
+
+
 ## require(brew)
 ## require(knitr)
 ## require(markdown)
@@ -24,20 +39,21 @@
 ## ## Europe, North America, East and S.E. Asia Other regions, South America
 ## ## save(list = c("icioIndic_data", "icioIndic_data_bsci"), file = file.path("data", "data_init", "icioIndic.rda"))
 load(file.path("data", "data_init", "icioIndic.rda"))
+icioIndic_data <- data.table(icioIndic_data)
 
 icioIndic_nameind <- read.csv(file.path("data", "data_init", "icioIndic_nameind.csv"))
 icioIndic_namereg <- read.csv(file.path("data", "data_init", "icioIndic_namereg.csv"))
 ## icioIndic_nameindic <- read.csv(file.path("data", "data_init", "icioIndic_nameindic.csv"))
 
-## oecd, eu27, americas, eastasia, asean, asiapacific, othereu27, restofworld
+## oecd, eu28, americas, eastasia, asean, asiapacific, othereu28, restofworld
 icioIndic_reg <- list()
 icioIndic_reg[["oecd"]] <- as.character(icioIndic_namereg$cou[icioIndic_namereg$inoecd==1])
-icioIndic_reg.label <- rbind.data.frame(c("EU27", "eu27"),
+icioIndic_reg.label <- rbind.data.frame(c("EU28", "eu28"),
                                         c("Americas", "americas"),
                                         c("East Asia", "eastasia"),
                                         c("ASEAN", "asean"),
                                         c("Ot.ASIA-PACIFIC", "asiapacific"),
-                                        c("OtherEUR", "othereu27"),
+                                        c("OtherEUR", "othereu28"),
                                         c("Restof the World", "restoftheworld"))
 names(icioIndic_reg.label) <- c("label", "reg")
 for (i in seq(along = icioIndic_reg.label$label)) {
@@ -121,19 +137,6 @@ output$icioIndic <- renderUI({
                ,heightFun = "icioIndic_heightSize"
                )
 })
-
-
-## ## Test
-## input <- list(
-##     icioindic_cou = "AUT",
-##     ## icioindic_chart = "exgrdvaex",
-##     icioindic_chart = "servvagr",
-##     icioindic_year = 2009,
-##     icioindic_refyear = 1995)
-## icioindic_cou = input$icioindic_cou
-## icioindic_chart = input$icioindic_chart
-## icioindic_year = input$icioindic_year
-## icioindic_refyear = input$icioindic_refyear
 
 .icioIndic <- reactive({
 
@@ -546,60 +549,106 @@ plots_icioIndic <- function(result = .icioIndic()) {
 ## ##################################### ##
 ## create dynamic charts for jekyll page ##
 ## ##################################### ##
-## polycharts_icioIndic <- function(result = .icioIndic())
-## { if (length(result) > 0) {
 
-##     ## detach("package:rCharts", unload=TRUE)
-##     ## require(rCharts)
-##     data.year <- data.plot[["data.year"]]
-##     data.year <- data.year[order(data.year$cou),]
 
-##     r1 <- rPlot(value ~ cou, data = data.year, type = "bar")
+## cat(paste0('## icioindic_chart = "', names(ui.icioIndic.indic), '",\n'))
 
-## }}
+## ## Test
+## input <- list(
+##     icioindic_cou = "AUT",
+##     ## icioindic_chart = "exgrdvaex",
+##     ## icioindic_chart = "exgrdva",
+##     ## icioindic_chart = "exgrfvash",
+##     ## icioindic_chart = "rei",
+##     ## icioindic_chart = "exgrvabsci",
+##     icioindic_chart = "fddvash",
+##     ## icioindic_chart = "tsvafd",
+##     ## icioindic_chart = "servvagr",
+##     ## icioindic_chart = "servvagrind",
+##     icioindic_year = 2009,
+##     icioindic_refyear = 1995,
+##     icioindic_span = 0.5)
+## icioindic_cou = input$icioindic_cou
+## icioindic_chart = input$icioindic_chart
+## icioindic_year = input$icioindic_year
+## icioindic_refyear = input$icioindic_refyear
+## icioindic_span = input$icioindic_span
 
-## nvd3charts_icioIndic <- function(result = .icioIndic())
-## { if (length(result) > 0) {
 
-##     ## require(rCharts)
-##     data.plot <- result$data.plot
+## .icioIndic <- reactive({
+##     icioIndic(
+##         icioindic_cou = input$icioindic_cou,
+##         icioindic_chart = input$icioindic_chart,
+##         icioindic_year = input$icioindic_year,
+##         icioindic_refyear = input$icioindic_refyear,
+##         icioindic_span = input$icioindic_span
+##         )
+## })
 
-##     nvd3charts_egxrdvaex <- function(data=data.plot) {
-##         data <- rbind(data[["data.year"]], data[["data.refyear"]])
-##         data <- data[order(data$cou),]
-##         n1 <- nPlot(value ~ cou, group = "year", data = data, type = "multiBarChart")
-##         ## n1$chart(stacked = TRUE)
-##         n1$chart(reduceXTicks = FALSE)
-##         n1$xAxis(rotateLabels = -45)
-##         return(n1)
-##     }
+## plots_icioIndic(isolate(.icioIndic()))
+## plots_icioIndic(isolate(.icioIndic()))
 
-##     nvd3charts_servvagr <- function(data=data.plot) {
-##         data <- data[["data.year"]]
-##         data <- data[order(data$cou),]
-##         n1 <- nPlot(value ~ cou, group = "variable", data = data, type = "multiBarChart")
-##         n1$chart(stacked = TRUE)
-##         n1$chart(reduceXTicks = FALSE)
-##         n1$xAxis(rotateLabels = -45)
-##         ## n1
-##         return(n1)
-##     }
+## ## require(rCharts)
 
-##     path <- file.path(dbpath, "GitHub", "jekyll", "industry", "figures", "d3_icioIndic", "nvd3")
-##     n1 <- nvd3charts_egxrdvaex(); file <- file.path(path, "exgrdvaex.html")
-##     n1 <- nvd3charts_servvagr(); file <- file.path(path, "servvagr.html")
+## result <- isolate(.icioIndic())
+## result <- isolate(icioIndic())
+## data.plot <- result$data.plot
+## ## data.summary <- result$data.summary
+
+
+## cat(paste0('## p <- icioIndic_plot_', names(ui.icioIndic.indic), '(data.plot, data.summary)\n'))
+## p <- icioIndic_plot_exgrdvaex(data.plot, data.summary)
+##  p <- icioIndic_plot_exgrdva(data.plot, data.summary)
+ ## p <- icioIndic_plot_exgrfvash(data.plot, data.summary)
+ ## p <- icioIndic_plot_rei(data.plot, data.summary)
+ ## p <- icioIndic_plot_exgrvabsci(data.plot, data.summary)
+ ## p <- icioIndic_plot_fddvash(data.plot, data.summary)
+ ## p <- icioIndic_plot_tsvafd(data.plot, data.summary)
+ ## p <- icioIndic_plot_servvagr(data.plot, data.summary)
+ ## p <- icioIndic_plot_servvagrind(data.plot, data.summary)
+## p
+## p
+
+## nvd3charts_egxrdvaex <- function(data=data.plot) {
+##     data <- rbind(data[["data.year"]], data[["data.refyear"]])
+##     data <- data[order(data$cou),]
+##     n1 <- nPlot(value ~ cou, group = "year", data = data, type = "multiBarChart")
+##     ## n1$chart(stacked = TRUE)
+##     n1$chart(reduceXTicks = FALSE)
+##     n1$xAxis(rotateLabels = -45)
+##     return(n1)
+## }
+
+
+## nvd3charts_servvagr <- function(data=data.plot) {
+##     data <- data[["data.year"]]
+##     data <- data[order(data$cou),]
+##     n1 <- nPlot(value ~ cou, group = "variable", data = data, type = "multiBarChart")
+##     n1$chart(stacked = TRUE)
+##     n1$chart(reduceXTicks = FALSE)
+##     n1$xAxis(rotateLabels = -45)
 ##     ## n1
-##     n1$save(file, cdn = FALSE)
+##     return(n1)
+## }
 
-##     lib <- system.file('libraries', package = "rCharts")
-##     fileCon <- file(file)
-##     text.body <- readLines(fileCon)
-##     text.body <- sub(lib, "/www", text.body)
-##     text.body <- sub("./index_files", "/www", text.body)
-##     writeLines(text = text.body, con = fileCon)
-##     close(fileCon)
+## outpath <- file.path(dbpath, "GitHub", "jekyll", "industry", "figures", "app_icioIndic")
+## n1 <- nvd3charts_egxrdvaex(); htmlfile <- file.path(outpath, "exgrdvaex", "index.html")
+## n1 <- nvd3charts_servvagr(); htmlfile <- file.path(outpath, "servvagr", "index.html")
+## ## n1
+## n1$save(htmlfile, cdn = FALSE)
 
-## }}
+## fileCon <- file(htmlfile)
+## text.body <- readLines(fileCon)
+## ## replace js libraries location
+## lib <- system.file('libraries', package = "rCharts")
+## text.body <- sub(lib, "/www/rCharts", text.body)
+## ## replace css location
+## text.body <- sub("./index_files", "/www/rCharts", text.body)
+## ##
+## writeLines(text = text.body, con = fileCon)
+## close(fileCon)
+
+
 
 ## html_icioIndic <- function(result = .icioIndic()) {
 ##     if (length(result) > 0) {

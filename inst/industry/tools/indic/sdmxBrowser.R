@@ -8,34 +8,38 @@
 ui.sdmxBrowser.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
 ui.sdmxBrowser.year <- c(1970, as.numeric(as.character((format(Sys.time(), "%Y")))) + 2)
 
-## ## create list with flows by provider
-## ui.sdmxbrowser_provider <- getProviders()
-## toString(ui.sdmxbrowser_provider)
-##
+## create list with flows by provider
+ui.sdmxbrowser_provider <- getProviders()
+toString(ui.sdmxbrowser_provider)
+
+## provider <- ui.sdmxbrowser_provider[3]
+## getFlows("EUROSTAT")
 ## for (provider in ui.sdmxbrowser_provider) {
 ##     flows <- getFlows(provider)
+##     flows
 ##     names <- names(flows)
 ##     df <- data.frame(ID = names, Label = unlist(flows))
 ##     table <- kable(df, format = "markdown", row.names = FALSE, output = FALSE)
 ##     cat(paste0('\n', provider, '\n\n'))
 ##     cat(table, sep = '\n')
 ## }
-##
-## ui.sdmxBrowser.flows.list <- NULL
-## ## provider <- "IMF"
-## ## p <- 1
-## for (p in seq(along = ui.sdmxbrowser_provider)) {
-##     provider <- sort(ui.sdmxbrowser_provider)[p]
-##     flows <- sort(names(getFlows(provider)))
-##     ## ISTAT contains no flows
-##     ## if (length(flows) > 0) {
-##         flows <- list(flows)
-##         names(flows) <- provider
-##         ui.sdmxBrowser.flows.list <- c(ui.sdmxBrowser.flows.list, flows)
-##     ## }
-## }
-## save(ui.sdmxBrowser.flows.list, file = "data/data_init/sdmxBrowser.rda")
 
+ui.sdmxBrowser.flows.list <- NULL
+## provider <- "IMF"
+## p <- 1
+for (p in seq(along = ui.sdmxbrowser_provider)) {
+    provider <- sort(ui.sdmxbrowser_provider)[p]
+    flows <- sort(names(getFlows(provider)))
+    ## ISTAT contains no flows
+    ## if (length(flows) > 0) {
+        flows <- list(flows)
+        names(flows) <- provider
+        ui.sdmxBrowser.flows.list <- c(ui.sdmxBrowser.flows.list, flows)
+    ## }
+}
+save(ui.sdmxBrowser.flows.list, file = "data/data_init/sdmxBrowser.rda")
+
+## flow list
 load("data/data_init/sdmxBrowser.rda")
 
 ##
@@ -206,7 +210,7 @@ sdmxBrowser_heightSize <- reactive({
 
 output$sdmxBrowser <- renderUI({
     ## for input-output
-    statTabPanel(menu_name = "SDMX", # menu_name: for side bar - coincide with navbarMenu
+    statTabPanel(menu_name = "API", # menu_name: for side bar - coincide with navbarMenu
                  fun_name = "SDMX Browser",   # fun_name
                  rfun_label = ".sdmxBrowser", # rfun_label
                  fun_label = "sdmxBrowser" # fun_label
@@ -244,12 +248,15 @@ observe({
         return()
     } else {
         isolate({
+            load(file.path("data", "data_init", "sdmxBrowser.rda"))
+            ## provider <- "EUROSTAT"
             provider <- input$sdmxbrowser_provider
-            flows <- sort(names(getFlows(provider)))
+            flows <- getFlows(provider)
+            flows <- sort(names(flows))
             ## flows <- list(flows)
             ## names(flows) <- provider
             ui.sdmxBrowser.flows.list[[provider]] <- flows
-            load("data/data_init/sdmxBrowser.rda")
+            ## length(ui.sdmxBrowser.flows.list[["EUROSTAT"]])
             save(ui.sdmxBrowser.flows.list, file = "data/data_init/sdmxBrowser.rda")
             print("saved flow information")
         })
@@ -295,6 +302,7 @@ sdmxBrowser <- function(
 
     ## sdmxbrowser_query <- "EXR.M.USD+GBP.EUR.SP00.A"
     ## queryData <- getTimeSeries('ECB', 'EXR.M.USD+GBP.EUR.SP00.A')
+    ## getTimeSeries("EUROSTAT", "nama_nace64_c.A.PC_TOT.B.B1G.AT+BE+CZ+DE+DK", start="2000", end="2010")
     ## queryData <- getTimeSeries('ECB', 'EXR.Q.USD+GBP.EUR.SP00.A')
     ## queryData <- getTimeSeries('ECB', 'EXR.A.USD+GBP.EUR.SP00.A')
 
@@ -345,6 +353,8 @@ sdmxBrowser <- function(
 
 
     queryDataFreq <- frequency(queryData[[1]])
+
+  names(queryData) <- sub("-", "", names(queryData)) # hyphen (-) gets converted to period (.) with "as.data.frame"
 
     queryData <- as.data.frame(queryData)
     queryData <- data.frame(time = rownames(queryData), queryData)

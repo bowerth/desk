@@ -88,6 +88,8 @@ statPanel <- function(fun_name, rfun_label, fun_label,
     treenetwork_name <- paste0("treenetwork_", fun_label)
     clusternetwork_name <- paste0("clusternetwork_", fun_label)
     treemapnetwork_name <- paste0("treemapnetwork_", fun_label)
+    chordnetwork_name <- paste0("chordnetwork_", fun_label)
+    dygraph_name <- paste0("dygraphs_", fun_label)
     ## Generate output for the summary tab
     output[[sum_name]] <- renderPrint({
         result <- get(rfun_label)()
@@ -230,7 +232,20 @@ statPanel <- function(fun_name, rfun_label, fun_label,
         if(is.character(result)) return()
         get(treemapnetwork_name)()
     })
-
+    output[[chordnetwork_name]] <- renderChordNetwork({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(chordnetwork_name)()
+    })
+    output[[dygraph_name]] <- renderDygraph({
+        result <- get(rfun_label)()
+        ## w    n no analysis was conducted (e.g., no variables selected)
+        ## if(is.character(result)) return(plot(x = 1, type = 'n', main=result, axes = FALSE, xlab = "", ylab = ""))
+        if(is.character(result)) return()
+        get(dygraph_name)()
+    })
 
     string.tabsetPanel <- NULL
     if ("Tables"%in%fun_tabs) {
@@ -332,6 +347,23 @@ statPanel <- function(fun_name, rfun_label, fun_label,
                                   ')')
         string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
     }
+    if ("chordNetwork"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("chordNetwork", \n',
+                                  'chordNetworkOutput(chordnetwork_name, height = 650) \n',
+                                  ',includeCSS(system.file("htmlwidgets", "lib", "css-0", "chordNetwork.css", package = "networkD3")) \n',
+                                  ',verbatimTextOutput(sum_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
+    if ("dygraph"%in%fun_tabs) {
+        string.tabPanel <- paste0('tabPanel("dygraphs", \n',
+                                    ## 'div(id = "treemap", style = "display:inline;position:absolute",\n',
+                                      'dygraphOutput(dygraph_name) \n',
+                                    ## ')',
+                                  ',verbatimTextOutput(sum_name) \n',
+                                  ')')
+        string.tabsetPanel <- paste0(string.tabsetPanel, string.tabPanel, sep = ',\n')
+    }
 
 
     string.tabsetPanel <- substring(string.tabsetPanel, 1, nchar(string.tabsetPanel)-2)
@@ -351,8 +383,8 @@ statTabPanel <- function(menu_name, fun_name, rfun_label, fun_label,
             sidebarPanel(
                 ## based on https://groups.google.com/forum/?fromgroups=#!topic/shiny-discuss/PzlSAmAxxwo
                 div(class = "busy",
-                    p("Calculation in progress ..."),
-                    img(src="ajaxloaderq.gif")
+                    p("Calculation in progress ...")
+                    ,img(src="ajaxloaderq.gif")
                     ),
                 wellPanel(
                     HTML(paste("<label><strong>Menu:",menu_name,"</strong></label>")),

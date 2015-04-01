@@ -84,14 +84,14 @@ For instance the query below demands:
   - data flow with ID `nama_nace64_c`
   - annual frequency data (__FREQ__ = `A`)
   - units precentage of total economy (__UNIT__ = `PC_TOT`)
-  - total manufacturing industries (__NACE_R2__ = `C`)
+  - total mining industries (__NACE_R2__ = `B`)
   - value-added (__INDIC_NA__ = `B1G`)
   - country selection (__GEO__ = `AT+BE+CZ+DE+DK`)
   - from 2000 to 2010 (__startperiod__ = `2000` & __endperiod__ = `2010`)
 
-[ec.europa.eu/eurostat/SDMX/diss-web/rest/data/nama_nace64_c/A.PC_TOT.C.B1G.AT+BE+CZ+DE+DK/startperiod=2000&endperiod=2010](http://ec.europa.eu/eurostat/SDMX/diss-web/rest/data/nama_nace64_c/A.PC_TOT.C.B1G.AT+BE+CZ+DE+DK/startperiod=2000&endperiod=2010).
+[http://ec.europa.eu/eurostat/SDMX/diss-web/rest/data/nama_nace64_c/A.PC_TOT.B.B1G.AT+BE+CZ+DE+DK?startPeriod=2000&endPeriod=2010](http://ec.europa.eu/eurostat/SDMX/diss-web/rest/data/nama_nace64_c/A.PC_TOT.B.B1G.AT+BE+CZ+DE+DK?startPeriod=2000&endPeriod=2010)
 
-See also [REST SDMX 2.1](http://epp.eurostat.ec.europa.eu/portal/page/portal/sdmx_web_services/getting_started/rest_sdmx_2.1)
+See also [REST SDMX 2.1](http://ec.europa.eu/eurostat/web/sdmx-web-services/rest-sdmx-2.1)
 
 ---
 

@@ -1,16 +1,13 @@
 
-## Load miserables data for forceNetwork()
+## path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
+## setwd(path)
+## require(data.table)
+## require(dplyr)
+## require(networkD3)
+
 
 ## system.file("miserables.json", package = "networkD3")
 ## path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
-## setwd(path)
-## library(networkD3)
-## library(rjson)
-## library(shiny)
-## library(data.table)
-## improve speed
-## data.table
-## install.packages("data.table")
 
 ## ## Load miserables data for forceNetwork()
 ## ui.icionet.miserables <- file.path("data", "data_init", "miserables.json")
@@ -30,80 +27,52 @@
 ## ui.icionet.FlareImports <- file.path("data", "data_init", "readme-flare-imports.json")
 ## ui.icionet.FlareImports <- rjson::fromJSON(file = ui.icionet.FlareImports, simplify = FALSE)
 
-## name = cou
-## size = sum(par==total, ind==total)
-## imports = top x par where ind==total
-load(file.path("data", "data_init", "icioIndic.rda"))
-icioIndic_data <- data.table(icioIndic_data)
+if (!exists("icioIndic_data")) {
+    load(file.path("data", "data_init", "icioIndic.rda"))
+    icioIndic_data <- data.table(icioIndic_data)
+}
 
-icioIndic_nameindic <- as.character(unique(icioIndic_data$indic)) # only select indicators where par dimension available
-icioIndic_nameyear <- unique(icioIndic_data$year)
-icioIndic_namecou <- as.character(unique(icioIndic_data$cou))
-icioIndic_namecou <- icioIndic_namecou[!icioIndic_namecou%in%c("CYP", "ROW")]
-## icioIndic_namepar <- unique(icioIndic_data$par)
-icioIndic_nameind <- as.character(unique(icioIndic_data$ind))
+## icioNet_namecou <- icioNet_namecou[!icioNet_namecou%in%c("CYP", "ROW", "Total")] # missing values
+excl <- c("CYP", "ROW")
+icioNet_data <- subset(icioIndic_data, !cou%in%excl & !par%in%excl)
+
+icioNet_nameindic <- as.character(unique(icioNet_data$indic))
+icioNet_nameyear <- unique(icioNet_data$year)
+icioNet_namecou <- as.character(unique(icioNet_data$cou))
+## icioNet_namecou <- icioNet_namecou[!icioNet_namecou%in%c("CYP", "ROW")] # missing values
+## icioNet_namepar <- unique(icioNet_data$par)
+icioNet_nameind <- as.character(unique(icioNet_data$ind))
 
 icioNet_namereg <- read.csv(file.path("data", "data_init", "icioIndic_namereg.csv"))
 icioNet_namereg <- subset(data.table(icioNet_namereg), select = c("cou", "region"))
 
-
-
-icioNet_namereg <- icioNet_namereg[icioNet_namereg$cou%in%c(icioIndic_namecou, "Total"),]
+icioNet_namereg <- icioNet_namereg[icioNet_namereg$cou%in%c(icioNet_namecou, "Total"),]
 icioNet_namereg$region <- gsub("[ .-]", "", icioNet_namereg$region)
-
-library(dplyr)
-
-h(left_join(icioIndic_data, icioNet_namereg, by = c("cou" = "cou")))
 
 setnames(icioNet_namereg, "region", "couregion")
 icioNet_namereg$parregion <- icioNet_namereg$couregion
 icioNet_namereg$par <- icioNet_namereg$cou
 
-## names(icioIndic_data)
-
-
-## data.fddva.totalind.2009 <- icioIndic_data[indic==icionet_indic &
-##                                                ind==icionet_ind &
-##                                                    year==icionet_year,]
-
-data.fddva.totalind.2009.region <- data.fddva.totalind.2009
-
-## h(data.fddva.totalind.2009.region)
 ## h(icioNet_namereg)
 
-data.fddva.totalind.2009.region <- merge(data.fddva.totalind.2009.region,
-                                         subset(icioNet_namereg, select = c("cou", "region")),
-                                         by = "cou")
-## names(data.fddva.totalind.2009.region) <- sub("region", "couregion", names(data.fddva.totalind.2009.region))
-setnames(data.fddva.totalind.2009.region, "region", "couregion")
+icioNet_data <- left_join(icioNet_data,
+                            subset(icioNet_namereg, select = c("cou", "couregion")),
+                            by = c("cou" = "cou"))
+icioNet_data <- left_join(icioNet_data,
+                            subset(icioNet_namereg, select = c("par", "parregion")),
+                            by = c("par" = "par"))
 
-data.fddva.totalind.2009.region$cou <- paste0('flare.',
-                                              as.character(data.fddva.totalind.2009.region$couregion),
-                                              '.',
-                                              as.character(data.fddva.totalind.2009.region$cou))
+icioNet_data$cou <- paste(icioNet_data$couregion, icioNet_data$cou, sep = '.')
+icioNet_data$par <- paste(icioNet_data$parregion, icioNet_data$par, sep = '.')
+## unique(icioNet_data$par)
+## h(icioNet_data)
+## par: NA.Total because parregion == NA
 
-## h(data.fddva.totalind.2009.region)
-## h(subset(icioNet_namereg, select = c("cou", "region")))
-## h(data.fddva.totalind.2009.region)
-data.fddva.totalind.2009.region <- merge(data.fddva.totalind.2009.region,
-                                         subset(icioNet_namereg, select = c("cou", "region")),
-                                         by.x = "par", by.y = "cou")
-## by = c("par" = "cou"))
-## data.fddva.totalind.2009.region <- data.table(data.fddva.totalind.2009.region)
-## names(data.fddva.totalind.2009.region) <- sub("region", "parregion", names(data.fddva.totalind.2009.region))
-setnames(data.fddva.totalind.2009.region, "region", "parregion")
-
-data.fddva.totalind.2009.region$par <- paste0('flare.',
-                                              as.character(data.fddva.totalind.2009.region$parregion),
-                                              '.',
-                                              as.character(data.fddva.totalind.2009.region$par))
-
-
-
-
-
-
-
+## table <- read.csv(system.file(file.path("data", "cities.csv"), package = "networkD3"))
+## cat(gsub(', ', '", "', toString(unique(table$color))))
+icioNet_colorpalette <- c("#E41A1C", "#FFFF33", "#FF7F00", "#999999", "#984EA3", "#377EB8", "#4DAF4A", "#F781BF", "#A65628")
+icioNet_namereg_col <- sort(unique(icioNet_namereg$couregion[!is.na(icioNet_namereg$couregion)]))
+icioNet_namereg_col <- data.frame(region = icioNet_namereg_col, color = icioNet_colorpalette[1:length(icioNet_namereg_col)])
 
 
 output$ui_icioNet <- renderUI({
@@ -128,11 +97,11 @@ output$ui_icioNet <- renderUI({
        ##              )
        ## ,
 
-        selectInput("icionet_indic", "Indicator:", icioIndic_nameindic, selected = "FDDVA", multiple = FALSE)
+        selectInput("icionet_indic", "Indicator:", icioNet_nameindic, selected = "FDDVA", multiple = FALSE)
        ,
-        selectInput("icionet_ind", "Industry:", icioIndic_nameind, selected = "Total", multiple = FALSE)
+        selectInput("icionet_ind", "Industry:", icioNet_nameind, selected = "Total", multiple = FALSE)
        ,
-        selectInput("icionet_year", "Year:", icioIndic_nameyear, selected = 2009, multiple = FALSE)
+        selectInput("icionet_year", "Year:", icioNet_nameyear, selected = 2009, multiple = FALSE)
        ,
         selectInput("icionet_nimports", "Number of imports flows:", c(1:10), selected = 5, multiple = FALSE)
        ,
@@ -159,7 +128,7 @@ output$icioNet <- renderUI({
                rfun_label = ".icioNet",         # rfun_label
                fun_label = "icioNet"           # fun_label
                ## ,fun_tabs = c("forceNetwork", "sankeyNetwork", "treeNetwork", "clusterNetwork", "treemapNetwork")
-               ,fun_tabs = c("clusterNetwork", "treemapNetwork")
+               ,fun_tabs = c("clusterNetwork", "treemapNetwork", "chordNetwork")
                ,widthFun = "icioNet_widthSize"
                ,heightFun = "icioNet_heightSize"
                )
@@ -180,7 +149,6 @@ output$icioNet <- renderUI({
         )
 })
 
-
 icioNet <- function(
     ## icionet_charttype = icionet_charttype,
     ## icionet_opacity = icionet_opacity,
@@ -192,63 +160,67 @@ icioNet <- function(
     icioNet_viz_plot_height = icioNet_viz_plot_height
     ) {
 
-## input <- list(icionet_indic = "FDDVA",
-##               icionet_ind = "Total",
-##               icionet_year = 2009,
-##               icionet_nimports = 5)
-## icionet_indic = input$icionet_indic
-## icionet_ind = input$icionet_ind
-## icionet_year = input$icionet_year
-## icionet_nimports = input$icionet_nimports
+    ## input <- list(icionet_indic = "FDDVA",
+    ##               icionet_ind = "Total",
+    ##               icionet_year = 2009,
+    ##               icionet_nimports = 5)
+    ## icionet_indic = input$icionet_indic
+    ## icionet_ind = input$icionet_ind
+    ## icionet_year = input$icionet_year
+    ## icionet_nimports = input$icionet_nimports
 
+    data.select <- subset(icioNet_data,
+                          indic == icionet_indic &
+                              ind == icionet_ind &
+                                  year == icionet_year,
+                          select = c("cou", "par", "value"))
 
-    data.fddva.totalind.2009 <- subset(icioIndic_data,
-                                       indic == icionet_indic &
-                                           ind == icionet_ind &
-                                               year == icionet_year)
-
-    data.all <- NULL
-    namereg <- sort(unique(icioNet_namereg$region))
+    require(data.table)
+    data.list <- NULL
+    namereg <- sort(unique(icioNet_namereg$couregion))
     ## reg <- namereg[1]
     for (reg in namereg) {
-        reg.namecou <- sort(icioNet_namereg$cou[icioNet_namereg$region==reg])
+        reg.namecou <- sort(icioNet_namereg$cou[icioNet_namereg$couregion==reg])
+        ## country <- paste0(reg[1], '.', reg.namecou[1])
+        for (country in paste0(reg, '.', reg.namecou)) {
+            data.select.cou <- subset(data.select, cou == country)
 
-        ## country <- paste0("flare.", reg[1], '.', reg.namecou[1])
-        for (country in paste0("flare.", reg, '.', reg.namecou)) {
-            ## for (country in icioIndic_namecou) {
-            data.fddva.totalind.2009.cou <- subset(data.fddva.totalind.2009.region, cou == country)
-
-            ## data.fddva.totalind.2009.cou <- data.fddva.totalind.2009.region[cou==country,]
-            ## flare: random, NA: no region in namereg
-            cou.size <- subset(data.fddva.totalind.2009.cou, par == "flare.NA.Total")[, "value"]
-            ## cou.size <- data.fddva.totalind.2009.cou[par == "flare.NA.Total", value]
-            ##
-            cou.imports <- subset(data.fddva.totalind.2009.cou, !par %in% c("flare.NA.Total", "ROW"))
-            cou.imports <- cou.imports[order(-cou.imports$value),][1:icionet_nimports, "par"]
-            ## cou.imports <- cou.imports[order(-cou.imports$value),][1:icionet_nimports, par]
+            ## cou.size <- data.select.cou[par == "NA.Total", value] # data.table syntax
+            cou.size <- data.select.cou$value[data.select.cou$par == "NA.Total"]
+            
+            cou.imports <- subset(data.select.cou, !par %in% c("NA.Total", "NA.ROW", "NA.CYP"))
+            cou.imports <- cou.imports[order(-cou.imports$value),][1:icionet_nimports, "par"] # data.table syntax
             cou.imports.list <- list()
             for (import in cou.imports) {
                 cou.imports.list <- c(cou.imports.list, list(import))
             }
             data.cou <- list(name = country,
-            ## data.cou <- list(name = paste0("flare.", reglabel, ".", country),
                              size = cou.size,
                              imports = cou.imports.list)
-            data.all <- c(data.all, list(data.cou))
+            data.list <- c(data.list, list(data.cou))
         }
     }
+    
+    ## unique(data.select$cou)
+    ## unique(data.select$par)
+    ## names(data.select)
+    data.matrix <- dcast(subset(data.select, par!="NA.Total"), cou ~ par, value.var = "value")
+    rownames <- data.matrix$cou
+    data.matrix <- data.matrix[, !colnames(data.matrix)=="cou"]
+    data.matrix <- as.matrix(data.matrix)
+    rownames(data.matrix) <- rownames
 
-    ## data.all
-    ## str(data.all)
-    ## data.all[[1]]
-    ## ui.icionet.FlareImports[[1]]
-    ## str(ui.icionet.FlareImports)
-
+    X <- strsplit(rownames, split = "[.]")
+    ## data.table <- data.frame(cou = sub(".+[.]", "", rownames), region = sub("[.].+", "", rownames))
+    data.table <- data.frame(name = sapply(X, "[[", 2), region = sapply(X, "[[", 1))
+    data.table <- merge(data.table, icioNet_namereg_col)
 
     return(
         list(## icionet_charttype = icionet_charttype,
             ## icionet_opacity = icionet_opacity,
-            data.all = data.all,
+            data.list = data.list,
+            data.matrix = data.matrix,
+            data.table = data.table,
             icioNet_viz_plot_width = icioNet_viz_plot_width,
             icioNet_viz_plot_height = icioNet_viz_plot_height
         )
@@ -258,7 +230,7 @@ icioNet <- function(
 summary_icioNet <- function(result = .icioNet()) {
     if (length(result) > 0) {
 
-        data.all <- result$data.all
+        data.list <- result$data.list
 
         list.print <- NULL
 
@@ -270,19 +242,219 @@ summary_icioNet <- function(result = .icioNet()) {
 
         ## list.print <- c(list.print,
         ##                 list(## Opacity = icionet_opacity,
-        ##                     Data = toString(data.all[[1]]),
+        ##                     Data = toString(data.list[[1]]),
         ##                     ## Data = toString("test"),
         ##                      Width = icioNet_viz_plot_width,
         ##                      Height = icioNet_viz_plot_height)
         ##                 )
-        ## list.print <- toString(str(data.all))
-        list.print <- toJSON(data.all)
+        ## list.print <- toString(str(data.list))
+        list.print <- toJSON(data.list)
         ## list.print <- toJSON(ui.icionet.FlareImports)
 
         ## return(list.print)
         return(cat(list.print))
     }
 }
+
+
+chordnetwork_icioNet <- function(result = .icioNet()) {
+    if (length(result) > 0) {
+
+        data.matrix = result$data.matrix
+        data.table = result$data.table
+
+        icioNet_viz_plot_width <- result$icioNet_viz_plot_width
+        icioNet_viz_plot_height <- result$icioNet_viz_plot_height
+
+        ## table <- read.csv(system.file(file.path("data", "cities.csv"), package = "networkD3"))
+        ## matrix <- JSONtoMatrix(file = system.file(file.path("data", "matrix.json"), package = "networkD3"))
+        ## nrow(matrix)
+        ## nrow(data.matrix)
+        ## ncol(matrix)
+        ## ncol(data.matrix)
+        ## setdiff(colnames(data.matrix), rownames(data.matrix))
+
+        rownames(data.matrix) <- NULL
+        colnames(data.matrix) <- NULL
+
+        ## ## test with chordNetwork.R
+        ## matrix <- data.matrix
+        ## digits <- 5
+        ## h(matrix)
+        ## df <- data.table
+
+        chordNetwork(
+            ## matrix = matrix
+            matrix = data.matrix
+           ,
+            digits = 5
+           ,
+            ## df = table
+            df = data.table
+           ,
+            ## height = icioNet_viz_plot_width
+            height = NULL
+           ,
+            ## width = icioNet_viz_plot_height
+            width = NULL
+           ,
+            fontSize = 10
+           ,
+            linkColour = "#ccc"
+           ,
+            nodeColour = "#fff"
+           ,
+            nodeStroke = "steelblue"
+           ,
+            textColour = "#111"
+           ,
+            opacity = 0.9
+           ,
+            margin = 0
+        )
+
+    }
+}
+
+clusternetwork_icioNet <- function(result = .icioNet()) {
+    if (length(result) > 0) {
+
+        ## devtools::load_all(file.path(dbpath, "GitHub", "networkD3"))
+        ## devtools::document(file.path(dbpath, "GitHub", "networkD3"))
+        ## devtools::install(file.path(dbpath, "GitHub", "networkD3"))
+        ## library(rjson)
+
+        data.list <- result$data.list
+
+        icioNet_viz_plot_width <- result$icioNet_viz_plot_width
+        icioNet_viz_plot_height <- result$icioNet_viz_plot_height
+
+        icionet_opacity = ifelse(is.null(result$icionet_opacity), 0.5, result$icionet_opacity)
+
+        ## library(networkD3)
+
+        clusterNetwork(
+            ## List = ui.icionet.FlareImports
+            List = data.list
+           ,
+            ## height = icioNet_viz_plot_width
+            height = NULL
+           ,
+            ## width = icioNet_viz_plot_height
+            width = NULL
+           ,
+            fontSize = 10
+           ,
+            linkColour = "#ccc"
+           ,
+            nodeColour = "#fff"
+           ,
+            nodeStroke = "steelblue"
+           ,
+            textColour = "#111"
+           ,
+            opacity = 0.9
+           ,
+            margin = 0
+        )
+
+
+
+        }
+}
+
+treemapnetwork_icioNet <- function(result = .icioNet()) {
+    if (length(result) > 0) {
+
+        ## devtools::load_all(file.path(dbpath, "GitHub", "networkD3"))
+        ## devtools::document(file.path(dbpath, "GitHub", "networkD3"))
+        ## devtools::install(file.path(dbpath, "GitHub", "networkD3"))
+        ## library(rjson)
+
+        data.list <- result$data.list
+
+        icionet_opacity = ifelse(is.null(result$icionet_opacity), 0.5, result$icionet_opacity)
+
+        treemapNetwork(
+            ## List = ui.icionet.FlareImports
+            List = data.list
+           ,
+            height = NULL
+           ,
+            width = NULL
+           ,
+            fontSize = 10
+           ,
+            linkColour = "#ccc"
+           ,
+            nodeColour = "#fff"
+           ,
+            nodeStroke = "steelblue"
+           ,
+            textColour = "#111"
+           ,
+            opacity = 0.9
+           ,
+            margin = 0
+        )
+
+        }
+}
+
+## ## ########################
+## ## export to Jekyll site
+## ## ########################
+
+## require(networkD3)
+
+## ui.icionet.FlareImports <- file.path(dbpath, "GitHub", "networkD3", "JSONdata", "readme-flare-imports.json")
+## ui.icionet.FlareImports <- rjson::fromJSON(file = ui.icionet.FlareImports, simplify = FALSE)
+## data.list <- ui.icionet.FlareImports
+
+## type <- "chordNetwork"
+## widget <- chordNetwork(matrix = data.matrix, digits = 5, df = data.table, height = NULL, width = NULL, fontSize = 10, linkColour = "#ccc", nodeColour = "#fff", nodeStroke = "steelblue", textColour = "#111", opacity = 0.9, margin = 0)
+
+## type <- "clusterNetwork"
+## widget <- clusterNetwork(List = data.list, height = 700, width = 700, fontSize = 10, linkColour = "#ccc", nodeColour = "#fff", nodeStroke = "steelblue", textColour = "#111", opacity = 0.9, margin = 0)
+
+## type <- "treemapNetwork"
+## widget <- treemapNetwork(List = data.list, height = 400, width = 700, fontSize = 10, linkColour = "#ccc", nodeColour = "#fff", nodeStroke = "steelblue", textColour = "#111", opacity = 0.9, margin = 0)
+
+## outpath <- file.path(dbpath, "GitHub", "jekyll", "industry", "figures", "app_icioNet", type)
+## if (!file.exists(outpath)) dir.create(outpath)
+## file <- file.path(outpath, "index.html")
+## lib <- "index_files"
+## libpath <- file.path(outpath, lib)
+## if (!file.exists(libpath)) dir.create(libpath)
+
+## htmlwidgets::saveWidget(widget = widget, file = file, selfcontained = FALSE, libdir = NULL)
+
+## for (folder in list.files(libpath)) {
+##     file.copy(from = file.path(libpath, folder), to = file.path(dbpath, "GitHub", "jekyll", "industry", "www", "htmlwidgets"), recursive = TRUE)
+## }
+
+## unlink(libpath, recursive = TRUE)
+
+## fileCon <- file(file)
+## text.body <- readLines(fileCon)
+## text.body <- sub(lib, "/www/htmlwidgets", text.body)
+## ## text.body <- sub("./index_files", "/www", text.body)
+## writeLines(text = text.body, con = fileCon)
+## close(fileCon)
+
+## ## copy file manually to _site:
+## file.copy(from = file,
+##           to = file.path(dbpath, "GitHub", "jekyll", "industry", "_site", "figures", "app_icioNet", "clusterNetwork", "index.html"), overwrite = TRUE)
+
+## ## print data
+## cat(rjson::toJSON(data.list))
+## ## copy console output and paste in http://jsbeautifier.org/, click "Beautify JavaScript or HTML"
+## ## paste result in jekyll page with ```json ... ``` block fencing
+
+## ## ########################
+## ## END
+## ## export to Jekyll site
+## ## ########################
 
 forcenetwork_icioNet <- function(result = .icioNet()) {
     if (length(result) > 0) {
@@ -367,136 +539,123 @@ treenetwork_icioNet <- function(result = .icioNet()) {
     }
 }
 
-clusternetwork_icioNet <- function(result = .icioNet()) {
-    if (length(result) > 0) {
+## #######################################
+## ## Attempt to increase data preparation
+## #######################################
 
-        ## devtools::load_all(file.path(dbpath, "GitHub", "networkD3"))
-        ## devtools::document(file.path(dbpath, "GitHub", "networkD3"))
-        ## devtools::install(file.path(dbpath, "GitHub", "networkD3"))
-        ## library(rjson)
-
-        data.all <- result$data.all
-
-        icioNet_viz_plot_width <- result$icioNet_viz_plot_width
-        icioNet_viz_plot_height <- result$icioNet_viz_plot_height
-
-        icionet_opacity = ifelse(is.null(result$icionet_opacity), 0.5, result$icionet_opacity)
-
-        clusterNetwork(
-            ## List = ui.icionet.FlareImports
-            List = data.all
-           ,
-            height = icioNet_viz_plot_width
-           ,
-            width = icioNet_viz_plot_height
-           ,
-            fontSize = 10
-           ,
-            linkColour = "#ccc"
-           ,
-            nodeColour = "#fff"
-           ,
-            nodeStroke = "steelblue"
-           ,
-            textColour = "#111"
-           ,
-            opacity = 0.9
-           ,
-            margin = 0
-        )
-
-        }
-}
+## makeList <- function(x) {
+##     item <- c(
+##         ## as.list(test2[1, c("name", "size")])
+##         list(name = x$name)
+##        ,
+##         list(size = x$size)
+##        ,
+##         list(imports = unname(as.list(as.character(x[c(2:6)]))))
+##     )
+##     return(item)
+## }
 
 
-treemapnetwork_icioNet <- function(result = .icioNet()) {
-    if (length(result) > 0) {
+## prepareData <- function(icioNet_data,
+##                         icionet_indic,
+##                         icionet_ind,
+##                         icionet_year
+##                         ) {
 
-        ## devtools::load_all(file.path(dbpath, "GitHub", "networkD3"))
-        ## devtools::document(file.path(dbpath, "GitHub", "networkD3"))
-        ## devtools::install(file.path(dbpath, "GitHub", "networkD3"))
-        ## library(rjson)
+##     data.select <- icioNet_data %>%
+##         filter(indic==icionet_indic & ind==icionet_ind & year==icionet_year) %>%
+##             select(cou, par, value)
+##     ##
+##     cou.size <- data.select %>% filter(par == "NA.Total") %>% select(cou, size = value)
+##     ##
+##     cou.imports <- data.select
+##     cou.imports <- arrange(cou.imports, cou, desc(value))
+##     cou.imports <- group_by(cou.imports, cou)
+##     ##
+##     cou.imports <- filter(cou.imports, !par%in%c("NA.Total", "NA.ROW"))
+##     cou.imports <- filter(cou.imports, min_rank(desc(value)) <= 5)
+##     ##
+##     cou.imports.m <- matrix(cou.imports$par, ncol = 5, byrow = TRUE)
+##     ##
+##     test <- data.frame(cou = unique(cou.imports$cou),
+##                        par1 = cou.imports.m[, 1],
+##                        par2 = cou.imports.m[, 2],
+##                        par3 = cou.imports.m[, 3],
+##                        par4 = cou.imports.m[, 4],
+##                        par5 = cou.imports.m[, 5],
+##                        stringsAsFactors = FALSE)
+##     ##
+##     test2 <- left_join(test, cou.size)
+##     setnames(test2, "cou", "name")
+##     ##
+##     data.list <- list()
+##     for (i in c(1:nrow(test2))) data.list <- c(data.list, list(makeList(test2[i, ])))
 
-        data.all <- result$data.all
-
-        icionet_opacity = ifelse(is.null(result$icionet_opacity), 0.5, result$icionet_opacity)
-
-        treemapNetwork(
-            ## List = ui.icionet.FlareImports
-            List = data.all
-           ,
-            height = NULL
-           ,
-            width = NULL
-           ,
-            fontSize = 10
-           ,
-            linkColour = "#ccc"
-           ,
-            nodeColour = "#fff"
-           ,
-            nodeStroke = "steelblue"
-           ,
-            textColour = "#111"
-           ,
-            opacity = 0.9
-           ,
-            margin = 0
-        )
-
-        }
-}
+##     return(data.list)
+## }
 
 
-        ## icionet_charttype <- result$icionet_charttype
-        ## if (icionet_charttype=="network") {
-        ## d3ForceNetwork(Nodes = ui.icionet.MisNodes,
-        ##              Links = ui.icionet.MisLinks,
-        ##              Source = "source",
-        ##              Target = "target",
-        ##              Value = "value",
-        ##              NodeID = "name",
-        ##              Group = "group",
-        ##              ## width = 400,
-        ##              ## height = 500,
-        ##              width = icioNet_viz_plot_width,
-        ##              height = icioNet_viz_plot_height,
-        ##              opacity = icionet_opacity
-        ##             ,
-        ##              standAlone = FALSE,
-        ##              parentElement = '#html_icioNet' # needs to be function name!!
-        ##              )
-        ## }
-        ## if (icionet_charttype=="tree") {
-        ##     diameter <- min(icioNet_viz_plot_height, icioNet_viz_plot_width)
-        ##     fontsize <- diameter / 100
-        ##     d3Tree(List = ui.icionet.Flare,
-        ##            ## fontsize = 8,
-        ##            fontsize = fontsize,
-        ##            ## diameter = 800,
-        ##            width = icioNet_viz_plot_width,
-        ##            height = icioNet_viz_plot_height,
-        ##            diameter = diameter,
-        ##            opacity = icionet_opacity,
-        ##            standAlone = FALSE,
-        ##            parentElement = '#html_icioNet' # needs to be function name!!
-        ##            )
-        ## }
-        ## if (icionet_charttype=="sankey") {
-        ##     fontsize = min(icioNet_viz_plot_width, icioNet_viz_plot_height) / 50
-        ##     d3Sankey(Links = ui.icionet.EngLinks,
-        ##              Nodes = ui.icionet.EngNodes,
-        ##              Source = "source",
-        ##              Target = "target",
-        ##              Value = "value",
-        ##              NodeID = "name",
-        ##              ## fontsize = 12,
-        ##              fontsize = fontsize,
-        ##              nodeWidth = 30,
-        ##              ## width = 700,
-        ##              width = icioNet_viz_plot_width,
-        ##              height = icioNet_viz_plot_height,
-        ##              standAlone = FALSE,
-        ##              parentElement = '#html_icioNet' # needs to be function name!!
-        ##              )
-        ## }
+
+## create hierarchical list of industries
+
+# require(networkD3)
+
+# obj <- STANi3.HIERARCHY
+
+# list.all <- list(name = "CTOTAL")
+# list.all$children <- lapply(obj[["CTOTAL"]],
+#                             function (x) {
+#                               if(length(obj[[x]])==0)
+#                                 list(name = x, size = 1)
+#                               else
+#                                 list(name = x,
+#                                      children = lapply(obj[[x]],
+#                                        function (x) {
+#                                          if(length(obj[[x]])==0)
+#                                            list(name = x, size = 1)
+#                                          else
+#                                            list(name = x,
+#                                                 children = lapply(obj[[x]],
+#                                                   function (x) {
+#                                                     if(length(obj[[x]])==0)
+#                                                       list(name = x, size = 1)
+#                                                     else
+#                                                       list(name = x,
+#                                                            children = lapply(obj[[x]],
+#                                                              function (x) {
+#                                                                if(length(obj[[x]])==0)
+#                                                                  list(name = x, size = 1)
+#                                                                else
+#                                                                  list(name = x,
+#                                                                       children = lapply(obj[[x]],
+#                                                                         function (x) {
+#                                                                           if(length(obj[[x]])==0)
+#                                                                             list(name = x, size = 1)
+#                                                                           else
+#                                                                             list(name = x,
+#                                                                                  children = lapply(obj[[x]],
+#                                                                                    function (y) {
+#                                                                                      list(name = y, size = 1)
+#                                                                                    }
+#                                                                                    )
+#                                                                                  )
+#                                                                         }
+#                                                                         )
+#                                                                       )
+#                                                              }
+#                                                              )
+#                                                            )
+#                                                   }
+#                                                   )
+#                                                 )
+#                                        }
+#                                        )
+#                                      )
+#                             }
+#                             )
+
+## str(list.all)
+        # treeNetwork(List = list.all,
+        #             fontSize = 10,
+        #             opacity = 0.9,
+        #             margin = 0)

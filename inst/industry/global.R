@@ -7,20 +7,24 @@ app.menu$disclaimer <- TRUE
 app.menu$about <- TRUE
 
 app.menu$panel.df <- rbind.data.frame(
+    c("active", "ICIO", "Foreign Demand Domestic Value Added 2013", "icioFddva2013"),
     c("inactive", "ICIO", "Foreign Demand Domestic Value Added", "icioFddva"),
-    c("inactive", "ICIO", "TiVA Indicators", "icioIndic"),
-    c("inactive", "ICIO", "ICIO Networks", "icioNet"),
+    c("active", "ICIO", "TiVA Indicators", "icioIndic"),
+    c("active", "ICIO", "ICIO Networks", "icioNet"),
+    c("active", "ICIO", "ICIO Dashboards", "icioDash"),
     c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
-    c("inactive", "STAN", "STAN Indicators", "stanIndic"),
-    c("inactive", "STAN", "R&D Intensity", "stanRnd"),
-    c("inactive", "SKILL", "LFS Share", "lfsShare"),
-    c("inactive", "SDMX", "SDMX Browser", "sdmxBrowser")
+    c("active", "STAN", "STAN ISIC4 Estimate", "stani4Estimate"),
+    c("active", "STAN", "STAN Indicators", "stanIndic"),
+    c("active", "STAN", "R&D Intensity", "stanRnd"),
+    c("active", "SKILL", "LFS Share", "lfsShare"),
+    c("active", "API", "SDMX Browser", "sdmxBrowser"),
+    c("active", "API", "API BEA", "apiBEA")
+   ,
+    c("inactive", "API", "FAME Browser", "fameBrowser")
     )
 names(app.menu$panel.df) <- c("status", "menuTitle", "panelTitle", "outputID")
-## ## for server update
-## if (testingRadiant==FALSE) {
-app.menu$panel.df$status <- "active"
-## }
+
+## app.menu$panel.df$status <- "active"
 
 
 for (outputID in app.menu$panel.df$outputID) {
@@ -95,7 +99,7 @@ setInitValues <- function() {
         values$datasetlist <- NULL
         ##
 
-        if (active.icioFddva==TRUE) {
+        if (active.icioFddva2013==TRUE) {
             env <- new.env()
             data("ICIO5837APP", package = "icioData", envir = env)
             df <- mget(ls(envir = env), envir = env)
@@ -105,7 +109,18 @@ setInitValues <- function() {
             values$datasetlist <- c(isolate(values$datasetlist), "ICIO5837APP")
         }
 
-        if (active.stani3Estimate==TRUE | active.stanIndic==TRUE | active.stanRnd==TRUE) {
+        if (active.icioFddva==TRUE | active.icioDash==TRUE) {
+        ## if (active.icioDash==TRUE) {
+            env <- new.env()
+            data("ICIO6234APP", package = "icioData", envir = env)
+            df <- mget(ls(envir = env), envir = env)
+            values[["ICIO6234APP"]] <- df # rbind(df$DATA.STAN, df$DATA.BTD)
+            values[["ICIO6234APP_descr"]] <- attr(df,"description")
+            ## values$datasetlist <- c("ICIO6234APP")
+            values$datasetlist <- c(isolate(values$datasetlist), "ICIO6234APP")
+        }
+
+        if (active.stani4Estimate==TRUE | active.stani3Estimate==TRUE | active.stanIndic==TRUE | active.stanRnd==TRUE) {
             env <- new.env()
             data("STANNAi4", package = "stanData", envir = env)
             df <- mget(ls(envir = env), envir = env)
@@ -140,7 +155,7 @@ setInitValues <- function() {
             }
 
             ## Exchange rates and other data without industry classification
-            if (active.stani3Estimate==TRUE | active.stanRnd==TRUE) {
+            if (active.stani4Estimate==TRUE | active.stani3Estimate==TRUE | active.stanRnd==TRUE) {
                 env <- new.env()
                 data("STANNAi0", package = "stanData", envir = env)
                 df <- mget(ls(envir = env), envir = env)
@@ -189,13 +204,33 @@ options(repos = c(CRAN = "http://cran.rstudio.com"))
 ## libs <- c("shiny", "knitr", "shinyAce", "car", "tools", "gridExtra", "markdown", "R.utils", "psych",
 ##   "arm", "plyr", "reshape2", "vegan", "ggplot2", "lubridate", "wordcloud", "AlgDesign")
 
-libs <- c("AlgDesign",
+## #################### ##
+## create miniCRAN repo ##
+## #################### ##
+## ## ~/Rinitfunctions.R
+## ## current_repo["CRAN"]
+## pkgList <- pkgDep(pkg = libs, repos = current_repo, type = "source", suggests = FALSE)
+## makeRepo(pkgList, path=file.path(dbpath, "miniCRAN"), repos=current_repo, type="source")
+
+## ## dir.create(pth <- file.path(tempdir(), "miniCRAN"))
+## ## list.files(pth, recursive = TRUE, full.names = FALSE)
+## ##
+## ## installation test
+## install.packages(pkgs = "dichromat", repos = file.path("file://", dbpath, "miniCRAN"), type = "source")
+## install.packages(pkgs = "data.table", repos = file.path("file://", dbpath, "miniCRAN"), type = "source")
+
+
+libs <- c(## "stan",
+          "AlgDesign",
           "car",
           ## "d3Network",
           "networkD3", # using various render* functions - cumbersome with radiant...
           "htmlwidgets",
           "data.table",
+          "dplyr",
           "digest",
+          "dygraphs",
+          "fame",
           "ggplot2",
           ## "ggvis", # need dependencies
           "grDevices",
@@ -209,30 +244,44 @@ libs <- c("AlgDesign",
           "psych",
           "R.utils",
           "RJSDMX",
-          "rCharts", # github
+          ## "rCharts", # github
           "RColorBrewer",
+          "RCurl",
           "reshape2",
+          "rjson",
           "shiny",
           "shinyAce",
-          "shinyExt", # github
+          ## "shinyExt", # github
+          ## "stanApi",
+          "stringr",
           "vegan",
           "wordcloud",
           "XLConnect",
           "xtable",
-          "websockets"
+          "xts"
+          ## ,
+          ## "websockets"
           )
+
+## ## use miniCRAN to download all package sources
+## pkgList <- pkgDep(pkg = libs, repos = current_repo, type = "source", suggests = FALSE)
+## makeRepo(pkgList, path=file.path(dbpath, "miniCRAN"), repos=current_repo, type="source")
 
 ## install.packages(file.path(dbpath, "CRAN", "src", "contrib", "RJSDMX_0.1.tar.gz"), repos = NULL, type = "source")
 libs.dev.remote <- c(
     "ggthemes"
     ,
-    "rMaps"
+    "rCharts"
     ,
-    "shinyExt"
+    "rMaps"
+    ## ,
+    ## "shinyExt"
     ,
     "shinysky"
     ,
     "stan"
+   ,
+   "stanApi"
     )                                  # rCharts, RJSDMX, R-Websockets
 available.dev <- suppressWarnings(sapply(libs.dev.remote, require, character.only=TRUE))
 inst.libs.dev.remote <- libs.dev.remote[available.dev == FALSE]
@@ -244,10 +293,12 @@ if(length(inst.libs.dev.remote) != 0) {
     for (lib in inst.libs.dev.remote) {
         ## if (lib == "ggthemes") install_github("ggthemes", username = "jrnold")
         if (lib == "ggthemes") install_github("ggthemes", username = "bowerth")
+        if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
         if (lib == "rMaps") install_github("rMaps", username = "bowerth")
-        if (lib == "shinyExt") install_github("shinyExt", username = "marcionicolau")
+        ## if (lib == "shinyExt") install_github("shinyExt", username = "marcionicolau")
         if (lib == "shinysky") install_github("shinysky", username = "AnalytixWare")
         if (lib == "stan") install_github("stan", username = "bowerth")
+        if (lib == "stanApi") install_github("stanApi", username = "bowerth")
         ## if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
         ## if (lib == "RJSDMX") install_github("RJSDMX", username = "bowerth")
         ## if (lib == "R-Websockets") install_github("R-Websockets", username = "rstudio")
@@ -291,6 +342,9 @@ inst.libs <- libs[available == FALSE]
 if(length(inst.libs) != 0)
     {
         install.packages(inst.libs, dependencies = TRUE)
+        ## build from source files in miniCRAN
+        ## install.packages(pkgs = inst.libs, repos = file.path("file://", dbpath, "miniCRAN"), type = "source", dependencies = TRUE) # dbpath.server
+
         ## suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
         sapply(inst.libs, require, character.only=TRUE)
     }

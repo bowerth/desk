@@ -733,19 +733,21 @@ observe({
     for (sou in names(dat)) {
         eval(parse(text = paste0(sou, ' <- dat$', sou)))
     }
-    ## data from ISIC Rev. 4 data set in national currency
     DATA.STANi4 <- DATA.STANi4[DATA.STANi4$var%in%DATA.STANandBTD$var,]
     DATA.BTDi4 <- DATA.BTDi4[DATA.BTDi4$var%in%DATA.STANandBTD$var,]
-    ## currency exchange rates
-    dat <- isolate(values[["STANNAi0"]])
-    for (sou in names(dat)) {
-        eval(parse(text = paste0(sou, ' <- dat$', sou)))
-    }
-    DATA.STANi4 <- merge(DATA.STANi4, DATA.XRATES[DATA.XRATES$var=="EXCH",], by = c("cou", "year"))
-    names(DATA.STANi4) <-  sub("var.x", "var", names(DATA.STANi4))
-    names(DATA.STANi4) <-  sub("value.x", "value", names(DATA.STANi4))
-    DATA.STANi4$value[DATA.STANi4$var%in%STAN.VARMON] <- DATA.STANi4$value[DATA.STANi4$var%in%STAN.VARMON] / DATA.STANi4$value.y[DATA.STANi4$var%in%STAN.VARMON]
-    DATA.STANi4 <- subset(DATA.STANi4, select = c("cou", "var", "ind", "year", "value"))
+
+    ## ## STAN ISIC Rev. 4 now in USD - don't apply EXCH here
+    ## ## currency exchange rates
+    ## dat <- isolate(values[["STANNAi0"]])
+    ## for (sou in names(dat)) {
+    ##     eval(parse(text = paste0(sou, ' <- dat$', sou)))
+    ## }
+    ## DATA.STANi4 <- merge(DATA.STANi4, DATA.XRATES[DATA.XRATES$var=="EXCH",], by = c("cou", "year"))
+    ## names(DATA.STANi4) <-  sub("var.x", "var", names(DATA.STANi4))
+    ## names(DATA.STANi4) <-  sub("value.x", "value", names(DATA.STANi4))
+    ## DATA.STANi4$value[DATA.STANi4$var%in%STAN.VARMON] <- DATA.STANi4$value[DATA.STANi4$var%in%STAN.VARMON] / DATA.STANi4$value.y[DATA.STANi4$var%in%STAN.VARMON]
+    ## DATA.STANi4 <- subset(DATA.STANi4, select = c("cou", "var", "ind", "year", "value"))
+
     DATA.STANandBTDi4 <- rbind(DATA.STANi4, DATA.BTDi4)
 
     ## ISIC Rev. 3 sources: add zeros or convert STAN industry to new aggregate
@@ -1307,6 +1309,7 @@ tables_stani3Estimate <- function(result = .stani3Estimate()) {
         data.table.pivot$sou <- factor(data.table.pivot$sou, levels = ui.stani3Estimate.sou) # namesou
         data.table.pivot$var <- factor(data.table.pivot$var, levels = ui.stani3Estimate.var) # namevar
         ## data.table.pivot$ind <- factor(data.table.pivot$ind, levels = ui.stani3Estimate.ind) # nameind
+        ## BUG: X.C15T37. appearing ??
         data.table.pivot$ind <- factor(data.table.pivot$ind, levels = STANi3.INDA60All[STANi3.INDA60All%in%data.table.pivot$ind]) # nameind
         data.table.pivot <- data.table.pivot[order(data.table.pivot$cou, data.table.pivot$sou, data.table.pivot$var, data.table.pivot$ind),]
         ## table <- data.table.pivot
@@ -1541,6 +1544,7 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
 
         ## loads object "stani3Estimate_results"
         ## if update==FALSE, only use previously estimated figures
+
         load("data/data_init/stani3Estimate_results.rda")
 
         if (stani3estimate_update==TRUE) {
@@ -1548,20 +1552,25 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
             stani3Estimate_results <- stani3Estimate_results[!(stani3Estimate_results$cou%in%exportcou &
                                                                stani3Estimate_results$var%in%exportvar), ]
 
-            load("data/data_init/stani3Estimate_srcarray.rda")
-
             ## ## #######################
             ## ## begin testing
             ## ## #######################
+            ## path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
+            ## setwd(path)
+            ## load(file = file.path("data", "data_init", "stani3Estimate_dataarray.rda"))
+            ## require(reshape2)
             ## exportcou <- c("AUT")
             ## ## exportcou <- c("AUT", "BEL")
             ## exportvar <- c("VALU", "PROD")
-            ## nameyear <- c(1994:2012)
+            ## nameind <- "CTOTAL"
+            ## nameyear <- c(1980:2012)
             ## stani3estimate_extend <- TRUE
-            ## stani3estimate_detail <- TRUE
+            ## stani3estimate_detail <- FALSE
             ## ## #######################
             ## ## end testing
             ## ## #######################
+
+            load("data/data_init/stani3Estimate_srcarray.rda")
 
             nameest <- NULL
             if (stani3estimate_extend==TRUE) nameest <- c(nameest, "EXT")
@@ -1588,6 +1597,7 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
 
             ## new ##
             namesou <- unique(unlist(strsplit(as.character(est.array.m$value), split = ", ")))
+            ## data.all <- melt(stani3Estimate.data.array[as.character(unique(est.array.m$cou)),
             data.all <- melt(stani3Estimate.data.array()[as.character(unique(est.array.m$cou)),
                                                          namesou[!namesou%in%c("PATCHEXT", "PATCHDET")],
                                                          as.character(unique(est.array.m$var)),
@@ -1603,18 +1613,23 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
             if (!"ind"%in%names(data.all)) data.all$ind <- union(unique(est.array.m$ind), ind.parent)
             ## end new ##
 
-            cat("***************\nprint data\n***************")
-            print(data.all)
-
+            ## cat("***************\nprint data\n***************")
+            ## print(data.all)
 
             res.ext <- NULL
             if (stani3estimate_extend==TRUE) {
                 ## does this need to be filtered to contain only sources considered for extension?
                 data.ext <- data.all
                 print(est.array.d[est.array.d$est=="EXT",])
-                res.ext <- estimate(data=data.ext,
-                                    sources=est.array.d[est.array.d$est=="EXT",],
-                                    period=nameyear)
+                res.ext <- stan::estimate(
+                    data=data.ext
+                   ,
+                    sources=est.array.d[est.array.d$est=="EXT",]
+                   ,
+                    period=nameyear
+                   ,
+                    isic=3
+                )
                 ## add back rows from main source
                 sou.main.ext <- melt(ui.stani3Estimate.est.array[exportcou, exportvar, nameind, "EXT", "MAIN"])
                 names(sou.main.ext) <- sub("value", "sou", names(sou.main.ext))
@@ -1630,7 +1645,7 @@ download_stani3Estimate <- function(result = .stani3Estimate(), zipfile = fname)
                 data.det <- res.ext
                 print(est.array.d[est.array.d$est=="DET",])
 
-                res.det <- estimate(data=data.det
+                res.det <- stan::estimate(data=data.det
                                     ,
                                     sources=est.array.d[est.array.d$est=="DET",]
                                     ,
