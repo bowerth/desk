@@ -1,141 +1,137 @@
-label.radio { 
-  padding-left: 18px;
-  padding-right: 0px;
-  margin-left: 3px;
-  display: inline-block; 
+.table {
+  width: auto;
 }
 
-.radio input[type="radio"] {
-  float: none; 
+.well {
+  padding: 8px;
+  margin-bottom: 5px;
 }
 
-label.checkbox  { 
-  display: inline-block; 
+.col-sm-4 {
+  max-width: 300px;
 }
 
-.checkbox input[type="checkbox"] { 
-  float: none; 
+.checkbox {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
-select { 
-  max-width: 200px; 
+.form-group {
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+.radio-inline+.radio-inline, .checkbox-inline+.checkbox-inline {
+  margin-left: 0;
+}
+
+.radio-inline, .checkbox-inline {
+  margin-right: 10px;
+}
+
+th, td {
+  text-align: left;
+}
+
+table.dataTable tfoot td, table.dataTable thead td {
+  padding: 0 0 0 0;
+}
+
+.modal-dialog {
+  width: 800px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 pre {
-  overflow: auto;
+  /* overflow: auto; */
   word-wrap: normal;
   white-space: pre;
 }
 
-textarea { 
-  width: 650px; 
-  /*max-height: 200px;*/
-  /*overflow: auto;*/
-  /*height: auto;*/
-  
-  /*http://plugins.jquery.com/autosize/*/
-}
-
-#tr_copyAndPaste {
-  max-width: 185px; 
-}
-
-input[type="number"] {
-  max-width: 185px; 
-}
-
-.jslider { 
-  max-width: 200px; 
-}
-
-.well { 
-  padding: 12px; 
-  margin-bottom: 5px; 
-  max-width: 280px; 
-}
-
-.span4 { 
-  max-width: 280px; 
-}
-
-.popover { 
-  width: 600px; 
-  position: relative; top: -75px !important; 
-  left: 320px !important; 
-}
-
-.modal { 
-  /*width: 1000px; */
-  width: 800px; 
-  left: 600px; 
-}
-
-.modal-body {
-  height: 100%;
-  max-height:500px;
-}
-
-#view_vars, #preFactor_vars, #factor_vars, #pmap_attr, #cor_var, #reg_var2 { 
-  height: 180px; 
-  /*height: 200px; */
-  /*margin-bottom: 35px;*/
-  margin-bottom: 15px;
-}
-
-#view_select, #expl_select, #viz_select, #tr_subset, #tr_rename, #tr_recode, #tr_transform, #data_rename { 
-  max-width: 185px; 
-}
-
-#view_order { 
-  max-width: 135px; 
-  display: inline;
-}
-
-#view_order_desc { 
-  vertical-align: top; 
-}
-
-#downloadData { 
-  vertical-align: top; 
-  height: 18.5px; 
-  width: 70px;
-}
-
-#viz_plot_width, #viz_plot_height, #pmap_scaling, #pmap_fontsz { 
-  max-width: 60px; 
-}
-
-#x1, #x2, #x3,#x4 { 
-  max-width: 25px; 
-}
-
-#fac_cutoff { 
-  max-width: 60px; 
-}
-
-#fac_condFormat { 
-  vertical-align: middle; 
+#data_filter, #tr_transform, #tr_recode, #tr_rename,
+#glm_predict_cmd, #reg_predict_cmd {
+  max-width: 234px;
 }
 
 .alignleft {
   float: left;
 }
+
 .alignright {
   float: right;
 }
 
-div.busy {
-  position:absolute;
-  top: 40%;
-  left: 50%;
-  margin-top: -100px;
-  margin-left: -50px;
-  display:none;
-  background: rgba(230, 230, 230, .8);
-  text-align: center;
-  padding-top: 20px;
-  padding-left: 30px;
-  padding-bottom: 40px;
-  padding-right: 30px;
-  border-radius: 5px;
+/* from: https://github.com/swarm-lab/editR/blob/master/inst/app/www/editR.css */
+#rmd_report, #rmd_code {
+  position: absolute;
+  top: 95px;
+  bottom: 0;
+  left: 0;
+  right: 50%;
+  padding-right: 10px;
 }
+
+/* from: https://github.com/swarm-lab/editR/blob/master/inst/app/www/editR.css */
+#rmd_knitted, #rmd_code_output {
+  position: absolute;
+  top: 95px;
+  bottom: 0;
+  left: 50%;
+  right: 0;
+  padding-left: 10px;
+  overflow-y: scroll;
+}
+
+.navbar {
+  margin-bottom: 5px;
+}
+
+.navbar .nav > li > a {
+  padding-left: 7px;
+  padding-right: 8px;
+}
+
+.nav-tabs {
+  margin-bottom: 10px;
+}
+
+/* from http://stackoverflow.com/a/23786766/1974918 */
+@media (min-width: 768px) {
+    /* don't show full menu at 768 */
+    .navbar-header {
+        float: none; }
+    .navbar-toggle {
+        display: block; }
+    .navbar-fixed-top .navbar-collapse,
+    .navbar-static-top .navbar-collapse,
+    .navbar-fixed-bottom .navbar-collapse {
+        padding-right: 15px;
+        padding-left: 15px; }
+    .navbar-collapse.collapse {
+        display: none !important; }
+        .navbar-collapse.collapse.in {
+        display: block!important;
+        margin-top: 0; }
+}
+
+/* from http://stackoverflow.com/a/23786766/1974918 */
+@media (min-width: 1000px) {
+    .navbar-header {
+        float: left; }
+    .navbar-toggle {
+        display: none; }
+    .navbar-fixed-top .navbar-collapse,
+    .navbar-static-top .navbar-collapse,
+    .navbar-fixed-bottom .navbar-collapse {
+        display: block !important; }
+}
+
+/*
+label {
+  margin-bottom: 5px;
+}
+*/

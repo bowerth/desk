@@ -5,6 +5,9 @@ data(stanDim)
 require(data.table)
 ##
 
+## path <- file.path(dbpath, "GitHub", "desk", "inst", "industry")
+## setwd(path)
+
 ## Custom industry conversion
 ui.stani4Estimate.convind.table <- read.csv(file = file.path("data", "data_init", "stani4Estimate_convind.csv"), na = "")
 ## convind.string <- paste(readLines(file("data/data_init/stani4Estimate_convind.csv")), collapse = '\n')
@@ -136,6 +139,8 @@ ui.stani4Estimate.var <- c(
 ##
 ui.stani4Estimate.var2 <- union("", ui.stani4Estimate.var)
 
+ui.stani4estimate.datadimensions <- c("cou", "sou", "var", "ind", "year") # "value"
+
 ## ## Array for estimation
 ## ui.stani4Estimate.est <- c("EXT", "DET")
 ## ui.stani4Estimate.est.sou <- c("MAIN", "SEC")
@@ -233,111 +238,121 @@ output$uiSei4_plot <- renderUI({
     }
 })
 
-output$uiSei4_ind <- renderUI({
+
+output$uiSei4_pivotcolumn <- renderUI({
+
+    choices <- ui.stani4estimate.datadimensions
+    choices <- choices[!choices%in%union(input$stani4estimate_tablepivotrow, "value")]
+    selectInput("stani4estimate_tablepivotcol", "Pivot column dimensions",
+                choices = choices,
+                selected = "year",
+                multiple = TRUE)
+})
+
+output$uiSei4_cou <- renderUI({
     ## if (length(result) > 0) {
         if ((input$tabs_stani4Estimate=="Plots" & input$stani4estimate_plottype=="Lines") |
-            (input$tabs_stani4Estimate=="Tables" & input$stani4estimate_tabletype=="Calculation") )
-        {
+            (input$tabs_stani4Estimate=="Tables" & input$stani4estimate_tabletype=="Calculation") ) {
 
-          
-          choices <- union("DTOTAL", unique(unlist(STANi4.IND[input$stani4estimate_indagg])))
-          ## ## industries in PUB list that are not in STANi4.INDA88All
-          ## setdiff(STANi4.IND[["PUB"]], STANi4.INDA88All)
-          ## setdiff(
-          ##   ## STANi4.INDALL
-          ##   union(STANi4.INDA88All
-          ##   ,
-          ##   STANi4.IND[["PUB"]])
-          ##   ,
-          ##   ## names(STANi4.HIERARCHY)
-          ##   names(list.agg)
-          ##   )
-          ## choices <- choices[choices%in%ui.stani4Estimate.ind]
-          STANi4.INDA88All
-          STANi4.IND
-          choices <- factor(choices, levels = STANi4.INDA88All[STANi4.INDA88All%in%choices])
-          choices <- sort(choices)
-          ## choices <- STANi4.INDA88All[STANi4.INDA88All%in%choices]
-          
-          list(
+            selectInput("stani4estimate_cou", "Country:", ui.stani4Estimate.cou,
+                        selected = "AUT",
+                        multiple = FALSE)
+
+        } else {
+
+            selectInput("stani4estimate_cou", "Country:", ui.stani4Estimate.cou,
+                        selected = "AUT",
+                        multiple = TRUE)
+
+        }
+})
+
+
+output$uiSei4_var <- renderUI({
+    ## if (length(result) > 0) {
+        if ((input$tabs_stani4Estimate=="Plots" & input$stani4estimate_plottype=="Lines") |
+            (input$tabs_stani4Estimate=="Tables" & input$stani4estimate_tabletype=="Calculation") ) {
+
+            selectInput("stani4estimate_var", "Variable:", ui.stani4Estimate.var,
+                        selected = "VALU",
+                        multiple = FALSE)
+
+        } else {
+
+            selectInput("stani4estimate_var", "Variable:", ui.stani4Estimate.var,
+                        selected = c("VALUE", "EMPN"),
+                        multiple = TRUE)
+
+        }
+})
+
+output$uiSei4_ind <- renderUI({
+    ## if (length(result) > 0) {
+    choices <- union("DTOTAL", unique(unlist(STANi4.IND[input$stani4estimate_indagg])))
+    ## STANi4.INDA88All
+    ## STANi4.IND
+    choices <- factor(choices, levels = STANi4.INDA88All[STANi4.INDA88All%in%choices])
+    choices <- sort(choices)
+
+    if ((input$tabs_stani4Estimate=="Plots" & input$stani4estimate_plottype=="Lines") |
+        (input$tabs_stani4Estimate=="Tables" & input$stani4estimate_tabletype=="Calculation") ) {
+        list(
             selectInput("stani4estimate_ind", "Selected Industry:",
-                        ## choices = ui.stani4Estimate.ind,
                         choices = as.character(choices),
-                        ## selected = state_init_list("stani4estimate_ind", "C15T37", ui.stani4Estimate.ind),
                         selected = "DTOTAL",
-                        ## selected = "C75T99",
                         multiple = FALSE,
                         selectize = FALSE
                         )
-            )
-
-        } else {
-            selectInput("stani4estimate_ind", "Selected Industry:",
-                        ## choices = union(ui.stani4Estimate.ind.agg, ui.stani4Estimate.ind),
-                        choices = union(ui.stani4Estimate.ind.agg, unique(sort(unlist(STANi4.IND[input$stani4estimate_indagg])))),
-                        ## selected = state_init_multvar("stani4estimate_ind", "CTOTAL", union(ui.stani4Estimate.ind.agg, ui.stani4Estimate.ind)),
-                        ## selected = "CTOTAL",
-                        selected = c("A10", "A21", "A38", "A64"),
-                        ## selected = c("PUB"), # subscript out of bounds
-                        multiple = TRUE
-                        )
-        }
-    ## }
+        )
+    } else {
+        selectInput("stani4estimate_ind", "Selected Industry:",
+                    ## choices = union(ui.stani4Estimate.ind.agg, unique(sort(unlist(STANi4.IND[input$stani4estimate_indagg])))),
+                    choices = as.character(choices),
+                    ## selected = c("A10", "A21", "A38", "A64"),
+                    selected = c("DTOTAL", "D10T33"),
+                    multiple = TRUE
+                    )
+    }
 })
 
 output$uiSei4_indParent <- renderUI({
-    ## if (length(result) > 0) {
-    ## ind.parent <- result$ind.parent
     ind.parent <- as.character(STANi4.HIERARCHYINV[[input$stani4estimate_ind]])
         if (input$stani4estimate_detail==TRUE) {
             selectInput("stani4estimate_ind.parent.select", "Show parent level", ind.parent,
-                        ## selected = state_init_multvar("stani4estimate_ind.parent.select", ind.parent[1], ind.parent), # ind.parent[1]
-                        ## selected = "C10T41",
                         selected = ind.parent[1],
                         multiple = TRUE)
         }
-    ## }
 })
-##
+
 output$uiSei4_indPeers <- renderUI({
-    ## if (length(result) > 0) {
-        ## ind.parent <- result$ind.parent
         ind.parent <- input$stani4estimate_ind.parent.select
-        ## ind.peers <- ind.peers()
         if (input$stani4estimate_detail==TRUE) {
             ind.peers <- as.character(STANi4.HIERARCHY[[ind.parent[1]]])
             selectInput("stani4estimate_ind.peers.select", "Selected peer industries", ind.peers,
-                        ## selected = state_init_multvar("stani4estimate_ind.peers.select", input$stani4estimate_ind, ind.peers), # input$stani4estimate_ind
-                        ## selected = "C15T37",
                         selected = input$stani4estimate_ind,
                         multiple = TRUE)
         }
-    ## }
 })
-##
+
 output$uiSei4_estExtend <- renderUI({
-    ##
     if (input$stani4estimate_sou_ext_reloadButton != 0) {
         load(file = file.path("data", "data_init", "stani4Estimate_srcarray.rda"))
     }
-    ##
     sou.ext <- ui.stani4Estimate.est.array[input$stani4estimate_cou,
                                            input$stani4estimate_var,
                                            input$stani4estimate_ind,
                                            "EXT",]
     sou.ext.main <- ifelse(is.na(sou.ext[1]), '', sou.ext[1])
     if(is.na(sou.ext[2])) sou.ext.sec <- '' else sou.ext.sec <- strsplit(sou.ext[2], split = ", ")[[1]]
-    ##
-    if (input$stani4estimate_extend==TRUE)
-    {
+    if (input$stani4estimate_extend==TRUE) {
         list(
             selectInput("stani4estimate_sou_ext_main", "Extend: Main Source", ui.stani4Estimate.sou.ext,
-                        selected = sou.ext.main, multiple = FALSE) # sou.ext.main
+                        selected = sou.ext.main,
+                        multiple = FALSE)
             ,
             conditionalPanel(condition="input.stani4estimate_sou_ext_main!=''",
                              selectInput("stani4estimate_sou_ext_sec", "Extend: Secondary Sources", ui.stani4Estimate.sou.ext,
-                                         ## selected = state_multvar(sou.ext.sec, ui.stani4Estimate.sou.ext),
-                                         selected = sou.ext.sec, # sou.ext.sec
+                                         selected = sou.ext.sec,
                                          multiple = TRUE)
                              )
             )
@@ -345,20 +360,15 @@ output$uiSei4_estExtend <- renderUI({
 })
 ##
 output$uiSei4_estDetail <- renderUI({
-    ##
     if (input$stani4estimate_sou_det_reloadButton != 0) {
-        load(file = file.path("data", "data_init", "stani4Estimate_srcarray.rda"))
-    }
-    ##
+        load(file = file.path("data", "data_init", "stani4Estimate_srcarray.rda")) }
     sou.det <- ui.stani4Estimate.est.array[input$stani4estimate_cou,
                                            input$stani4estimate_var,
                                            input$stani4estimate_ind,
                                            "DET",]
     sou.det.main <- ifelse(is.na(sou.det[1]), '', sou.det[1])
     if(is.na(sou.det[2])) sou.det.sec <- '' else sou.det.sec <- strsplit(sou.det[2], split = ", ")[[1]]
-    ##
-    if (input$stani4estimate_detail==TRUE)
-    {
+    if (input$stani4estimate_detail==TRUE) {
         list(
             selectInput("stani4estimate_sou_det_main", "Detail: Main Source", ui.stani4Estimate.sou.det,
                         selected = sou.det.main,
@@ -374,7 +384,6 @@ output$uiSei4_estDetail <- renderUI({
 })
 
 output$uiSei4_aceEditor <- renderUI({
-
     if (input$stani4estimate_edit_reloadButton==0) {
         return()
     }
@@ -384,9 +393,7 @@ output$uiSei4_aceEditor <- renderUI({
         csvfile.string <- paste(readLines(file(csvfile)), collapse = '\n')
         close(con = file(csvfile))
     }
-
     aceEditor("stani4estimate_aceeditor", mode = "r", height = "400px", value = csvfile.string)
-
 })
 
 output$ui_stani4Estimate <- renderUI({
@@ -400,7 +407,7 @@ output$ui_stani4Estimate <- renderUI({
                              wellPanel(
                                  checkboxInput("stani4estimate_viz_plot_controls", "Plot options", FALSE),
                                  conditionalPanel(condition = "input.stani4estimate_viz_plot_controls==true",
-                                                  checkboxInput(inputId = "stani4estimate_plotncu", label="plot National Currency Units", value=FALSE),
+                                                  ## checkboxInput(inputId = "stani4estimate_plotncu", label="plot National Currency Units", value=FALSE),
                                                   sliderInput(inputId = "stani4Estimate_viz_plot_height", label = "Height:", min = 400, max = 2000, value = 750, step = 50),
                                                   sliderInput(inputId = "stani4Estimate_viz_plot_width", label = "Width:", min = 600, max = 1200, value = 850, step = 50),
                                                   sliderInput(inputId = "stani4Estimate_plot_linewidth", label = "Linewidth:", min = 1, max = 5, value = 1, step = 1),
@@ -420,7 +427,16 @@ output$ui_stani4Estimate <- renderUI({
             ,
             conditionalPanel(condition="input.tabs_stani4Estimate=='Tables'",
                              selectInput("stani4estimate_tabletype", "Tabletype:", ui.stani4estimate.tabletype,
-                                         selected = "Data", multiple = FALSE)
+                                         selected = "Data", multiple = FALSE),
+                             checkboxInput("stani4estimate_tablepivot", "Pivot Table", value = FALSE),
+                             conditionalPanel(condition="input.stani4estimate_tablepivot==true",
+                                                  selectInput("stani4estimate_tablepivotrow", "Pivot row dimensions",
+                                                              choices = ui.stani4estimate.datadimensions,
+                                                              selected = c("cou", "sou", "var", "ind"),
+                                                              multiple = TRUE)
+                                             ,
+                                              htmlOutput("uiSei4_pivotcolumn")
+                                              )
                              ) # conditionalPanel
             ,
             conditionalPanel(condition="input.tabs_stani4Estimate=='DataTables'",
@@ -428,18 +444,26 @@ output$ui_stani4Estimate <- renderUI({
                                          selected = "Conversion", multiple = FALSE) # "Sources"
                              ) # conditionalPanel
             ,
+
+            selectInput(inputId = "stani4estimate_currency", label="Currency unit of monetary variables (millions)",
+                        choices = list("US Dollar" = "USD",
+                            "National Currency" = "NCU"),
+                        selected = "USD"),
+
             wellPanel(
-                selectInput("stani4estimate_cou", "Country:", ui.stani4Estimate.cou, selected = "USA", multiple = FALSE),
-                ## testing
+                ## uiSei4_cou
+                ## selectInput("stani4estimate_cou", "Country:", ui.stani4Estimate.cou,
+                ##             selected = "AUT",
+                ##             multiple = FALSE),
+                htmlOutput("uiSei4_cou"),
                 actionButton("stani4estimate_datatable_reloadButton", "reload national data (csv)")
-              ## ,
-              ##   actionButton("stani4estimate_datatable_deleteButton", "remove national data")
-                ##
                 )
             ,
+
             ## Variables
             wellPanel(
-                selectInput("stani4estimate_var", "Variable:", ui.stani4Estimate.var, selected = "VALU", multiple = FALSE),
+                ## selectInput("stani4estimate_var", "Variable:", ui.stani4Estimate.var, selected = "VALU", multiple = FALSE),
+                htmlOutput("uiSei4_var"),
                 conditionalPanel(condition="input.stani4estimate_ind2==''",
                                  selectInput("stani4estimate_var2", "Denominator or substractor variable:", ui.stani4Estimate.var2)
                                  ) # conditionalPanel
@@ -470,11 +494,19 @@ output$ui_stani4Estimate <- renderUI({
             ,
             htmlOutput("uiSei4_plot"),
             wellPanel(
-                sliderInput("stani4estimate_time", "Time Range:", value = c(1994,2013), min = 1970, max = 2013, step = 1, format="#")
+                sliderInput("stani4estimate_time", "Time Range:",
+                            value = c(2006,2013),
+                            ## value = c(1970,2013),
+                            min = 1970, max = 2013, step = 1,
+                            format="####")
+                            ## sep="") # shiny 11
                 )
             ,
             wellPanel(
-                checkboxInput("stani4estimate_extend", "Extend series", FALSE)
+                checkboxInput("stani4estimate_extend", "Extend series",
+                              value = FALSE
+                              ## value = TRUE
+                              )
                 ,
                 conditionalPanel(condition="input.stani4estimate_extend==true",
                                  actionButton("stani4estimate_sou_ext_reloadButton", "reload"),
@@ -505,7 +537,10 @@ output$ui_stani4Estimate <- renderUI({
             wellPanel(
                 checkboxInput("stani4estimate_souall", "Select all sources", TRUE),
                 conditionalPanel(condition="input.stani4estimate_souall==false",
-                                 selectInput("stani4estimate_sou", "Source:", as.list(ui.stani4Estimate.sou), selected = c("STANi4", "NSO", "STANi3", "EUNAMAR1", "EUNAMAR2"), multiple = TRUE)
+                                 selectInput("stani4estimate_sou", "Source:", as.list(ui.stani4Estimate.sou),
+                                             ## selected = c("STANi4", "NSO", "STANi3", "EUNAMAR1", "EUNAMAR2"),
+                                             selected = c("STANi4", "NSO", "EUNAMA10R2", "STDSNAi4", "UNDATA206SNA08"),
+                                             multiple = TRUE)
                                  ) # conditionalPanel
                 ) # wellPanel
             ,
@@ -520,18 +555,25 @@ output$ui_stani4Estimate <- renderUI({
                     ) # wellPanel
                 ,
                 wellPanel(
-                    checkboxInput("stani4estimate_update", "Update results (check to perform estimation, uncheck to export stored results)", TRUE)
-                    ) # wellPanel
-                ,
-                wellPanel(
-                    checkboxInput("stani4estimate_exportcsv", "Export flat file (csv)", FALSE),
-                    checkboxInput("stani4estimate_exportxls", "Export Excel table(s)", TRUE),
+                    checkboxInput("stani4estimate_exportsql", "Export results to SQL", TRUE),
+                    checkboxInput("stani4estimate_downloadcsv", "Download flat file (csv)", TRUE),
+                    checkboxInput("stani4estimate_downloadxls", "Download Excel table(s)", FALSE),
                     checkboxInput("stani4estimate_exportcalc", "Include calculations", FALSE)
                     ) # wellPanel
                 ,
                 downloadButton('download_stani4Estimate', 'Download ZIP file') # from radiant.R: paste0('download_', fun_label)
                 ,
-                checkboxInput('stani4estimate_download_data', 'Download selected data (CSV)')
+                h5("Other options"),
+                wellPanel(
+                    checkboxInput("stani4estimate_update", "Update results (check to perform estimation, uncheck to export stored results)", TRUE),
+                    conditionalPanel(condition="input.stani4estimate_update==true",
+                                     checkboxInput("stani4estimate_exportsqlraw", "Export datasources to SQL", TRUE))
+                   ,
+                    checkboxInput("stani4estimate_exportdotstat", "Export results to OECD.Stat", FALSE),
+                    checkboxInput('stani4estimate_download_data', 'Download selected data (CSV)')
+                ) # wellPanel
+                ## ,
+                ## actionButton('export_stani4Estimate', 'Export data') # from radiant.R: paste0('export_', fun_label)
                 ) # wellPanel
             ,
 
@@ -541,19 +583,9 @@ output$ui_stani4Estimate <- renderUI({
                             choices = c("convind", "drop"), multiple = FALSE),
                 htmlOutput("uiSei4_aceEditor"),
                 actionButton("stani4estimate_edit_reloadButton", "load file"),
-                ## conditionalPanel(condition="input.stani4estimate_edit_reloadButton!=0",
                 actionButton("stani4estimate_edit_saveButton", "save changes"),
-                ## conditionalPanel(condition="input.stani4estimate_edit_saveButton!=0",
                 actionButton("stani4estimate_edit_applyButton", "export source data"),
-                ## conditionalPanel(condition="input.stani4estimate_edit_applyButton!=0,"
-                ## actionButton("stani4estimate_srcdata_reloadButton", "reload source data")
                 actionButton("stani4estimate_dataarray_reloadButton", "reload harmonized data")
-               ## ,
-                ## checkboxInput("stani4estimate_dataarray_loadCsv", "reload CSV files", TRUE)
-                ## checkboxInput("stani4estimate_dataarray_loadRda", "reload packaged data", FALSE)
-                ##                                   )
-                ##                  )
-                ## )
                 ) # wellPanel
             ,
 
@@ -690,8 +722,8 @@ output$stani4Estimate <- renderUI({
         stani4estimate_diff = input$stani4estimate_diff,
         stani4estimate_exportcalc = input$stani4estimate_exportcalc,
         stani4estimate_exportcou = input$stani4estimate_exportcou,
-        stani4estimate_exportcsv = input$stani4estimate_exportcsv,
-        stani4estimate_exportxls = input$stani4estimate_exportxls,
+        stani4estimate_downloadcsv = input$stani4estimate_downloadcsv,
+        stani4estimate_downloadxls = input$stani4estimate_downloadxls,
         stani4estimate_extend = input$stani4estimate_extend,
         stani4estimate_horiz = input$stani4estimate_horiz,
         ## stani4estimate_indagg = input$stani4estimate_indagg,
@@ -703,7 +735,8 @@ output$stani4Estimate <- renderUI({
         stani4estimate_limit.yrange.min = input$stani4estimate_limit.yrange.min,
         stani4estimate_missing = input$stani4estimate_missing,
         stani4estimate_morevar = input$stani4estimate_morevar,
-      stani4estimate_plotncu = input$stani4estimate_plotncu,
+      ## stani4estimate_plotncu = input$stani4estimate_plotncu,
+        stani4estimate_currency = input$stani4estimate_currency,
         stani4estimate_plottype = input$stani4estimate_plottype,
         stani4estimate_singlesou = input$stani4estimate_singlesou,
         stani4estimate_sou = input$stani4estimate_sou,
@@ -721,6 +754,9 @@ output$stani4Estimate <- renderUI({
         ## stani4estimate_STANi4.INDA60 = input$stani4estimate_STANi4.INDA60,
         stani4estimate_STANi4.INDLABEL = input$stani4estimate_STANi4.INDLABEL,
         stani4estimate_tabletype = input$stani4estimate_tabletype,
+        stani4estimate_tablepivot = input$stani4estimate_tablepivot,
+        stani4estimate_tablepivotcol = input$stani4estimate_tablepivotcol,
+        stani4estimate_tablepivotrow = input$stani4estimate_tablepivotrow,
         stani4estimate_time = input$stani4estimate_time,
         stani4estimate_update = input$stani4estimate_update,
         stani4estimate_var = input$stani4estimate_var,
@@ -728,6 +764,9 @@ output$stani4Estimate <- renderUI({
         stani4estimate_yrange = input$stani4estimate_yrange,
         stani4estimate_download_data = input$stani4estimate_download_data,
       stani4estimate_adjust = input$stani4estimate_adjust,
+        stani4estimate_exportsql = input$stani4estimate_exportsql,
+        stani4estimate_exportsqlraw = input$stani4estimate_exportsqlraw,
+        stani4estimate_exportdotstat = input$stani4estimate_exportdotstat,
         ##
         stani4Estimate_plot_linewidth = input$stani4Estimate_plot_linewidth,
         stani4Estimate_viz_plot_height = input$stani4Estimate_viz_plot_height,
@@ -737,17 +776,31 @@ output$stani4Estimate <- renderUI({
 })
 
 
+## ####################################### ##
+## Observers to modify application objects ##
+## ####################################### ##
+
+## ## Export estimation results and harmonized datasources to SQL
 ## observe({
-##     ## ui.stani4Estimate.convind.table <- read.csv("data/data_init/stani4Estimate_convind.csv", na = "")
-##     readLines(file("data/data_init/stani4Estimate_convind.csv"))
+##     if (is.null(input$stani4estimate_exportsql) || input$stani4estimate_exportsql == 0) return()
+##     load("data/data_init/stani4Estimate_results.rda") # loads "stani4Estimate_results" data frame
+##     ## define and create SQL tables
+##     ## results: cou var ind year value flag (estimate?)
+##     ## harmonized sources: export from dataarray
 ## })
 
-## Source Array modification
+## modification of "Sources for Estimation Array"
 observe({
     if (is.null(input$stani4estimate_sou_ext_saveButton) || input$stani4estimate_sou_ext_saveButton == 0) return()
     ## apply settings to all selected countries: dangerous!!
     ## cou <- match(union(input$stani4estimate_cou, input$stani4estimate_exportcou), ui.stani4Estimate.cou)
     cou <- match(input$stani4estimate_cou, ui.stani4Estimate.cou)
+
+    ## debug
+    ## stani4estimate_var <- "VALU"
+    ## stani4estimate_morevar <- "EMPN"
+    ## var <- match(union(stani4estimate_var, stani4estimate_morevar), ui.stani4Estimate.var)
+
     var <- match(union(input$stani4estimate_var, input$stani4estimate_morevar), ui.stani4Estimate.var)
     if (input$stani4estimate_allind==TRUE) {
         ind <- seq(along = ui.stani4Estimate.ind)
@@ -755,8 +808,8 @@ observe({
         ind <- match(input$stani4estimate_ind, ui.stani4Estimate.ind)
     }
     load(file = file.path("data", "data_init", "stani4Estimate_srcarray.rda"))
-    ui.stani4Estimate.est.array[cou,var,ind,"EXT","MAIN"] <- input$stani4estimate_sou_ext_main
-    ui.stani4Estimate.est.array[cou,var,ind,"EXT","SEC"] <- toString(input$stani4estimate_sou_ext_sec)
+    ui.stani4Estimate.est.array[cou, var, ind, "EXT", "MAIN"] <- input$stani4estimate_sou_ext_main
+    ui.stani4Estimate.est.array[cou, var, ind, "EXT", "SEC"] <- toString(input$stani4estimate_sou_ext_sec)
     save(ui.stani4Estimate.est.array, file = file.path("data", "data_init", "stani4Estimate_srcarray.rda"))
     print("saved extend information")
 })
@@ -891,12 +944,12 @@ observe({
 
           ## ## remove industries from dataset if they are a one to one match, e.g. D20T21 = D20 removes D20
           ## data.conv <- data.conv[!data.conv$ind%in%formula.indi4.cou.convcou$formula,]
-          
+
             data.conv <- rbind(data.conv, data.conv.cou)
             ## data.conv <- rbind(data.conv.cou, data.conv) # change order to allow re-assign values
             ## ## remove duplicates
             ## data.conv <- data.conv[!duplicated(data.conv[,colnames(data.conv)%in%c("cou", "var", "ind", "year")]),]
-            
+
         }
         ## general industry conversion (all countries in source)
         formula.indi4.allcou <- subset(ui.stani4Estimate.convind.table, select = c("ind", "formula"), sou==souconv & is.na(cou))
@@ -1023,6 +1076,11 @@ stani4Estimate.data.all <- rbindlist(l = DATA[ui.stani4Estimate.sou[!ui.stani4Es
 
 })
 
+## ########################################## ##
+## Reactive functions to refresh data objects ##
+## ########################################## ##
+
+## harmonised sources
 stani4Estimate.data.array <- reactive({
     if (is.null(input$stani4estimate_dataarray_reloadButton) || input$stani4estimate_dataarray_reloadButton==0) {
         load(file = file.path("data", "data_init", "stani4Estimate_dataarray.rda"))
@@ -1032,7 +1090,7 @@ stani4Estimate.data.array <- reactive({
     return(stani4Estimate.data.array)
 })
 
-
+## country national sources from CSV
 stani4Estimate.data.table <- reactive({
     if (is.null(input$stani4estimate_datatable_reloadButton) || input$stani4estimate_datatable_reloadButton==0) {
         ## return()
@@ -1089,6 +1147,28 @@ stani4Estimate.data.table <- reactive({
 ##   })
 ## })
 
+stani4Estimate_sqlDelete <- function(data=stop("'data' must be specified"),
+                                     dim=stop("'dim must be specified"),
+                                     table=stop("table must be specified")
+                                     ) {
+    ## SQL delete statement to avoid duplicated rows
+    ## delete.dim <- apply(data[, !colnames(data)%in%c("sou", "ind", "year", "value")], 2, "unique")
+    delete.dim <- apply(subset(data, select = dim), 2, "unique")
+    delete.command <- NULL
+    ## i <- 2
+    for (i in seq(along = delete.dim)) {
+        values <- gsub("\"", "\'", toString(shQuote(delete.dim[[i]])))
+        dim <- names(delete.dim)[i]
+        dim.values <- paste0(dim, ' IN (', values, ')')
+        delete.command <- paste(c(delete.command, dim.values), collapse = " AND ")
+    }
+    delete.command <- paste('DELETE FROM', table, 'WHERE', delete.command)
+    ## DELETE FROM [STAN].[dbo].[stani4Estimate_dataarray]
+    ## WHERE cou='AUT' AND var IN ('VALU', 'PROD')
+    ## cat(delete.command)
+    return(delete.command)
+}
+
 stani4Estimate <- function(
     stani4estimate_allind = stani4estimate_allind,
     stani4estimate_cou = stani4estimate_cou,
@@ -1096,9 +1176,9 @@ stani4Estimate <- function(
     stani4estimate_detail = stani4estimate_detail,
     stani4estimate_diff = stani4estimate_diff,
     stani4estimate_exportcalc = stani4estimate_exportcalc,
-    stani4estimate_exportcsv = stani4estimate_exportcsv,
+    stani4estimate_downloadcsv = stani4estimate_downloadcsv,
     stani4estimate_exportcou = stani4estimate_exportcou,
-    stani4estimate_exportxls = stani4estimate_exportxls,
+    stani4estimate_downloadxls = stani4estimate_downloadxls,
     stani4estimate_extend = stani4estimate_extend,
     stani4estimate_horiz = stani4estimate_horiz,
     ## stani4estimate_indagg = stani4estimate_indagg,
@@ -1110,7 +1190,8 @@ stani4Estimate <- function(
     stani4estimate_limit.yrange.min = stani4estimate_limit.yrange.min,
     stani4estimate_missing = stani4estimate_missing,
     stani4estimate_morevar = stani4estimate_morevar,
-  stani4estimate_plotncu = stani4estimate_plotncu,
+  ## stani4estimate_plotncu = stani4estimate_plotncu,
+    stani4estimate_currency = stani4estimate_currency,
     stani4estimate_plottype = stani4estimate_plottype,
     stani4estimate_singlesou = stani4estimate_singlesou,
     stani4estimate_sou = stani4estimate_sou,
@@ -1130,6 +1211,9 @@ stani4Estimate <- function(
     ## stani4estimate_STANi4.INDA60 = stani4estimate_STANi4.INDA60,
     stani4estimate_STANi4.INDLABEL = stani4estimate_STANi4.INDLABEL,
     stani4estimate_tabletype = stani4estimate_tabletype,
+    stani4estimate_tablepivot = stani4estimate_tablepivot,
+    stani4estimate_tablepivotcol = stani4estimate_tablepivotcol,
+    stani4estimate_tablepivotrow = stani4estimate_tablepivotrow,
     stani4estimate_time = stani4estimate_time,
     stani4estimate_update = stani4estimate_update,
     stani4estimate_var = stani4estimate_var,
@@ -1137,6 +1221,9 @@ stani4Estimate <- function(
     stani4estimate_yrange = stani4estimate_yrange,
     stani4estimate_download_data = stani4estimate_download_data,
   stani4estimate_adjust = stani4estimate_adjust,
+    stani4estimate_exportsql = stani4estimate_exportsql,
+    stani4estimate_exportsqlraw = stani4estimate_exportsqlraw,
+    stani4estimate_exportdotstat = stani4estimate_exportdotstat,
     ##
     stani4Estimate_plot_linewidth = stani4Estimate_plot_linewidth,
     stani4Estimate_viz_plot_height = stani4Estimate_viz_plot_height,
@@ -1213,7 +1300,7 @@ stani4Estimate <- function(
         }
     }
     ## stani4estimate_indagg
-    
+
 
     ## years
     nameyear <- c(stani4estimate_time[1]:stani4estimate_time[2])
@@ -1385,6 +1472,12 @@ stani4Estimate <- function(
         data.table <- rbind(data.table, data.patch.det)
     }
 
+    if (stani4estimate_currency!="USD") {
+        data.table <- convertCurrency(data.table, datacur = subset(values[["STANNAi0"]][["DATA.XRATES"]], var == "EXCH"),
+                                      tounit=stani4estimate_currency) # e.g. "NCU"
+
+    }
+
     ## calculate share according to selection
     if (stani4estimate_var2 != "")
     {
@@ -1424,8 +1517,8 @@ stani4Estimate <- function(
                 stani4estimate_STANi4.INDLABEL = stani4estimate_STANi4.INDLABEL,
                 stani4estimate_datatabletype = stani4estimate_datatabletype,
                 stani4estimate_detail = stani4estimate_detail,
-                stani4estimate_exportcsv = stani4estimate_exportcsv,
-                stani4estimate_exportxls = stani4estimate_exportxls,
+                stani4estimate_downloadcsv = stani4estimate_downloadcsv,
+                stani4estimate_downloadxls = stani4estimate_downloadxls,
                 stani4estimate_exportcalc = stani4estimate_exportcalc,
                 stani4estimate_extend = stani4estimate_extend,
                 stani4estimate_horiz = stani4estimate_horiz,
@@ -1435,15 +1528,22 @@ stani4Estimate <- function(
                 stani4estimate_limit.yrange.max = stani4estimate_limit.yrange.max,
                 stani4estimate_missing = stani4estimate_missing,
                 stani4estimate_morevar = stani4estimate_morevar,
-                stani4estimate_plotncu = stani4estimate_plotncu,
+                ## stani4estimate_plotncu = stani4estimate_plotncu,
+                stani4estimate_currency = stani4estimate_currency,
                 stani4estimate_plottype = stani4estimate_plottype,
                 stani4estimate_singlesou = stani4estimate_singlesou,
                 stani4estimate_tabletype = stani4estimate_tabletype,
+                stani4estimate_tablepivot = stani4estimate_tablepivot,
+                stani4estimate_tablepivotcol = stani4estimate_tablepivotcol,
+                stani4estimate_tablepivotrow = stani4estimate_tablepivotrow,
                 stani4estimate_update = stani4estimate_update,
                 stani4estimate_var2 = stani4estimate_var2,
                 stani4Estimate_plot_linewidth = stani4Estimate_plot_linewidth,
                 stani4estimate_download_data = stani4estimate_download_data,
-                stani4estimate_adjust = stani4estimate_adjust
+                stani4estimate_adjust = stani4estimate_adjust,
+                stani4estimate_exportsql = stani4estimate_exportsql,
+                stani4estimate_exportsqlraw = stani4estimate_exportsqlraw,
+                stani4estimate_exportdotstat = stani4estimate_exportdotstat
                 ## stani4estimate_sou_all_print = stani4estimate_sou_all_print,
                 )
            )
@@ -1485,18 +1585,33 @@ tables_stani4Estimate <- function(result = .stani4Estimate()) {
     data.table <- result$data.table
     data.table2 <- result$data.table2
     stani4estimate_tabletype <- result$stani4estimate_tabletype
+    stani4estimate_tablepivot = result$stani4estimate_tablepivot
+    stani4estimate_tablepivotcol = result$stani4estimate_tablepivotcol
+    stani4estimate_tablepivotrow = result$stani4estimate_tablepivotrow
     stani4estimate_missing <- result$stani4estimate_missing
     namecou <- result$namecou
     namesou <- result$namesou
     namevar <- result$namevar
     nameind <- result$nameind
 
-    if (stani4estimate_tabletype=="Data")
-    {
+    if (stani4estimate_tabletype=="Data") {
         ## Tab: Table: Data pivot
+
+     if (stani4estimate_tablepivot==TRUE) {
+
+         ## stani4estimate_tablepivotrow <- c("cou", "sou", "var")
+         pivot.formula.str.lh <- paste(stani4estimate_tablepivotrow, collapse = " + ")
+         ## data.table <- data
+         ## names.rh <- names(data.table)[!names(data.table)%in%union(stani4estimate_tablepivotrow, "value")]
+         ## pivot.formula.str.rh <- paste(names.rh, collapse = " + ")
+         pivot.formula.str.rh <- paste(stani4estimate_tablepivotcol, collapse = " + ")
+         pivot.formula.str <- paste(c(pivot.formula.str.lh, pivot.formula.str.rh), collapse = " ~ ")
+         pivot.formula <- as.formula(object = pivot.formula.str)
+         data.table.pivot <- rbind(dcast(data.table, pivot.formula, value.var="value")) # , fun.aggregate = "count"))
+     } else {
+         ## pivot.formula.str <- "cou + sou + var + ind ~ year"
         data.table.pivot <- rbind(dcast(data.table, cou + sou + var + ind ~ year, value.var="value"))
-        if (stani4estimate_missing==TRUE)
-            {
+        if (stani4estimate_missing==TRUE) {
                 data.table.pivot <- data.table.pivot[data.table.pivot$ind%in%nameind,] # remove ind2
                 namecou.namesou <- merge(as.data.frame(namecou), as.data.frame(namesou))
                 namecou.namesou.namevar <- merge(as.data.frame(namecou.namesou), as.data.frame(namevar))
@@ -1510,7 +1625,9 @@ tables_stani4Estimate <- function(result = .stani4Estimate()) {
         data.table.pivot$var <- factor(data.table.pivot$var, levels = ui.stani4Estimate.var) # namevar
         data.table.pivot$ind <- factor(data.table.pivot$ind, levels = STANi4.INDA88All[STANi4.INDA88All%in%data.table.pivot$ind]) # nameind
         data.table.pivot <- data.table.pivot[order(data.table.pivot$cou, data.table.pivot$sou, data.table.pivot$var, data.table.pivot$ind),]
-        return(data.table.pivot)
+
+    }
+     return(data.table.pivot)
 
     } else if (stani4estimate_tabletype=="Calculation") {
         ## Tab: Table: Calc (display merged data in table)
@@ -1576,16 +1693,16 @@ plots_stani4Estimate <- function(result = .stani4Estimate()) {
     stani4estimate_ind2 <- result$stani4estimate_ind2
     stani4estimate_limit.yrange.min <- result$stani4estimate_limit.yrange.min
     stani4estimate_limit.yrange.max <- result$stani4estimate_limit.yrange.max
-    stani4estimate_plotncu <- result$stani4estimate_plotncu
+    ## stani4estimate_plotncu <- result$stani4estimate_plotncu
     stani4estimate_plottype <- result$stani4estimate_plottype
     stani4estimate_singlesou <- result$stani4estimate_singlesou
     stani4estimate_var2 <- result$stani4estimate_var2
     stani4Estimate_plot_linewidth <- result$stani4Estimate_plot_linewidth
 
-    ## convert plot data to NCU
-    if (stani4estimate_plotncu==TRUE) {
-      data.table <- convertCurrency(data.table, datacur = subset(values[["STANNAi0"]][["DATA.XRATES"]], var == "EXCH"), tounit="NCU") # , cou == namecou
-    }
+    ## ## convert plot data to NCU
+    ## if (stani4estimate_plotncu==TRUE) {
+    ##   data.table <- convertCurrency(data.table, datacur = subset(values[["STANNAi0"]][["DATA.XRATES"]], var == "EXCH"), tounit="NCU") # , cou == namecou
+    ## }
 
     if (stani4estimate_plottype=="Bars") {
         ## Tab: Plot: Bars
@@ -1725,8 +1842,10 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
 
         stani4estimate_download_data <- result$stani4estimate_download_data
         stani4estimate_adjust <- result$stani4estimate_adjust
-        
-        if(stani4estimate_download_data==TRUE) {
+        stani4estimate_exportsql <- result$stani4estimate_exportsql
+        stani4estimate_exportsqlraw <- result$stani4estimate_exportsqlraw
+
+        if(stani4estimate_download_data==TRUE) { # download data shown on screen, i.e. in table or in plot - for debugging
             data.table <- result$data.table
 
             tempdir = tempdir()
@@ -1736,8 +1855,8 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
             file <- file.path(tempdir, 'stani4Estimate.csv')
             ## write.csv(queryData, file = file, row.names = FALSE)
             write.csv(data.table, file = file, row.names = FALSE)
-        } else {
 
+        } else { # perform estimations with input parameters - treat more data than currently in buffer
         exportcou <- result$exportcou # contains 'namecou' and 'exportcou'
         exportvar <- union(result$namevar, result$stani4estimate_morevar) # namevar <- "VALU"
         nameyear <- result$nameyear
@@ -1747,8 +1866,8 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
         stani4estimate_detail <- result$stani4estimate_detail
 
         stani4estimate_update = result$stani4estimate_update
-        stani4estimate_exportcsv = result$stani4estimate_exportcsv
-        stani4estimate_exportxls = result$stani4estimate_exportxls
+        stani4estimate_downloadcsv = result$stani4estimate_downloadcsv
+        stani4estimate_downloadxls = result$stani4estimate_downloadxls
         stani4estimate_exportcalc = result$stani4estimate_exportcalc
 
         ## loads object "stani4Estimate_results"
@@ -1758,14 +1877,14 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
         ## stani4Estimate_results <- subset(stani3Estimate_results, is.na(value))
         ## stani4Estimate_results <- subset(stani4Estimate_results, !is.na(value))
         ## save(stani4Estimate_results, file = file.path("data", "data_init", "stani4Estimate_results.rda"))
-        
-        load("data/data_init/stani4Estimate_results.rda")
+
+        load("data/data_init/stani4Estimate_results.rda") # loads "stani4Estimate_results" data frame
 
         if (stani4estimate_update==TRUE) {
 
             stani4Estimate_results <- stani4Estimate_results[!(stani4Estimate_results$cou%in%exportcou &
                                                                stani4Estimate_results$var%in%exportvar), ]
-            
+
             ## ## #######################
             ## ## begin testing
             ## ## #######################
@@ -1776,14 +1895,16 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
             ## load(file = file.path("data", "data_init", "stani4Estimate_dataarray.rda"))
             ## load(file = file.path("data", "data_init", "stani4Estimate_datatable.rda"))
             ## require(reshape2)
-            ## exportcou <- c("USA")
+            ## ## exportcou <- c("USA")
             ## ## exportcou <- c("AUT", "BEL")
+            ## exportcou <- c("AUT")
             ## exportvar <- c("VALU", "PROD")
             ## ## nameind <- "DTOTAL"
             ## nameind <- as.character(ui.stani4Estimate.ind)
-            ## nameyear <- c(1972:2013)
+            ## nameyear <- c(1976:2013)
             ## stani4estimate_extend <- TRUE
             ## stani4estimate_detail <- FALSE
+            ## stani4estimate_adjust <- FALSE
             ## ## #######################
             ## ## end testing
             ## ## #######################
@@ -1835,7 +1956,7 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
             if (!"year"%in%names(data.all)) data.all$year <- as.numeric(nameyear)
             if (!"ind"%in%names(data.all)) data.all$ind <- nameind # union(unique(est.array.m$ind), ind.parent)
             ## end new ##
-            
+
             data.csv <- subset(stani4Estimate.data.table(),
             ## data.csv <- subset(stani4Estimate.data.table,
               cou%in%namecou &
@@ -1845,6 +1966,46 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
               ind%in%nameind)
 
             data.all <- rbind(data.all, data.csv)
+
+            ## see for other sqlQuery commands
+            ## ~/LocalData/Dropbox/GitHub/icioData/data-raw/SQL/exportICIOINDIC_SQL.R
+            if (Sys.info()["sysname"]=="Windows") {
+                SQL.STAN <- odbcDriverConnect(connection = "SERVER=VS-GEN-SQL-3; DRIVER=SQL Server; DATABASE=STAN", readOnlyOptimize = TRUE)
+                if (stani4estimate_exportsqlraw==TRUE) {
+
+                    ## cat(gsub(", ", ",\n", toString(create.command)))
+                    ## ## cou varchar(3),
+                    ## ## var varchar(8),
+                    ## ## ind varchar(10),
+                    ## ## year smallint,
+                    ## ## value float,
+                    ## ## flag varchar(4)
+                    ## h(data.all)
+
+                    dataarray.sqltable <- "stani4Estimate_dataarray"
+                    ## create.command.pre <- paste('CREATE TABLE', dataarray.sqltable)
+                    ## create.command <- paste(create.command.pre,
+                    ##                         '(',
+                    ##                         'cou varchar(3),',
+                    ##                         'var varchar(8),',
+                    ##                         'ind varchar(10),',
+                    ##                         'year smallint,',
+                    ##                         'value float,',
+                    ##                         'sou varchar(20)', # max(nchar(as.character(stani4Estimate.VIS.SOU$sou))) is 14
+                    ##                         ');', sep = '\n')
+                    ## ## cat(create.command)
+                    ## sql.result <- sqlQuery(channel = SQL.STAN, query = create.command)
+
+                    data.all.out <- subset(data.all, select = c("cou", "var", "ind", "year", "value", "sou"))
+                    ## delete from SQL table
+                    delete.command <- stani4Estimate_sqlDelete(data=data.all.out,
+                                                               dim=c("cou", "var"),
+                                                               table=paste0('STAN.dbo.', dataarray.sqltable))
+                    sqlQuery(channel = SQL.STAN, query = delete.command)
+                    ## export values
+                    bcpWrite(x = data.all.out, table = dataarray.sqltable, server = "VS-GEN-SQL-3")
+                }
+            }
 
             ## cat("***************\nprint data\n***************")
             ## print(data.all)
@@ -1888,15 +2049,17 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
                                           )
                 res.det <- rbind(res.det, res.ext)
             }
-            data.est <- rbind(res.det, res.ext)
+            data.result <- rbind(res.det, res.ext)
             ## only keep estimated sources
-            data.est <- subset(data.est, sou %in% c("PATCHEXT", "PATCHDET"))
+            data.result <- subset(data.result, sou %in% c("PATCHEXT", "PATCHDET"))
+            ## remove "sou" column from estimated data - could replace with data flag?
+            data.result <- data.result[, !colnames(data.result)%in%c("sou")]
             ##
-            data.est <- data.est[!duplicated(data.est[,!colnames(data.est)%in%c("sou", "value")]),]
-            data.est$ind <- factor(data.est$ind, levels = nameind)
-            data.est <- data.est[order(data.est$ind),]
+            data.result <- data.result[!duplicated(data.result[,!colnames(data.result)%in%c("sou", "value")]),]
+            data.result$ind <- factor(data.result$ind, levels = nameind)
+            data.result <- data.result[order(data.result$ind),]
 
-            data <- data.est
+            ## data <- data.result
 
             ## ## data adjustment: create function
             ## data <- dcast(data, cou + var + year ~ ind, value.var = "value")
@@ -1940,66 +2103,132 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
             ## ##
             ## data <- data.adj
 
-            if (stani4estimate_adjust==TRUE) {
+            if (stani4estimate_adjust==TRUE) { # error: drops "sou" column
 
               ## devtools::install(file.path(dbpath, "GitHub", "stan"))
-              
-              ## data <- dcast(data, cou + var + sou ~ ind, value.var = "value")
-              ## h(data)
-              data <- dcast(data, cou + var + year ~ ind, value.var = "value")
-              
-              data <- stan::adjust(data = data,
+
+              data.result <- dcast(data.result, cou + var + year ~ ind, value.var = "value")
+              ## data.result <- dcast(data.result, cou + sou + var ~ ind, value.var = "value")
+
+              data.result <- stan::adjust(data = data.result,
                                    ## variable.name = "ind",
                                    ## value.var = "value",
                                    ## agg.vars = "sou",
                                    hierarchy = STANi4.HIERARCHY,
                                    top = "DTOTAL")
 
-              data <- melt(data, id.vars = c("cou", "var", "year"), variable.name = "ind")
-              ## h(data.m)
-              ## h(data)
-
+              data.result <- melt(data.result, id.vars = c("cou", "var", "year"), variable.name = "ind")
+              ## data.result <- melt(data.result, id.vars = c("cou", "sou", "var", "year"), variable.name = "ind")
             }
-            
-            stani4Estimate_results <- rbind(stani4Estimate_results, data)
+
+            ## debug
+            print(h(data.result))
+            print(h(stani4Estimate_results))
+
+            ## ## add flag column - replace later using estimation functions
+            ## data.result$flag <- NA
+            ## data.result <- subset(data.result, select = c("cou", "var", "ind", "year", "value", "flag"))
+
+            stani4Estimate_results <- rbind(stani4Estimate_results, data.result) # check: new factor levels?
+            ## ## reset stani4Estimate_results
+            ## load(file = "data/data_init/stani4Estimate_results.rda")
+            ## stani4Estimate_results <- NULL
             save(stani4Estimate_results, file = "data/data_init/stani4Estimate_results.rda")
         } # if (stani4estimate_update==TRUE) {...}
 
         ## export data from stored object
+        ## h(stani4Estimate_results)
+        ## unique(stani4Estimate_results$cou)
+        ## unique(stani4Estimate_results$var)
         ## exportcou <- c("AUT", "BEL")
         ## exportcou <- c("GBR")
         ## exportvar <- c("VALU", "PROD")
         ## nrow(data)
-        data <- stani4Estimate_results[stani4Estimate_results$cou%in%exportcou &
-                                       stani4Estimate_results$var%in%exportvar,]
+        data.result <- stani4Estimate_results[stani4Estimate_results$cou%in%exportcou &
+                                                  stani4Estimate_results$var%in%exportvar,]
+
+        ## export to SQL without calculations
+        if (Sys.info()["sysname"]=="Windows") {
+                SQL.STAN <- odbcDriverConnect(connection = "SERVER=VS-GEN-SQL-3; DRIVER=SQL Server; DATABASE=STAN", readOnlyOptimize = TRUE)
+                if (stani4estimate_exportsql==TRUE) {
+
+                ## sql.str <- "SELECT * FROM information_schema.columns"
+                ## sql.result <- sqlQuery(channel = SQL.STAN, query = sql.str)
+                ## tables <- unique(sql.result$TABLE_NAME)
+                ## tables.stan <- tables[substr(tables, 1, 4)=="STAN"]
+                ## table <- "STANPUBi4_PRE"
+                ## sql.result <- subset(sql.result, TABLE_NAME==table)
+                ## subset(sql.result, select = c("COLUMN_NAME", "DATA_TYPE", "CHARACTER_MAXIMUM_LENGTH"))
+
+                ## ## cat(paste0(sql.result$COLUMN_NAME, ' ', sql.result$DATA_TYPE, '(', sql.result$CHARACTER_MAXIMUM_LENGTH, '),\n'))
+                result.sqltable <- "stani4Estimate_results"
+                ## create.command.pre <- paste('CREATE TABLE', result.sqltable)
+
+                ## create.command <- paste0(sql.result$COLUMN_NAME, ' ',
+                ##            sql.result$DATA_TYPE,
+                ##            ifelse(is.na(sql.result$CHARACTER_MAXIMUM_LENGTH), "",
+                ##                   paste0('(', sql.result$CHARACTER_MAXIMUM_LENGTH, ')'))) # , ',\n')
+
+                ## ## cat(gsub(", ", ",\n", toString(create.command)))
+                ## ## ## cou varchar(3),
+                ## ## ## var varchar(8),
+                ## ## ## ind varchar(10),
+                ## ## ## year smallint,
+                ## ## ## value float,
+                ## ## ## flag varchar(4)
+                ## create.command <- paste(create.command.pre,
+                ##                         '(',
+                ##                         toString(create.command),
+                ##                         ');', sep = '\n')
+                ## sql.result <- sqlQuery(channel = SQL.STAN, query = create.command)
+                ## ## cat(create.command)
+
+                data.out <- subset(data.result, select = c("cou", "var", "ind", "year", "value"))
+                data.out$flag <- NA
+
+                ## delete from SQL table
+                delete.command <- stani4Estimate_sqlDelete(data=data.out,
+                                                           dim=c("cou", "var"),
+                                                           table=paste0('STAN.dbo.', result.sqltable))
+                sqlQuery(channel = SQL.STAN, query = delete.command)
+
+                bcpWrite(x = data.out, table = result.sqltable, server = "VS-GEN-SQL-3")
+            }
+        }
 
         ## add share calculations
         ## stani4estimate_exportcalc=TRUE
         if (stani4estimate_exportcalc==TRUE) {
-            data.d <- dcast(data, cou + ind + year ~ var, value.var = "value")
-            if ("VALU"%in%names(data.d) & "PROD"%in%names(data.d)) {
-                attach(data.d)
-                data.d[["VALUshPROD"]] <- VALU / PROD * 100
-                detach(data.d)
+            data.result.d <- dcast(data.result, cou + ind + year ~ var, value.var = "value")
+            if ("VALU"%in%names(data.result.d) & "PROD"%in%names(data.result.d)) {
+                attach(data.result.d)
+                data.result.d[["VALUshPROD"]] <- VALU / PROD * 100
+                detach(data.result.d)
             }
-            if ("LABR"%in%names(data.d) & "VALU"%in%names(data.d)) {
-                attach(data.d)
-                data.d[["LABRshVALU"]] <- LABR / VALU * 100
-                detach(data.d)
+            if ("LABR"%in%names(data.result.d) & "VALU"%in%names(data.result.d)) {
+                attach(data.result.d)
+                data.result.d[["LABRshVALU"]] <- LABR / VALU * 100
+                detach(data.result.d)
             }
-            if ("VALU"%in%names(data.d) & "EMPN"%in%names(data.d)) {
-                attach(data.d)
-                data.d[["VALUperEMPN"]] <- VALU / EMPN * 10^6
-                detach(data.d)
+            if ("VALU"%in%names(data.result.d) & "EMPN"%in%names(data.result.d)) {
+                attach(data.result.d)
+                data.result.d[["VALUperEMPN"]] <- VALU / EMPN * 10^6
+                detach(data.result.d)
             }
-            data <- melt(data.d, id.vars = c("cou", "ind", "year"), variable.name = "var")
+            data.result.calc <- melt(data.result.d, id.vars = c("cou", "ind", "year"), variable.name = "var")
+            data.result.calc <- subset(data.result.calc, var%in% c("VALUshPROD", "LABRshVALU", "VALUperEMN"))
             ##
-            data.share <- merge(data, data[data$ind=="DTOTAL" & data$var=="VALU", colnames(data)!="ind"], by = c("cou", "var", "year"))
-            data.share$value <- data.share$value.x / data.share$value.y * 100
-            data.share$var <- "VALUshDTOTAL"
-            data.share <- data.share[,!colnames(data.share)%in%c("value.x", "value.y")]
+            data.result.share <- merge(data.result,
+                                       data.result[data.result$ind=="DTOTAL" & data.result$var=="VALU", colnames(data.result)!="ind"],
+                                       by = c("cou", "var", "year"))
+            data.result.share$value <- data.result.share$value.x / data.result.share$value.y * 100
+            data.result.share$var <- "VALUshDTOTAL"
+            data.result.share <- data.result.share[,!colnames(data.result.share)%in%c("value.x", "value.y")]
             ##
-            data <- rbind(data, data.share)
+            ## add flag column
+            data.result <- rbind(data.result,
+                                 data.result.calc,
+                                 data.result.share)
         }
 
         ## empty temp directory
@@ -2008,15 +2237,15 @@ download_stani4Estimate <- function(result = .stani4Estimate(), zipfile = fname)
         file.remove(file.path(tempdir, list.files(tempdir)))
 
         ## export flat file if selected
-        if (stani4estimate_exportcsv==TRUE) {
+        if (stani4estimate_downloadcsv==TRUE) {
             file.csv <- file.path(tempdir, paste0('STANesti4.csv'))
-            data.out <- data
+            data.out <- data.result
             data.out <- data.out[!is.na(data.out$value),]
             write.csv(data.out, file = file.csv, row.names = FALSE, na = "")
         }
 
         ## export XLS tables if selected
-        if (stani4estimate_exportxls==TRUE) {
+        if (stani4estimate_downloadxls==TRUE) {
 
             ## cou <- exportcou[1] # temporary
             ## cou <- "GBR"

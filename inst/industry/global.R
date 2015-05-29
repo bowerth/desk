@@ -12,6 +12,7 @@ app.menu$panel.df <- rbind.data.frame(
     c("active", "ICIO", "TiVA Indicators", "icioIndic"),
     c("active", "ICIO", "ICIO Networks", "icioNet"),
     c("active", "ICIO", "ICIO Dashboards", "icioDash"),
+    ## c("active", "ICIO", "ICIO BSCI", "icioBsci"),
     c("active", "STAN", "STAN ISIC3 Estimate", "stani3Estimate"),
     c("active", "STAN", "STAN ISIC4 Estimate", "stani4Estimate"),
     c("active", "STAN", "STAN Indicators", "stanIndic"),
@@ -110,6 +111,7 @@ setInitValues <- function() {
         }
 
         if (active.icioFddva==TRUE | active.icioDash==TRUE) {
+        ## if (active.icioFddva==TRUE | active.icioDash==TRUE | active.icioBsci==TRUE) {
         ## if (active.icioDash==TRUE) {
             env <- new.env()
             data("ICIO6234APP", package = "icioData", envir = env)
@@ -224,7 +226,7 @@ libs <- c(## "stan",
           "AlgDesign",
           "car",
           ## "d3Network",
-          "networkD3", # using various render* functions - cumbersome with radiant...
+          ## "networkD3", # using various render* functions - cumbersome with radiant...
           "htmlwidgets",
           "data.table",
           "dplyr",
@@ -273,10 +275,13 @@ libs.dev.remote <- c(
     ,
     "rCharts"
     ,
-    "rMaps"
+  "rMaps"
+  ,
+  "networkD3"
     ## ,
     ## "shinyExt"
     ,
+    ## "shinysky"
     "shinysky"
     ,
     "stan"
@@ -292,13 +297,14 @@ if(length(inst.libs.dev.remote) != 0) {
     set_config(config(ssl.verifypeer = 0L))
     for (lib in inst.libs.dev.remote) {
         ## if (lib == "ggthemes") install_github("ggthemes", username = "jrnold")
-        if (lib == "ggthemes") install_github("ggthemes", username = "bowerth")
-        if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
-        if (lib == "rMaps") install_github("rMaps", username = "bowerth")
+        if (lib == "ggthemes") install_github("bowerth/ggthemes")
+        if (lib == "networkD3") install_github("bowerth/networkD3")
+        if (lib == "rCharts") install_github("ramnathv/rCharts")
+        if (lib == "rMaps") install_github("bowerth/rMaps")
         ## if (lib == "shinyExt") install_github("shinyExt", username = "marcionicolau")
-        if (lib == "shinysky") install_github("shinysky", username = "AnalytixWare")
-        if (lib == "stan") install_github("stan", username = "bowerth")
-        if (lib == "stanApi") install_github("stanApi", username = "bowerth")
+        if (lib == "shinysky") install_github("AnalytixWare/ShinySky")
+        if (lib == "stan") install_github("bowerth/stan")
+        if (lib == "stanApi") install_github("bowerth/stanApi")
         ## if (lib == "rCharts") install_github("rCharts", username = "ramnathv")
         ## if (lib == "RJSDMX") install_github("RJSDMX", username = "bowerth")
         ## if (lib == "R-Websockets") install_github("R-Websockets", username = "rstudio")
@@ -336,18 +342,28 @@ if (Sys.info()["sysname"]=="Linux") {
 ## pander for pretty printing of data and analysis output
 ## panderOptions('digits',3)
 
+libs.data <- c("icioData",
+               "stanData",
+               "skillData")
+available.data <- suppressWarnings(sapply(libs.data, require, character.only=TRUE))
+inst.libs.data <- libs.data[available.data == FALSE]
+if(length(inst.libs.data) != 0) {
+  require(devtools)
+  sapply(file.path(dbpath, "GitHub", inst.libs.data), FUN = "install") 
+  detach("package:devtools", unload = TRUE)
+}
+
 ## check if all packages in libs are available
 available <- suppressWarnings(sapply(libs, require, character.only=TRUE))
 inst.libs <- libs[available == FALSE]
-if(length(inst.libs) != 0)
-    {
-        install.packages(inst.libs, dependencies = TRUE)
-        ## build from source files in miniCRAN
-        ## install.packages(pkgs = inst.libs, repos = file.path("file://", dbpath, "miniCRAN"), type = "source", dependencies = TRUE) # dbpath.server
+if(length(inst.libs) != 0) {
+  install.packages(inst.libs, dependencies = TRUE)
+  ## build from source files in miniCRAN
+  ## install.packages(pkgs = inst.libs, repos = file.path("file://", dbpath, "miniCRAN"), type = "source", dependencies = TRUE) # dbpath.server
 
-        ## suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
-        sapply(inst.libs, require, character.only=TRUE)
-    }
+  ## suppressWarnings(sapply(inst.libs, require, character.only=TRUE))
+  sapply(inst.libs, require, character.only=TRUE)
+}
 
 ## binding for a text input that updates when the return key is pressed
 returnTextInput <- function(inputId, label, value = "") {

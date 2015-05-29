@@ -5,52 +5,67 @@
 ## rendered UIs: output$uisB_[]
 #######################################
 
+## see installation script at
+## ~/LocalData/Dropbox/GitHub/desk/inst/industry/tools/indic/sdmxBrowser.R
+
 ui.sdmxBrowser.col <- c("#4F81BD", "#C0504D", "#9BBB59", "#8064A2", "#4BACC6", "#F79646")
 ui.sdmxBrowser.year <- c(1970, as.numeric(as.character((format(Sys.time(), "%Y")))) + 2)
 
 ## create list with flows by provider
 ui.sdmxbrowser_provider <- getProviders()
-toString(ui.sdmxbrowser_provider)
+## remove providers known to have issues
+ui.sdmxbrowser_provider <- ui.sdmxbrowser_provider[!ui.sdmxbrowser_provider%in%c("OECD", "OECD_RESTR", "NBB", "ISTAT")]
+ui.sdmxbrowser_provider <- ui.sdmxbrowser_provider[!ui.sdmxbrowser_provider%in%c("ILO", "BIS")]
+## working: ECB, INEGI, EUROSTAT, IMF
+## toString(ui.sdmxbrowser_provider)
 
 ## provider <- ui.sdmxbrowser_provider[3]
-## getFlows("EUROSTAT")
-## for (provider in ui.sdmxbrowser_provider) {
+## providers <- ui.sdmxbrowser_provider
+## providers <- providers[!providers%in%c("OECD", "OECD_RESTR", "NBB", "ISTAT")] # INEGI slow, may need to query in browser first
+## providers <- c("ABS", "INEGI")
+## for (provider in providers) {
+##     print(provider)
+##     flows <- getFlows(provider)
+##     print(flows[1:3])
+## }
+
+## ## for (provider in ui.sdmxbrowser_provider) {
+## for (provider in providers) {
 ##     flows <- getFlows(provider)
 ##     flows
 ##     names <- names(flows)
 ##     df <- data.frame(ID = names, Label = unlist(flows))
-##     table <- kable(df, format = "markdown", row.names = FALSE, output = FALSE)
+##     table <- knitr::kable(df, format = "markdown", row.names = FALSE, output = FALSE)
 ##     cat(paste0('\n', provider, '\n\n'))
 ##     cat(table, sep = '\n')
 ## }
 
-ui.sdmxBrowser.flows.list <- NULL
-## provider <- "IMF"
-## p <- 1
-for (p in seq(along = ui.sdmxbrowser_provider)) {
-    provider <- sort(ui.sdmxbrowser_provider)[p]
-    flows <- sort(names(getFlows(provider)))
-    ## ISTAT contains no flows
-    ## if (length(flows) > 0) {
-        flows <- list(flows)
-        names(flows) <- provider
-        ui.sdmxBrowser.flows.list <- c(ui.sdmxBrowser.flows.list, flows)
-    ## }
-}
-save(ui.sdmxBrowser.flows.list, file = "data/data_init/sdmxBrowser.rda")
+## ui.sdmxBrowser.flows.list <- NULL
+## ## provider <- "IMF"
+## ## p <- 1
+## for (p in seq(along = ui.sdmxbrowser_provider)) {
+##     provider <- sort(ui.sdmxbrowser_provider)[p]
+##     flows <- sort(names(getFlows(provider)))
+##     ## ISTAT contains no flows
+##     ## if (length(flows) > 0) {
+##         flows <- list(flows)
+##         names(flows) <- provider
+##         ui.sdmxBrowser.flows.list <- c(ui.sdmxBrowser.flows.list, flows)
+##     ## }
+## }
+## save(ui.sdmxBrowser.flows.list, file = "data/data_init/sdmxBrowser.rda")
 
 ## flow list
 load("data/data_init/sdmxBrowser.rda")
 
-##
-output$uisB_provider <- renderUI({
-    ui.sdmxbrowser_provider <- getProviders()
-    selectInput("sdmxbrowser_provider", "Provider:", ui.sdmxbrowser_provider,
-                ## selected = state_init_list("sdmxbrowser_provider","EUROSTAT", ui.sdmxbrowser_provider),
-                selected = "OECD",
-                multiple = FALSE)
-})
-##
+## output$uisB_provider <- renderUI({
+##     ## ui.sdmxbrowser_provider <- getProviders()
+##     selectInput("sdmxbrowser_provider", "Provider:", ui.sdmxbrowser_provider,
+##                 ## selected = state_init_list("sdmxbrowser_provider","EUROSTAT", ui.sdmxbrowser_provider),
+##                 selected = "OECD",
+##                 multiple = FALSE)
+## })
+
 output$uisB_flow <- renderUI({
 
     sdmxbrowser_provider <- input$sdmxbrowser_provider
@@ -157,41 +172,46 @@ output$ui_sdmxBrowser <- renderUI({
     ## doLogin()
     ## if (loginData$LoggedIn) {
 
-  list(
-    conditionalPanel(condition = "input.tabs_sdmxBrowser!='DataTables'",
-                     wellPanel(
-                       checkboxInput("sdmxbrowser_viz_plot_controls", "Plot options", FALSE),
-                       conditionalPanel(condition = "input.sdmxbrowser_viz_plot_controls==true",
-                                        ## htmlOutput("ui_plot_options"),
-                                        sliderInput(inputId = "sdmxBrowser_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 500, step = 50),
-                                        sliderInput(inputId = "sdmxBrowser_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 850, step = 50)
-                                        )
-                       )
-                     )
-    ,
-    wellPanel(
-      uiOutput("uisB_query"),
-      ## actionButton("sdmxbrowser_querySendButton", "Send query"),
-      shinysky::actionButton("sdmxbrowser_querySendButton", "Submit Query", styleclass="success",icon = NULL, size = "large", block = TRUE),
-      helpText("Click button to retrieve values"),
-      downloadButton('download_sdmxBrowser', 'Download CSV')
-      ),
-    wellPanel(
-      h5("SDMX Query Builder"),
-      uiOutput("uisB_provider"),
-      uiOutput("uisB_flow"),
-      actionButton("sdmxbrowser_flow_updateButton", "Update Flows"),
-      wellPanel(
-        uiOutput("uisB_dimensions"),
-        uiOutput("uisB_dimensioncodes")
+    list(
+        conditionalPanel(condition = "input.tabs_sdmxBrowser!='DataTables'",
+                         wellPanel(
+                             checkboxInput("sdmxbrowser_viz_plot_controls", "Plot options", FALSE),
+                             conditionalPanel(condition = "input.sdmxbrowser_viz_plot_controls==true",
+                                              ## htmlOutput("ui_plot_options"),
+                                              sliderInput(inputId = "sdmxBrowser_viz_plot_height", label = "Height:", min = 400, max = 1000, value = 500, step = 50),
+                                              sliderInput(inputId = "sdmxBrowser_viz_plot_width", label = "Width:", min = 400, max = 1200, value = 850, step = 50)
+                                              )
+                         )
+                         )
+       ,
+        wellPanel(
+            uiOutput("uisB_query"),
+            ## actionButton("sdmxbrowser_querySendButton", "Send query"),
+            shinysky::actionButton("sdmxbrowser_querySendButton", "Submit Query", styleclass="success",icon = NULL, size = "large", block = TRUE),
+            helpText("Click button to retrieve values"),
+            downloadButton('download_sdmxBrowser', 'Download CSV')
         ),
-      sliderInput(inputId = "sdmxbrowser_yearStartEnd", label = "Period:",
-                  min = 1970,
-                  max = 2015,
-                  value = c(2000, 2012),
-                  format = "####")
-      ),
-    helpAndReport("SDMX Browser","sdmxBrowser",inclMD("tools/help/sdmxBrowser.md"))
+        wellPanel(
+            h5("SDMX Query Builder"),
+            ## uiOutput("uisB_provider"),
+            selectInput("sdmxbrowser_provider", "Provider:", ui.sdmxbrowser_provider,
+                        ## selected = state_init_list("sdmxbrowser_provider","EUROSTAT", ui.sdmxbrowser_provider),
+                        selected = "EUROSTAT", # "OECD"
+                        multiple = FALSE)
+           ,
+            uiOutput("uisB_flow"),
+            actionButton("sdmxbrowser_flow_updateButton", "Update Flows"),
+            wellPanel(
+                uiOutput("uisB_dimensions"),
+                uiOutput("uisB_dimensioncodes")
+            ),
+            sliderInput(inputId = "sdmxbrowser_yearStartEnd", label = "Period:",
+                        min = 1970,
+                        max = 2015,
+                        value = c(2000, 2012),
+                        format = "####")
+        ),
+        helpAndReport("SDMX Browser","sdmxBrowser",inclMD("tools/help/sdmxBrowser.md"))
     ) # list(...
 
     ## } else

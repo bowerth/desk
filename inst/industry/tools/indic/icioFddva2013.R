@@ -805,17 +805,13 @@ icioFddva2013 <- function(iciofddva_coef = iciofddva_coef,
   ## if (iciofddva_dimS == "ind")
   ##   {
   conv.cou <- array(0, dim = c(ui.icioFddva2013.noind, ui.icioFddva2013.nocou * ui.icioFddva2013.noind)) # 37 x 2146
-  for (i in c(1:ui.icioFddva2013.noind))
-    {
-      if (as.numeric(iciofddva_couS) <= ui.icioFddva2013.nocou)
-        {
+  for (i in c(1:ui.icioFddva2013.noind)) {
+      if (as.numeric(iciofddva_couS) <= ui.icioFddva2013.nocou) {
           conv.cou[i, (as.numeric(iciofddva_couS)-1)*ui.icioFddva2013.noind + i] <- 1
-        } else if (as.numeric(iciofddva_couS) >= 59)
-          {
+        } else if (as.numeric(iciofddva_couS) >= 59) {
             ## agg.ind <- ui.icioFddva2013.secagg[ui.icioFddva2013.secagg$id==iciofddva_indS,3:4]
             agg.couS <- ui.icioFddva2013.namereg.agg[[as.numeric(iciofddva_couS)]]
-            for (j in seq(along=agg.couS))
-              {
+            for (j in seq(along=agg.couS)) {
                 conv.cou[i, (agg.couS[j]-1)*ui.icioFddva2013.noind + i] <- 1
               }
           }

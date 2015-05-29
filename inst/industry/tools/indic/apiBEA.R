@@ -3,8 +3,8 @@
 ## require(RCurl)
 ## require(rjson)
 ## configuration
-ui.apiBEA.proxy <- "wsg-proxy.oecd.org:80"
-## ui.apiBEA.proxy <- ""
+## ui.apiBEA.proxy <- "wsg-proxy.oecd.org:80"
+ui.apiBEA.proxy <- ""
 ui.apiBEA.curl <- getCurlHandle()
 curlSetOpt(.opts = list(proxy = ui.apiBEA.proxy), curl = ui.apiBEA.curl)
 ui.apiBEA.apikey <- "7023E825-15FF-488D-B8D9-D70E6F67D439"

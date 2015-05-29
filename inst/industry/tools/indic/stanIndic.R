@@ -825,13 +825,17 @@ download_stanIndic <- function(result = .stanIndic(), zipfile = fname)
                                        result$stanindic_pivotRow
                                        )
 
-    nameindic <- result$nameindic
+
+    nameindic <- gsub(", ", "_", toString(result$nameindic))
 
     tempdir = tempdir()
     unlink(paste0(tempdir, list.files(tempdir)))
     file.remove(file.path(tempdir, list.files(tempdir)))
 
     file <- file.path(tempdir, paste0('stanIndic_', nameindic, '.csv'))
+
+    ## print(data.table)
+    ## print(file)
 
     write.csv(data.table, file, row.names = FALSE, na = "")
 
